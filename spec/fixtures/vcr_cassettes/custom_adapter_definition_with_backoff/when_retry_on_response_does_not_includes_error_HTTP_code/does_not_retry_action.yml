@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://www.mocky.io/v2/5e2137332f00004e0077d4c9
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - www.mocky.io
+  response:
+    status:
+      code: 408
+      message: Request Timeout
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Mon, 17 May 2021 11:13:23 GMT
+      Content-Length:
+      - '0'
+      Sozu-Id:
+      - 01F5X0FM3DH1T4SEJEVDPVEB59
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Mon, 17 May 2021 11:13:22 GMT
+recorded_with: VCR 3.0.3

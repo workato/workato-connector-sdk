@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://httpbin.org/anything
+    body:
+      encoding: ASCII-8BIT
+      string: "------RubyFormBoundary7nkUA9Pg9SQyeJK8\r\nContent-Disposition: form-data;
+        name=\"file_part\"; filename=\"lorem.txt\"\r\nContent-Type: text/ascii\r\n\r\nlorem
+        ipsum\r\n------RubyFormBoundary7nkUA9Pg9SQyeJK8--\r\n"
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Content-Length:
+      - '195'
+      Content-Type:
+      - multipart/form-data; boundary=----RubyFormBoundary7nkUA9Pg9SQyeJK8
+      Host:
+      - httpbin.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 May 2021 14:41:28 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '614'
+      Connection:
+      - keep-alive
+      Server:
+      - gunicorn/19.9.0
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+    body:
+      encoding: UTF-8
+      string: "{\n  \"args\": {}, \n  \"data\": \"\", \n  \"files\": {\n    \"file_part\":
+        \"lorem ipsum\"\n  }, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\":
+        \"application/json\", \n    \"Accept-Encoding\": \"gzip, deflate\", \n    \"Content-Length\":
+        \"195\", \n    \"Content-Type\": \"multipart/form-data; boundary=----RubyFormBoundary7nkUA9Pg9SQyeJK8\",
+        \n    \"Host\": \"httpbin.org\", \n    \"User-Agent\": \"rest-client/2.0.2
+        (darwin20.3.0 x86_64) ruby/2.4.10p364\", \n    \"X-Amzn-Trace-Id\": \"Root=1-60940018-579c0c727dd5ba1a270e7eb8\"\n
+        \ }, \n  \"json\": null, \n  \"method\": \"POST\", \n  \"origin\": \"196.240.57.100,
+        163.116.178.118\", \n  \"url\": \"http://httpbin.org/anything\"\n}\n"
+    http_version:
+  recorded_at: Thu, 06 May 2021 14:41:28 GMT
+recorded_with: VCR 3.0.3

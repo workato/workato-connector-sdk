@@ -1,0 +1,30 @@
+---
+Table 5:
+  :id: '5'
+  :rows:
+    - Column1: Column1 Value1
+      Column2: Column2 Value2
+    - Column1: COL-1 Value3
+      Column2: COL-2 Value4
+Table 6:
+  id: 6
+  rows:
+    - Column3: Column3 Value1
+      Column4: Column4 Value2
+    - Column3: Column3 Value3
+      Column4: Column4 Value4
+countries:
+  id: 7
+  rows:
+    - code: US
+      name: USA
+      pop: 100
+      continent: AM
+    - code: IN
+      name: India
+      pop: 200
+      continent: AS
+    - code: CH
+      name: China
+      pop: 99999999999
+      continent: AS

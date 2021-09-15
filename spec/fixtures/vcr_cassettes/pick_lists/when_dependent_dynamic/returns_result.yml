@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://httpbin.org/anything?index=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - httpbin.org
+      Authorization:
+      - Basic dXNlcjpwYXNzd29yZA==
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 02 Jun 2021 16:07:40 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '578'
+      Connection:
+      - keep-alive
+      Server:
+      - gunicorn/19.9.0
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+    body:
+      encoding: UTF-8
+      string: "{\n  \"args\": {\n    \"index\": \"0\"\n  }, \n  \"data\": \"\", \n
+        \ \"files\": {}, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\": \"application/json\",
+        \n    \"Accept-Encoding\": \"gzip, deflate\", \n    \"Authorization\": \"Basic
+        dXNlcjpwYXNzd29yZA==\", \n    \"Content-Type\": \"application/json\", \n    \"Host\":
+        \"httpbin.org\", \n    \"User-Agent\": \"rest-client/2.0.2 (darwin20.3.0 x86_64)
+        ruby/2.4.10p364\", \n    \"X-Amzn-Trace-Id\": \"Root=1-60b7accc-13e248227e053a4b159cbe27\"\n
+        \ }, \n  \"json\": null, \n  \"method\": \"GET\", \n  \"origin\": \"85.113.58.230,
+        163.116.168.114\", \n  \"url\": \"http://httpbin.org/anything?index=0\"\n}\n"
+    http_version:
+  recorded_at: Wed, 02 Jun 2021 16:07:40 GMT
+recorded_with: VCR 3.0.3

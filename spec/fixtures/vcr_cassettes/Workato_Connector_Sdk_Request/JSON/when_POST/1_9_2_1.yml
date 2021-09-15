@@ -1,0 +1,93 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jsonplaceholder.typicode.com/posts
+    body:
+      encoding: UTF-8
+      string: '{"title":"foo","body":"bar","userId":1}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '39'
+      Host:
+      - jsonplaceholder.typicode.com
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Date:
+      - Wed, 05 May 2021 12:34:02 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '65'
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - __cfduid=d282b8b7910cd8ec7418be8efaa0849bf1620218042; expires=Fri, 04-Jun-21
+        12:34:02 GMT; path=/; domain=.typicode.com; HttpOnly; SameSite=Lax
+      X-Powered-By:
+      - Express
+      X-Ratelimit-Limit:
+      - '1000'
+      X-Ratelimit-Remaining:
+      - '999'
+      X-Ratelimit-Reset:
+      - '1620218092'
+      Vary:
+      - Origin, X-HTTP-Method-Override, Accept-Encoding
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Cache-Control:
+      - no-cache
+      Pragma:
+      - no-cache
+      Expires:
+      - "-1"
+      Access-Control-Expose-Headers:
+      - Location
+      Location:
+      - http://jsonplaceholder.typicode.com/posts/101
+      X-Content-Type-Options:
+      - nosniff
+      Etag:
+      - W/"41-GDNaWfnVU6RZhpLbye0veBaqcHA"
+      Via:
+      - 1.1 vegur
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cf-Request-Id:
+      - '09de1e709c00004aa31119e000000001'
+      Expect-Ct:
+      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+      Report-To:
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=GGGJ9j7q09HCjH37XzPBtFJQMEujox1iwkK5SOvy7pxCdrWNy2aF6x3ZHaSTwwfylGK9oRfWjw67wwLPVA5%2FS%2FdffiT5WpByGWh5qg2WeBTvBsUCIyqKTk39NAtY"}],"group":"cf-nel","max_age":604800}'
+      Nel:
+      - '{"max_age":604800,"report_to":"cf-nel"}'
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 64aa002dcd654aa3-FRA
+      Alt-Svc:
+      - h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "title": "foo",
+          "body": "bar",
+          "userId": 1,
+          "id": 101
+        }
+    http_version:
+  recorded_at: Wed, 05 May 2021 12:34:02 GMT
+recorded_with: VCR 3.0.3

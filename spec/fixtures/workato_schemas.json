@@ -1,0 +1,17 @@
+{
+  "99": [
+    {
+      "name": "test_object",
+      "type": "object",
+      "optional": false,
+      "properties": [
+        {
+          "name": "Test",
+          "type": "string",
+          "optional": false,
+          "control_type": "text"
+        }
+      ]
+    }
+  ]
+}

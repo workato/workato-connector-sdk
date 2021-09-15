@@ -1,0 +1,84 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://jsonplaceholder.typicode.com/posts?id=100&userId=10
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - jsonplaceholder.typicode.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 May 2021 12:33:59 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - __cfduid=d41f4d5e6504710a42a94abfa124f126f1620218039; expires=Fri, 04-Jun-21
+        12:33:59 GMT; path=/; domain=.typicode.com; HttpOnly; SameSite=Lax
+      X-Powered-By:
+      - Express
+      X-Ratelimit-Limit:
+      - '1000'
+      X-Ratelimit-Remaining:
+      - '998'
+      X-Ratelimit-Reset:
+      - '1620125390'
+      Vary:
+      - Origin, Accept-Encoding
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Cache-Control:
+      - max-age=43200
+      Pragma:
+      - no-cache
+      Expires:
+      - "-1"
+      X-Content-Type-Options:
+      - nosniff
+      Etag:
+      - W/"106-AbapSgcu4MKsanVu8/m5reKm/rI"
+      Via:
+      - 1.1 vegur
+      Cf-Cache-Status:
+      - HIT
+      Age:
+      - '13159'
+      Cf-Request-Id:
+      - '09de1e63c7000005bf04a23000000001'
+      Expect-Ct:
+      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=KPSncU9zPd5vnTalS9zoWfb7rvutuIF8BqIK1ihcSwn1MihoywB8NUqm9rXp89QeESVRJLZfYbIslquyA15xe%2BkUEKVt%2BQY3joNcuLKhd9SQdNg%2Bq%2BVCqWRuo28Q"}]}'
+      Nel:
+      - '{"report_to":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 64aa0019398c05bf-FRA
+      Content-Encoding:
+      - gzip
+      Alt-Svc:
+      - h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAzWOQWrDQBAE73pFs+cckqt/4DdEObR3h3hAOyvtzARCyN+DsHPraqim3xfgZwGAki7z2soFb68vj0Yf9I+hsUm5oDBg7KjDXI5k5IQQG29jypnunNnL07qN9n1KNXdtGgzBkQPiAaKPpjDxqmkBH1sGV9Pdia+x5R50yJxjQoNHCprWINRWY4Z0HKnoauno/DxPSaCph1oNHZDsq7HWdPZ0TIYOk+ckM8oC/C4ff79U16sGAQAA
+    http_version:
+  recorded_at: Wed, 05 May 2021 12:33:59 GMT
+recorded_with: VCR 3.0.3

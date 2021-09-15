@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://httpbin.org/anything
+    body:
+      encoding: UTF-8
+      string: body=bar&title=foo&userId=1
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Content-Length:
+      - '27'
+      Host:
+      - httpbin.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 May 2021 14:41:32 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '608'
+      Connection:
+      - keep-alive
+      Server:
+      - gunicorn/19.9.0
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+    body:
+      encoding: UTF-8
+      string: "{\n  \"args\": {}, \n  \"data\": \"\", \n  \"files\": {}, \n  \"form\":
+        {\n    \"body\": \"bar\", \n    \"title\": \"foo\", \n    \"userId\": \"1\"\n
+        \ }, \n  \"headers\": {\n    \"Accept\": \"application/json\", \n    \"Accept-Encoding\":
+        \"gzip, deflate\", \n    \"Content-Length\": \"27\", \n    \"Content-Type\":
+        \"application/x-www-form-urlencoded\", \n    \"Host\": \"httpbin.org\", \n
+        \   \"User-Agent\": \"rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364\",
+        \n    \"X-Amzn-Trace-Id\": \"Root=1-6094001c-0c8fda4d3535ab3d68574729\"\n
+        \ }, \n  \"json\": null, \n  \"method\": \"POST\", \n  \"origin\": \"196.240.57.100,
+        163.116.178.118\", \n  \"url\": \"http://httpbin.org/anything\"\n}\n"
+    http_version:
+  recorded_at: Thu, 06 May 2021 14:41:33 GMT
+recorded_with: VCR 3.0.3

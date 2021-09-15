@@ -1,0 +1,135 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://www.mocky.io/v2/5e21390b2f0000780077d4cc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - www.mocky.io
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Mon, 17 May 2021 11:13:54 GMT
+      Content-Length:
+      - '0'
+      Sozu-Id:
+      - 01F5X0GJZESET4EF0Z4T3WK3C7
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Mon, 17 May 2021 11:13:54 GMT
+- request:
+    method: get
+    uri: http://www.mocky.io/v2/5e21390b2f0000780077d4cc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - www.mocky.io
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Mon, 17 May 2021 11:13:54 GMT
+      Content-Length:
+      - '0'
+      Sozu-Id:
+      - 01F5X0GK8P962GBDPNBPA0JE5X
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Mon, 17 May 2021 11:13:54 GMT
+- request:
+    method: get
+    uri: http://www.mocky.io/v2/5e21390b2f0000780077d4cc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - www.mocky.io
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Mon, 17 May 2021 11:13:55 GMT
+      Content-Length:
+      - '0'
+      Sozu-Id:
+      - 01F5X0GKJ5SP3CJKVVAHNW8THP
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Mon, 17 May 2021 11:13:55 GMT
+- request:
+    method: get
+    uri: http://www.mocky.io/v2/5e21390b2f0000780077d4cc
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - www.mocky.io
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json; charset=UTF-8
+      Date:
+        - Mon, 17 May 2021 10:50:33 GMT
+      Content-Length:
+        - '19'
+      Sozu-Id:
+        - 01F5WZ5V2D2P5YYNRVG1RVRJPJ
+    body:
+      encoding: UTF-8
+      string: '{ "success": true }'
+    http_version:
+  recorded_at: Mon, 17 May 2021 11:13:55 GMT
+recorded_with: VCR 3.0.3

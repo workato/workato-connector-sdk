@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+module Workato
+  module Extension
+    module Phone
+      def to_phone(options = {})
+        ActiveSupport::NumberHelper::NumberToPhoneConverter(self, options).to_s
+      end
+    end
+  end
+end
+
+String.include(Workato::Extension::Phone)
+Integer.include(Workato::Extension::Phone)

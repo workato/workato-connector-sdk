@@ -1,0 +1,163 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://lvh.me:1080/posts?after_id=0&per_page=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - lvh.me:1080
+      Authorization:
+      - Basic dXNlcjpwYXNzd29yZA==
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |-
+        [ {
+          "id" : 1,
+          "title" : "Post #1"
+        }, {
+          "id" : 2,
+          "title" : "Post #2"
+        } ]
+    http_version:
+  recorded_at: Fri, 04 Jun 2021 09:16:28 GMT
+- request:
+    method: get
+    uri: http://lvh.me:1080/posts?after_id=0&per_page=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - lvh.me:1080
+      Authorization:
+      - Basic dXNlcjpwYXNzd29yZA==
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |-
+        [ {
+          "id" : 1,
+          "title" : "Post #1"
+        }, {
+          "id" : 2,
+          "title" : "Post #2"
+        } ]
+    http_version:
+  recorded_at: Fri, 04 Jun 2021 09:16:28 GMT
+- request:
+    method: get
+    uri: http://lvh.me:1080/posts?after_id=0&per_page=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - lvh.me:1080
+      Authorization:
+      - Basic dXNlcjpwYXNzd29yZA==
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |-
+        [ {
+          "id" : 1,
+          "title" : "Post #1"
+        }, {
+          "id" : 2,
+          "title" : "Post #2"
+        } ]
+    http_version:
+  recorded_at: Fri, 04 Jun 2021 09:16:28 GMT
+- request:
+    method: get
+    uri: http://lvh.me:1080/posts?after_id=0&per_page=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - lvh.me:1080
+      Authorization:
+      - Basic dXNlcjpwYXNzd29yZA==
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |-
+        [ {
+          "id" : 1,
+          "title" : "Post #1"
+        }, {
+          "id" : 2,
+          "title" : "Post #2"
+        } ]
+    http_version:
+  recorded_at: Fri, 04 Jun 2021 09:16:28 GMT
+recorded_with: VCR 3.0.3

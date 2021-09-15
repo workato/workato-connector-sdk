@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://reqbin.com/echo/post/xml
+    body:
+      encoding: UTF-8
+      string: "<Request><Login>login</Login><Password>password</Password></Request>"
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Content-Type:
+      - application/xml
+      Content-Length:
+      - '68'
+      Host:
+      - reqbin.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 May 2021 12:34:04 GMT
+      Content-Type:
+      - application/xml; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Set-Cookie:
+      - __cfduid=dd7aebf64df2dd011458c31521af44a281620218044; expires=Fri, 04-Jun-21
+        12:34:04 GMT; path=/; domain=.reqbin.com; HttpOnly; SameSite=Lax; Secure
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cf-Request-Id:
+      - '09de1e77dd000000d6e8a98000000001'
+      Expect-Ct:
+      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=waZBB31Oh6%2F3NG71BaRXDB7ojdvtori5b9Z6Ct1jLnICtIoZlRcIlOw%2ByPn6yk0nZZGNdxQxyQdn3E3lvlMiVUXHdb46LkE4C%2FQ2"}]}'
+      Nel:
+      - '{"report_to":"cf-nel","max_age":604800}'
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 64aa00396c9800d6-AMS
+      Content-Encoding:
+      - gzip
+      Alt-Svc:
+      - h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA7Kxr8jNUShLLSrOzM+zVTLUM1BSSM1Lzk/JzEu3VSotSdO1ULK3swlKLS7IzytOtVNQgLOd81NS7Qxs9FH4SPK+qcXFiempdsGlycmpxcUIhTAJhIgdAAAA//8DAD2UCiWHAAAA
+    http_version:
+  recorded_at: Wed, 05 May 2021 12:34:04 GMT
+recorded_with: VCR 3.0.3

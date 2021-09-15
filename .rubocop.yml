@@ -1,0 +1,62 @@
+inherit_from: ./.rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 2.4
+  NewCops: enable
+  SuggestExtensions: false
+
+Metrics/ParameterLists:
+  Description: Avoid parameter lists longer than three or four parameters.
+  StyleGuide: https://github.com/bbatsov/ruby-style-guide#too-many-params
+  Enabled: false
+  Max: 5
+  CountKeywordArgs: true
+
+Naming/FileName:
+  Exclude:
+    - lib/workato-connector-sdk.rb
+
+Metrics/MethodLength:
+  Max: 30
+  Exclude:
+    - spec/**/*
+
+Metrics/BlockLength:
+  Exclude:
+    - workato-connector-sdk.gemspec
+    - spec/**/*
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - spec/**/*
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Max: 25
+
+Metrics/PerceivedComplexity:
+  Max: 25
+
+Metrics/AbcSize:
+  Enabled: false
+
+Lint/MissingSuper:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Style/CaseEquality:
+  Enabled: false
+
+Style/MissingRespondToMissing:
+  Exclude:
+    - lib/workato/connector/sdk/request.rb
+
+Style/RescueModifier:
+  Enabled: false

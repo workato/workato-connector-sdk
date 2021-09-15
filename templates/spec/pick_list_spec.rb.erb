@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+RSpec.describe 'pick_lists/<%= name %>', :vcr do
+
+  # Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/rspec-commands.html
+
+  let(:connector) { Workato::Connector::Sdk::Connector.from_file('connector.rb', settings) }
+  let(:settings) { Workato::Connector::Sdk::Settings.from_default_file }
+
+  subject(:pick_list) { connector.pick_lists.<%= name %>(settings) }
+
+  pending 'add some examples'
+end

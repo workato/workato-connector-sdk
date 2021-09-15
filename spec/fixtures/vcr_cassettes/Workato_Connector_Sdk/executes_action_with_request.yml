@@ -1,0 +1,53 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://ifconfig.me/all.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - ifconfig.me
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Access-Control-Allow-Origin:
+      - "*"
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '337'
+      Date:
+      - Thu, 10 Jun 2021 09:46:13 GMT
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - clear
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "ip_addr": "10.11.12.13",
+          "remote_host": "unavailable",
+          "user_agent": "rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364",
+          "port": 53930,
+          "method": "GET",
+          "encoding": "gzip, deflate",
+          "mime": "application/json",
+          "via": "1.1 google",
+          "forwarded": "85.113.58.230, 163.116.178.113, 34.117.59.81,35.191.3.128"
+        }
+    http_version:
+  recorded_at: Thu, 10 Jun 2021 09:46:13 GMT
+recorded_with: VCR 3.0.3

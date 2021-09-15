@@ -1,0 +1,6 @@
+My Valid Connection:
+  user: user
+  password: password
+My Invalid Connection:
+  user: user
+  password: invalid

@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://lvh.me:9876/
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      X-Header-1:
+      - x-hEaDer-1
+      X-Header-2:
+      - x_hEaDer-2
+      Content-Type:
+      - application/json
+      X-Header-3:
+      - x-hEaDer-3
+      X-Header-4:
+      - x-hEaDer-4
+      Host:
+      - lvh.me:9876
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Header-1:
+      - x-hEaDer-1
+      X-Header-2:
+      - x_hEaDer-2
+      X-Header-3:
+      - x-hEaDer-3
+      X-Header-4:
+      - x-hEaDer-4
+    body:
+      encoding: UTF-8
+      string: |-
+        X-Header-1: x-hEaDer-1
+        X_header-2: x_hEaDer-2
+        x-hEaDer-3: x-hEaDer-3
+        x_hEaDer-4: x-hEaDer-4
+    http_version:
+  recorded_at: Wed, 05 May 2021 12:25:59 GMT
+recorded_with: VCR 3.0.3
