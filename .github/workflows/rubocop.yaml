@@ -14,12 +14,8 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.4'
+          ruby-version: '2.5'
           bundler-cache: true
-
-      # Required to install `rubocop` on Ruby 2.4.
-      # TODO: Remove after upgrading Ruby to 2.5 or newer.
-      - run: gem install rubocop-ast -v '1.4.1'
 
       - name: Run Rubocop
         uses: reviewdog/action-rubocop@v1

@@ -13,7 +13,13 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Gem for running adapter's code outside Workato infrastructure"
   spec.description   = 'Reproduce key concepts of Workato SDK, DSL, behavior and constraints.'
-  spec.homepage      = 'https://docs.workato.com/developing-connectors/sdk.html'
+  spec.homepage      = 'https://www.workato.com/'
+  spec.metadata      = {
+    'bug_tracker_uri' => 'https://support.workato.com/',
+    'documentation_uri' => 'https://docs.workato.com/developing-connectors/sdk/cli.html',
+    'homepage_uri' => 'https://www.workato.com/',
+    'source_code_uri' => 'https://github.com/workato/workato-connector-sdk'
+  }
 
   spec.files         = Dir['README.md', 'LICENSE.md', 'lib/**/*', 'exe/workato', 'templates/**/*'] +
                        [
@@ -30,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'currencies', '= 0.4.2'
   spec.add_runtime_dependency 'gyoku', '= 1.3.1'
   spec.add_runtime_dependency 'jwt', '= 1.5.6'
-  spec.add_runtime_dependency 'loofah', '= 2.9.1'
+  spec.add_runtime_dependency 'loofah', '= 2.12.0'
   spec.add_runtime_dependency 'net-http-digest_auth', '= 1.4.0'
   spec.add_runtime_dependency 'nokogiri', '= 1.10.10'
   spec.add_runtime_dependency 'rest-client', '= 2.0.2'
