@@ -95,7 +95,7 @@ module Workato
       desc 'generate <SUBCOMMAND>', 'Generates code from template'
       subcommand('generate', GenerateCommand)
 
-      desc 'push <FOLDER>', "Upload and release connector's code"
+      desc 'push', "Upload and release connector's code"
       method_option :title,
                     type: :string,
                     aliases: '-t',
@@ -130,10 +130,12 @@ module Workato
                     enum: Workato::CLI::PushCommand::ENVIRONMENTS.keys,
                     default: 'live',
                     desc: 'Server to push connector code to'
+      method_option :folder,
+                    type: :string,
+                    desc: 'Folder ID if you what to push to folder other than Home'
 
-      def push(folder)
+      def push
         PushCommand.new(
-          folder: folder,
           options: options
         ).call
       end

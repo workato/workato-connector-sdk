@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    workato-connector-sdk (0.1.1)
+    workato-connector-sdk (0.1.2)
       activesupport (~> 5.2)
       countries (= 1.2.2)
       currencies (= 0.4.2)
@@ -108,7 +108,7 @@ GEM
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.7)
+    unf_ext (0.0.8)
     unicode-display_width (2.0.0)
     vcr (3.0.3)
     webmock (3.13.0)

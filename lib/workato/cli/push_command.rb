@@ -3,6 +3,7 @@
 require 'uri'
 require 'ruby-progressbar'
 require 'zip'
+require 'fileutils'
 
 module Workato
   module CLI
@@ -19,6 +20,7 @@ module Workato
         'live-eu' => 'https://app.eu.workato.com'
       }.freeze
 
+      API_USER_PATH = '/api/users/me'
       API_IMPORT_PATH = '/api/packages/import'
       API_PACKAGE_PATH = '/api/packages'
       IMPORT_IN_PROGRESS = 'in_progress'
@@ -30,19 +32,19 @@ module Workato
       AWAIT_IMPORT_SLEEP_INTERVAL = 15 # seconds
       AWAIT_IMPORT_TIMEOUT_INTERVAL = 120 # seconds
 
-      def initialize(folder:, options:)
-        @folder_id = folder
+      def initialize(options:)
         @options = options
         @api_base_url = ENVIRONMENTS.fetch(options[:environment])
         @api_email = options[:api_email] || ENV[WORKATO_API_EMAIL_ENV]
         @api_token = options[:api_token] || ENV[WORKATO_API_TOKEN_ENV]
+        @folder_id = options[:folder]
       end
 
       def call
-        zip_file = build_package
+        zip_file_path = build_package
         say_status :success, 'Build package' if verbose?
 
-        import_id = import_package(zip_file)
+        import_id = import_package(zip_file_path)
         say_status :success, 'Upload package' if verbose?
         say_status :waiting, 'Process package' if verbose?
 
@@ -55,13 +57,12 @@ module Workato
       rescue StandardError => e
         say e.message
       ensure
-        zip_file&.close(true)
+        FileUtils.rm_f(zip_file_path) if zip_file_path
       end
 
       private
 
       attr_reader :options,
-                  :folder_id,
                   :api_token,
                   :api_email,
                   :api_base_url
@@ -78,16 +79,13 @@ module Workato
       end
 
       def build_package
-        zip_file = Tempfile.new(['connector', '.zip'])
-
-        ::Zip::OutputStream.open(zip_file.path) { |_| 'no-op' }
-        ::Zip::File.open(zip_file.path, ::Zip::File::CREATE) do |archive|
-          add_connector(archive)
-          add_manifest(archive)
-          add_logo(archive)
+        ::Dir::Tmpname.create(['connector', '.zip']) do |path|
+          ::Zip::File.open(path, ::Zip::File::CREATE) do |archive|
+            add_connector(archive)
+            add_manifest(archive)
+            add_logo(archive)
+          end
         end
-
-        zip_file
       end
 
       def add_connector(archive)
@@ -110,11 +108,11 @@ module Workato
         end
       end
 
-      def import_package(zip_file)
+      def import_package(zip_file_path)
         url = "#{api_base_url}#{API_IMPORT_PATH}/#{folder_id}"
         response = RestClient.post(
           url,
-          File.open(zip_file.path),
+          File.open(zip_file_path),
           auth_headers.merge(
             'Content-Type' => 'application/zip'
           )
@@ -197,7 +195,21 @@ module Workato
         }
       end
 
+      def folder_id
+        @folder_id ||=
+          begin
+            url = "#{api_base_url}#{API_USER_PATH}"
+            response = RestClient.get(url, auth_headers)
+
+            json = JSON.parse(response.body)
+            json.fetch('root_folder_id').tap do |folder_id|
+              say_status :success, "Fetch root folder ID: #{folder_id}" if verbose?
+            end
+          end
+      end
+
       private_constant :IMPORT_IN_PROGRESS,
+                       :API_USER_PATH,
                        :API_IMPORT_PATH,
                        :API_PACKAGE_PATH,
                        :PACKAGE_ENTRY_NAME,

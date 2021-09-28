@@ -15,6 +15,7 @@ This guide below showcases how you can do the following things:
 1. Install [RVM ("Ruby Version Manager")](http://rvm.io/) or a Ruby manager of your choice. You can find more at [here](https://www.ruby-lang.org/en/documentation/installation/)
 2. Choose between Ruby versions `2.4.10` `2.5.X` or `2.7.X`. Our preferred version is `2.7.X`.
 3. Verify you're running a valid ruby version. Do this by running either `ruby -v` or the commands within your version manager. i.e., `rvm current` if you have installed RVM.
+4. For Windows you need tzinfo-data gem installed as well. `gem install tzinfo-data`
    
 ```bash
 ruby -v
@@ -38,7 +39,7 @@ Commands:
   workato generate <SUBCOMMAND>  # Generates code from template
   workato help [COMMAND]         # Describe available commands or one specific command
   workato new <CONNECTOR_PATH>   # Inits new connector folder
-  workato push <FOLDER>          # Upload and release connector's code
+  workato push                   # Upload and release connector's code
 
 Options:
   [--verbose], [--no-verbose]  
@@ -124,11 +125,11 @@ You don't need to create this file. It'll be created later on. This file just ho
 
 ### 2.5 README.MD
 This file shows up on your Github project (or other Git software you use). Use it to document what your connector does! **Not created via `workato new <PATH>` commands.**
-When you use the `workato push <FOLDER>` command to sync your connector with your Workato workspace, this is the default file for your connector's description.
+When you use the `workato push` command to sync your connector with your Workato workspace, this is the default file for your connector's description.
 
 ### 2.6 logo.png
 The logo of your connector. **Not created via `workato new <PATH>` commands.**
-When you use the `workato push <FOLDER>` command to sync your connector with your Workato workspace, this is the default file for your connector's logo.
+When you use the `workato push` command to sync your connector with your Workato workspace, this is the default file for your connector's logo.
 
 ### 2.7 connector.rb
 Well, this is your actual connector code. This file should be a replica of your connector code in Workato.
@@ -223,7 +224,7 @@ Commands:
   workato generate <SUBCOMMAND>  # Generates code from template
   workato help [COMMAND]         # Describe available commands or one specific command
   workato new <CONNECTOR_PATH>   # Inits new connector folder
-  workato push <FOLDER>          # Upload and release connector's code
+  workato push                   # Upload and release connector's code
 
 Options:
   [--verbose], [--no-verbose]  
@@ -362,7 +363,7 @@ Please select default HTTP mocking behavior suitable for your project?
 workato help push
 
 Usage:
-  workato push <FOLDER>
+  workato push
 
 Options:
   -t, [--title=TITLE]              # Connector title on the Workato Platform
@@ -375,7 +376,8 @@ Options:
       [--environment=ENVIRONMENT]  # Server to push connector code to
                                    # Default: live
                                    # Possible values: preview, preview-eu, live, live-eu
-      [--verbose], [--no-verbose]  
+      [--folder=FOLDER]            # Folder ID if you what to push to folder other than Home
+      [--verbose], [--no-verbose]
 
 Upload and release connector's code
 ```
@@ -1086,8 +1088,7 @@ jobs:
     #   env: 
     #     WORKATO_API_EMAIL: ${{ secrets.WORKATO_DEV_ENVIRONMENT_API_EMAIL}}
     #     WORKATO_API_TOKEN: ${{ secrets.WORKATO_DEV_ENVIRONMENT_API_TOKEN}} 
-    #     WORKATO_API_FOLDER: ${{ secrets.WORKATO_DEV_ENVIRONMENT_API_HOME_FOLDER}} 
-    #   run: workato push $WORKATO_API_FOLDER
+    #   run: workato push
 ```
 
 You may also add more Github actions for rubocop to automate this.

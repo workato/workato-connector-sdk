@@ -30,7 +30,7 @@ module Workato
         def create_spec_files
           template('.rspec.erb', '.rspec')
 
-          @vcr_record_mode = ask(<<~HELP)
+          say(<<~HELP)
             Please select default HTTP mocking behavior suitable for your project?
 
             1 - secure. Cause an error to be raised for any unknown requests, all request recordings are encrypted.
@@ -39,7 +39,10 @@ module Workato
                         Example: VCR_RECORD_MODE=once bundle exec rspec spec/actions/test_action_spec.rb
 
             2 - simple. Record new interaction if it is a new request, requests are stored as plain text and expose secret tokens.
+
           HELP
+
+          @vcr_record_mode = ask('Your choice:')
 
           MasterKeyGenerator.new.call if @vcr_record_mode == '1'
 
