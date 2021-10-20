@@ -11,7 +11,7 @@ RSpec.describe 'actions/<%= name %>', :vcr do
   let(:action) { connector.actions.<%= name %> }
 
   describe 'execute' do
-    subject(:output) { action.execute(settings, input, extended_input_schema, extended_output_schema) }
+    subject(:output) { action.execute(settings, input, extended_input_schema, extended_output_schema, continue) }
 
     pending 'add some examples'
   end

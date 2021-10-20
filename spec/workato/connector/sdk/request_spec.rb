@@ -45,14 +45,16 @@ module Workato::Connector::Sdk
         end
         let(:settings) { { user: 'user', password: 'password' } }
         let(:connection) do
-          {
-            authorization: {
-              apply: lambda { |connection|
-                user(connection[:user])
-                password(connection[:password])
+          Connection.new(
+            connection: {
+              authorization: {
+                apply: lambda { |connection|
+                  user(connection[:user])
+                  password(connection[:password])
+                }
               }
             }
-          }
+          )
         end
 
         it { is_expected.to include('authenticated' => true) }
@@ -62,7 +64,7 @@ module Workato::Connector::Sdk
     context 'with base_uri' do
       let(:uri) { '/posts' }
       let(:base_uri) { ->(connection) { "https://#{connection[:host]}" } }
-      let(:connection) { { base_uri: base_uri } }
+      let(:connection) { Connection.new(connection: { base_uri: base_uri }) }
       let(:settings) { { host: 'jsonplaceholder.typicode.com' } }
       let(:request) { described_class.new(uri, connection: connection, settings: settings.with_indifferent_access) }
 
@@ -241,7 +243,7 @@ module Workato::Connector::Sdk
           action: action
         ).format_json
       end
-      let(:connection) { { authorization: authorization } }
+      let(:connection) { Connection.new(connection: { authorization: authorization }) }
       let(:settings) { { user: 'user', password: 'password' } }
       let(:action) { Action.new(action: {}) }
 

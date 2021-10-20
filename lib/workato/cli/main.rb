@@ -6,6 +6,7 @@ require_relative './exec_command'
 require_relative './edit_command'
 require_relative './generate_command'
 require_relative './push_command'
+require_relative './oauth2_command'
 require_relative './generators/connector_generator'
 require_relative './generators/master_key_generator'
 
@@ -42,6 +43,7 @@ module Workato
                           "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
       method_option :input, type: :string, aliases: '-i', desc: 'Path to file with input JSON'
       method_option :closure, type: :string, desc: 'Path to file with next poll closure JSON'
+      method_option :continue, type: :string, desc: 'Path to file with next multistep action continue closure JSON'
       method_option :args, type: :string, aliases: '-a', desc: 'Path to file with method arguments JSON'
       method_option :extended_input_schema, type: :string,
                                             desc: 'Path to file with extended input schema definition JSON'
@@ -53,6 +55,9 @@ module Workato
       method_option :webhook_headers, type: :string, desc: 'Path to file with webhook headers JSON'
       method_option :webhook_url, type: :string, desc: 'Webhook URL for automatic webhook subscription'
       method_option :output, type: :string, aliases: '-o', desc: 'Write output to JSON file'
+      method_option :oauth2_code, type: :string, desc: 'OAuth2 code exchange to tokens pair'
+      method_option :redirect_url, type: :string, desc: 'OAuth2 callback url'
+      method_option :refresh_token, type: :string, desc: 'OAuth2 refresh token'
 
       method_option :debug, type: :boolean
 
@@ -136,6 +141,46 @@ module Workato
 
       def push
         PushCommand.new(
+          options: options
+        ).call
+      end
+
+      desc 'oauth2', 'Implements OAuth Authorization Code flow'
+
+      method_option :connector,
+                    type: :string,
+                    aliases: '-c',
+                    desc: 'Path to connector source code',
+                    lazy_default: Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH
+      method_option :settings,
+                    type: :string,
+                    aliases: '-s',
+                    desc: 'Path to plain or encrypted file with connection configs, passwords, tokens, secrets etc',
+                    lazy_default: Workato::Connector::Sdk::DEFAULT_ENCRYPTED_SETTINGS_PATH
+      method_option :connection,
+                    type: :string,
+                    aliases: '-n',
+                    desc: 'Connection name if settings file contains multiple settings'
+      method_option :key,
+                    type: :string,
+                    aliases: '-k',
+                    lazy_default: Workato::Connector::Sdk::DEFAULT_MASTER_KEY_PATH,
+                    desc: 'Path to file with encrypt/decrypt key. '\
+                          "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
+      method_option :port,
+                    type: :string,
+                    desc: 'Listen requests on specific port',
+                    default: Workato::CLI::OAuth2Command::DEFAULT_PORT
+      method_option :ip,
+                    type: :string,
+                    desc: 'Listen requests on specific interface',
+                    default: Workato::CLI::OAuth2Command::DEFAULT_ADDRESS
+      method_option :https,
+                    type: :boolean,
+                    desc: 'Start HTTPS server using self-signed certificate'
+
+      def oauth2
+        OAuth2Command.new(
           options: options
         ).call
       end

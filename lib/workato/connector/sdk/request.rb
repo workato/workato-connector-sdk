@@ -15,13 +15,13 @@ module Workato
       class Request < SimpleDelegator
         using BlockInvocationRefinements
 
-        def initialize(uri, method: 'GET', connection: {}, settings: {}, action: nil)
+        def initialize(uri, method: 'GET', settings: {}, connection: nil, action: nil)
           super(nil)
           @uri = uri
-          @authorization = (connection[:authorization] || {}).with_indifferent_access
-          @settings = settings
-          @base_uri = connection[:base_uri]&.call(settings.with_indifferent_access)
           @method = method
+          @settings = settings
+          @authorization = connection&.authorization
+          @base_uri = connection&.base_uri(settings)
           @action = action
           @headers = {}
           @case_sensitive_headers = {}
@@ -321,7 +321,9 @@ module Workato
         end
 
         def detect_error!(response)
-          error_patterns = Array.wrap(@authorization[:detect_on])
+          return unless @authorization
+
+          error_patterns = @authorization.detect_on
           return unless error_patterns.any? { |pattern| pattern === response rescue false }
 
           Kernel.raise(CustomRequestError, response.to_s)
@@ -357,13 +359,15 @@ module Workato
         end
 
         def authorized
-          apply = @authorization[:apply] || @authorization[:credentials]
+          return yield unless @authorization
+
+          apply = @authorization.source[:apply] || @authorization.source[:credentials]
           return yield unless apply
 
           first = true
           begin
             settings = @settings.with_indifferent_access
-            if /oauth2/i =~ @authorization[:type]
+            if /oauth2/i =~ @authorization.type
               instance_exec(settings, settings[:access_token], @auth_type, &apply)
             else
               instance_exec(settings, @auth_type, &apply)

@@ -14,6 +14,8 @@ module Workato
         RETRY_DELAY = 5.seconds
         MAX_RETRIES = 3
 
+        MAX_REINVOKES = 5
+
         def initialize(action:, connection: {}, methods: {}, settings: {}, object_definitions: nil)
           super(
             operation: action,
@@ -26,10 +28,32 @@ module Workato
           initialize_retry
         end
 
-        def execute(settings = nil, input = {}, extended_input_schema = [], extended_output_schema = [], &block)
+        def execute(settings = nil, input = {}, extended_input_schema = [], extended_output_schema = [], continue = {},
+                    &block)
           raise InvalidDefinitionError, "'execute' block is required for action" unless block || action[:execute]
 
-          super(settings, input, extended_input_schema, extended_output_schema, &(block || action[:execute]))
+          loop do
+            if @reinvokes_remaining&.zero?
+              raise "Max number of reinvokes on SDK Gem reached. Current limit is #{reinvoke_limit}"
+            end
+
+            reinvoke_sleep if @reinvoke_after
+
+            @reinvoke_after = nil
+
+            result = super(
+              settings,
+              input,
+              extended_input_schema,
+              extended_output_schema,
+              continue,
+              &(block || action[:execute])
+            )
+
+            break result unless @reinvoke_after
+
+            continue = @reinvoke_after[:continue]
+          end
         rescue RequestError => e
           raise e unless retry?(e)
 
@@ -38,11 +62,16 @@ module Workato
         end
 
         def checkpoint!(continue:, temp_output: nil)
-          raise NotImplementedError
+          # no-op
         end
 
         def reinvoke_after(seconds:, continue:, temp_output: nil)
-          raise NotImplementedError
+          @reinvokes_remaining = (@reinvokes_remaining ? @reinvokes_remaining - 1 : reinvoke_limit)
+          @reinvoke_after = {
+            seconds: seconds,
+            continue: continue,
+            temp_output: temp_output
+          }
         end
 
         private
@@ -79,6 +108,14 @@ module Workato
           end
 
           @retry_methods.include?(exception.method.to_s.downcase)
+        end
+
+        def reinvoke_sleep
+          sleep((ENV['WAIT_REINVOKE_AFTER'].presence || @reinvoke_after[:seconds]).to_f)
+        end
+
+        def reinvoke_limit
+          @reinvoke_limit ||= (ENV['MAX_REINVOKES'].presence || MAX_REINVOKES).to_i
         end
 
         alias action operation

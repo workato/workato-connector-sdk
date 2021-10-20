@@ -24,9 +24,9 @@ module Workato
         def actions
           @actions ||= ActionsProxy.new(
             actions: source[:actions].presence || {},
-            object_definitions: object_definitions,
             methods: methods_source,
-            connection: connection_source,
+            object_definitions: object_definitions,
+            connection: connection,
             settings: settings
           )
         end
@@ -34,7 +34,7 @@ module Workato
         def methods
           @methods ||= MethodsProxy.new(
             methods: methods_source,
-            connection: connection_source,
+            connection: connection,
             settings: settings
           )
         end
@@ -45,7 +45,7 @@ module Workato
               execute: source[:test]
             },
             methods: methods_source,
-            connection: connection_source,
+            connection: connection,
             settings: send(:settings)
           ).execute(settings)
         end
@@ -53,9 +53,9 @@ module Workato
         def triggers
           @triggers ||= TriggersProxy.new(
             triggers: source[:triggers].presence || {},
-            object_definitions: object_definitions,
             methods: methods_source,
-            connection: connection_source,
+            connection: connection,
+            object_definitions: object_definitions,
             settings: settings
           )
         end
@@ -64,7 +64,7 @@ module Workato
           @object_definitions ||= ObjectDefinitions.new(
             object_definitions: source[:object_definitions].presence || {},
             methods: methods_source,
-            connection: connection_source,
+            connection: connection,
             settings: settings
           )
         end
@@ -72,6 +72,14 @@ module Workato
         def pick_lists
           @pick_lists ||= PickListsProxy.new(
             pick_lists: source[:pick_lists].presence || {},
+            methods: methods_source,
+            connection: connection,
+            settings: settings
+          )
+        end
+
+        def connection
+          @connection ||= Connection.new(
             methods: methods_source,
             connection: connection_source,
             settings: settings

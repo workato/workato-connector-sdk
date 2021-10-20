@@ -16,16 +16,21 @@ module Workato::CLI
         extended_output_schema: 'spec/fixtures/extended_output_schema.json',
         config_fields: 'spec/fixtures/config_fields.json',
         closure: 'spec/fixtures/closure.json',
+        continue: 'spec/fixtures/continue.json',
         webhook_payload: 'spec/fixtures/webhook_payload.json',
         webhook_params: 'spec/fixtures/webhook_params.json',
         webhook_headers: 'spec/fixtures/webhook_headers.json',
         webhook_url: 'http://www.example.com',
-        output: false
+        output: false,
+        oauth2_code: '1234567890',
+        redirect_url: 'http://localhost:3000/oauth2/callback',
+        refresh_token: 'qwerty'
       }
     end
 
     let(:settings) { Workato::Connector::Sdk::Settings.from_file(options[:settings]) }
     let(:input) { JSON.parse(File.read(options[:input])) }
+    let(:continue) { JSON.parse(File.read(options[:continue])) }
     let(:extended_input_schema) { JSON.parse(File.read(options[:extended_input_schema])) }
     let(:extended_output_schema) { JSON.parse(File.read(options[:extended_output_schema])) }
     let(:config_fields) { JSON.parse(File.read(options[:config_fields])) }
@@ -41,7 +46,8 @@ module Workato::CLI
           connection: settings,
           input: input,
           extended_input_schema: extended_input_schema,
-          extended_output_schema: extended_output_schema
+          extended_output_schema: extended_output_schema,
+          continue: continue
         }.with_indifferent_access
       end,
 
@@ -141,6 +147,48 @@ module Workato::CLI
           connection: settings,
           config_fields: config_fields
         }.with_indifferent_access
+      end,
+
+      # connection
+      'connection.base_uri' => lambda do
+        {
+          connection: settings
+        }
+      end,
+      'connection.authorization.refresh_on' => -> { 401 },
+      'connection.authorization.detect_on' => -> { 404 },
+      'connection.authorization.client_id' => lambda do
+        {
+          connection: settings
+        }
+      end,
+      'connection.authorization.client_secret' => lambda do
+        {
+          connection: settings
+        }
+      end,
+      'connection.authorization.authorization_url' => lambda do
+        {
+          connection: settings
+        }
+      end,
+      'connection.authorization.token_url' => lambda do
+        {
+          connection: settings
+        }
+      end,
+      'connection.authorization.acquire' => lambda do
+        {
+          connection: settings,
+          oauth2_code: options[:oauth2_code],
+          redirect_url: options[:redirect_url]
+        }.with_indifferent_access
+      end,
+      'connection.authorization.refresh' => lambda do
+        {
+          connection: settings,
+          refresh_token: options[:refresh_token]
+        }.with_indifferent_access
       end
     }.each do |path, expected_output|
       describe path do
@@ -152,6 +200,12 @@ module Workato::CLI
 
         it { is_expected.to include(instance_exec(&expected_output)) }
       end
+    end
+
+    describe 'connection.authorization.type' do
+      let(:path) { 'connection.authorization.type' }
+
+      it { is_expected.to eq(:oauth2) }
     end
 
     context 'when encrypted settings' do

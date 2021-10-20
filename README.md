@@ -39,6 +39,7 @@ Commands:
   workato generate <SUBCOMMAND>  # Generates code from template
   workato help [COMMAND]         # Describe available commands or one specific command
   workato new <CONNECTOR_PATH>   # Inits new connector folder
+  workato oauth2                 # Implements OAuth Authorization Code flow
   workato push                   # Upload and release connector's code
 
 Options:
@@ -224,6 +225,7 @@ Commands:
   workato generate <SUBCOMMAND>  # Generates code from template
   workato help [COMMAND]         # Describe available commands or one specific command
   workato new <CONNECTOR_PATH>   # Inits new connector folder
+  workato oauth2                 # Implements OAuth Authorization Code flow
   workato push                   # Upload and release connector's code
 
 Options:
@@ -259,7 +261,6 @@ Edit encrypted file, e.g. settings.yaml.enc
 ### 3.3 workato exec
 ```
 workato help exec
-
 Usage:
   workato exec <PATH>
 
@@ -270,6 +271,7 @@ Options:
   -k, [--key=KEY]                                        # Path to file with encrypt/decrypt key. NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
   -i, [--input=INPUT]                                    # Path to file with input JSON
       [--closure=CLOSURE]                                # Path to file with next poll closure JSON
+      [--continue=CONTINUE]                              # Path to file with next multistep action continue closure JSON
   -a, [--args=ARGS]                                      # Path to file with method arguments JSON
       [--extended-input-schema=EXTENDED_INPUT_SCHEMA]    # Path to file with extended input schema definition JSON
       [--extended-output-schema=EXTENDED_OUTPUT_SCHEMA]  # Path to file with extended output schema definition JSON
@@ -279,8 +281,11 @@ Options:
       [--webhook-headers=WEBHOOK_HEADERS]                # Path to file with webhook headers JSON
       [--webhook-url=WEBHOOK_URL]                        # Webhook URL for automatic webhook subscription
   -o, [--output=OUTPUT]                                  # Write output to JSON file
-      [--debug], [--no-debug]
-      [--verbose], [--no-verbose]
+      [--oauth2-code=OAUTH2_CODE]                        # OAuth2 code exchange to tokens pair
+      [--redirect-url=REDIRECT_URL]                      # OAuth2 callback url
+      [--refresh-token=REFRESH_TOKEN]                    # OAuth2 refresh token
+      [--debug], [--no-debug]                            
+      [--verbose], [--no-verbose]                        
 
 Description:
   The 'workato exec' executes connector's lambda block at <PATH>. Lambda's parameters can be provided if needed, see options part.
@@ -358,7 +363,31 @@ Please select default HTTP mocking behavior suitable for your project?
 
 - `simple` means your HTTP requests will be stored in plain text.
 
-### 3.6 workato push
+### 3.6 workato oauth2
+```
+workato help oauth2
+
+Usage:
+  workato oauth2
+
+Options:
+  -c, [--connector=CONNECTOR]      # Path to connector source code
+  -s, [--settings=SETTINGS]        # Path to plain or encrypted file with connection configs, passwords, tokens, secrets etc
+  -n, [--connection=CONNECTION]    # Connection name if settings file contains multiple settings
+  -k, [--key=KEY]                  # Path to file with encrypt/decrypt key. NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
+      [--port=PORT]                # Listen requests on specific port
+                                   # Default: 45555
+      [--ip=IP]                    # Listen requests on specific interface
+                                   # Default: 127.0.0.1
+      [--https], [--no-https]      # Start HTTPS server using self-signed certificate
+      [--verbose], [--no-verbose]  
+
+Implements OAuth Authorization Code flow
+```
+
+Use this to implement the OAuth2 Authorization code grant flow for applicable connectors. Applicable connectors are ones where the connection hash has `type: 'oauth2`. For more information, check out our guide on our [main docs site](https://docs.workato.com/developing-connectors/sdk/guides/authentication/oauth/auth-code.html#how-to-guide-oauth-2-0-authorization-code-variant).
+
+### 3.7 workato push
 ```
 workato help push
 
@@ -490,7 +519,7 @@ workato exec test #Output of the test: lambda function should be shown
 > *Note*: You may also see a intermediary command from the Gem asking if you'd like to refresh your access tokens. This is done when HTTP requests are made which have a response that triggers the `refresh_on` block. Selecting yes would cause the Gem to update your settings file with the latest auth credentials.
 
 ### 4.3 Example: Testing your connection on CLI - OAuth 2 - auth code grant flows
-For auth code grant flows, the Workato Gem doesn't simulate the browser popup so you'll need to supply the access token and refresh tokens directly!
+For auth code grant flows, the Workato Gem allows you to simulate the OAuth2 flow using the `workato oauth2` command.
 
 ```ruby
 {
@@ -574,27 +603,24 @@ For auth code grant flows, the Workato Gem doesn't simulate the browser popup so
 and a `settings.yaml.enc` or `settings.yaml` file with the following details
 
 ```yaml
-My Valid Connection:
-  access_token: "valid_access_token"
-  refresh_token: "valid_refresh_token"
-  user_key: "valid_user_key"
-  client_id: "valid_client_id"
-  client_secret: "valid_client_secret"
-Invalid Access Token:
-  access_token: "invalid_access_token"
-  refresh_token: "valid_refresh_token"
-  user_key: "valid_user_key"
-  client_id: "valid_client_id"
-  client_secret: "valid_client_secret"
+client_id: valid_client_id
+client_secret: valid_client_secret
 ```
 
-You can now run the following commands to verify that the `test:` lambda function you have defined is working:
+You can now run the following commands to go through the OAuth2 Authorization code flow which includes a browser popup.
 ```bash
-workato exec test  --connection='My Valid Connection' #Output of the test: lambda function should be shown
-workato exec test  --connection='Invalid Access Token' --verbose #You should see a see a set of request where the test is tried, access token receives 401 and the sequence to refresh the gem using the refresh key is used! This allows you to test how your connector refreshes a connection.
+workato oauth2 
 ```
 
-> *Note*: `--verbose` can be used to details everything, including the HTTP requests. You may also see a intermediary command from the Gem asking if you'd like to refresh your access tokens. This is done when HTTP requests are made which have a response that triggers the `refresh_on` block. Selecting yes would cause the Gem to update your settings file with the latest auth credentials.
+https://user-images.githubusercontent.com/25265275/137942408-812fa6ad-353f-4ea2-bf37-f804e2ff7b04.mov
+
+
+> *Note*: `--verbose` can be used to detail everything, including the HTTP requests.
+
+
+Now after you've successfully gone through the flow, you may be use the same `workato exec test` command to verify you're applying your token properly in your requests! Depending on when you received your token, you may also see a intermediary command from the Gem asking if you'd like to refresh your access tokens (if it has expired). This is done when HTTP requests are made which have a response that triggers the `refresh_on` block. Selecting "Yes" would cause the Gem to update your settings file with the latest auth credentials.
+
+Take note, you may also use `workato exec` to execute lambdas in your `authorization` hash like `acquire` and `refresh`. **That said, we highlight recommend you use `workato exec test` and `workato oauth2` which handle the updating of your `settings.yaml` file automatically.**
 
 ### Example: Testing a sample action on CLI
 Continuing from the previous example, let's take a look at a simple action and invoke the individual lambda functions.
@@ -633,7 +659,7 @@ Continuing from the previous example, let's take a look at a simple action and i
       end,
       
       
-      execute: lambda do |connection, input, input_schema, output_schema|
+      execute: lambda do |connection, input, input_schema, output_schema, closure|
         get("/api/v2/customers",input)
       end,
       

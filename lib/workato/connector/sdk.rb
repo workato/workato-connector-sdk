@@ -43,6 +43,7 @@ require_relative '../extension/time'
 
 require_relative './sdk/account_properties'
 require_relative './sdk/action'
+require_relative './sdk/connection'
 require_relative './sdk/connector'
 require_relative './sdk/dsl'
 require_relative './sdk/errors'

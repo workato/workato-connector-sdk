@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'thor'
-require 'ruby-progressbar'
 
 module Workato
   module CLI
@@ -55,10 +54,14 @@ module Workato
           extended_output_schema: from_json(options[:extended_output_schema]).presence || [],
           config_fields: from_json(options[:config_fields]),
           closure: from_json(options[:closure], parse_json_times: true).presence,
+          continue: from_json(options[:continue], parse_json_times: true),
           payload: from_json(options[:webhook_payload]),
           params: from_json(options[:webhook_params]),
           headers: from_json(options[:webhook_headers]),
           webhook_url: options[:webhook_url],
+          oauth2_code: options[:oauth2_code],
+          redirect_url: options[:redirect_url],
+          refresh_token: options[:refresh_token],
           recipe_id: SecureRandom.uuid
         }
       end
@@ -148,6 +151,8 @@ module Workato
 
       def with_progress
         return yield unless verbose?
+
+        require 'ruby-progressbar'
 
         say('')
 

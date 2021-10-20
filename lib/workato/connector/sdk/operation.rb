@@ -16,21 +16,23 @@ module Workato
 
         cattr_accessor :on_settings_updated
 
-        def initialize(operation:, connection: {}, methods: {}, settings: {}, object_definitions: nil)
+        def initialize(connection:, operation: {}, methods: {}, settings: {}, object_definitions: nil)
+          @connection = connection
           @settings = settings.with_indifferent_access
           @operation = operation.with_indifferent_access
-          @connection = connection.with_indifferent_access
           @_methods = methods.with_indifferent_access
           @object_definitions = object_definitions
         end
 
-        def execute(settings = nil, input = {}, extended_input_schema = [], extended_output_schema = [], &block)
+        def execute(settings = nil, input = {}, extended_input_schema = [], extended_output_schema = [], continue = {},
+                    &block)
           @settings = settings.with_indifferent_access if settings # is being used in request for refresh tokens
           request_or_result = instance_exec(
             @settings.with_indifferent_access, # a copy of settings hash is being used in executable blocks
             input.with_indifferent_access,
             Array.wrap(extended_input_schema).map(&:with_indifferent_access),
             Array.wrap(extended_output_schema).map(&:with_indifferent_access),
+            continue.with_indifferent_access,
             &block
           )
           resolve_request(request_or_result)
@@ -69,9 +71,9 @@ module Workato
         def refresh_authorization!(http_code, http_body, exception, settings = {})
           return unless refresh_auth?(http_code, http_body, exception)
 
-          new_settings = if /oauth2/i =~ connection[:authorization][:type]
+          new_settings = if /oauth2/i =~ connection.authorization.type
                            refresh_oauth2_token(settings)
-                         elsif connection[:authorization][:acquire]
+                         elsif connection.authorization.acquire?
                            acquire_token(settings)
                          end
           return unless new_settings
@@ -132,7 +134,7 @@ module Workato
         end
 
         def refresh_auth?(http_code, http_body, exception)
-          refresh_on = Array.wrap(connection[:authorization][:refresh_on]).compact
+          refresh_on = connection.authorization.refresh_on
           refresh_on.blank? || refresh_on.any? do |pattern|
             pattern.is_a?(::Integer) && pattern == http_code ||
               pattern === exception&.to_s ||
@@ -141,48 +143,26 @@ module Workato
         end
 
         def acquire_token(settings)
-          acquire = connection[:authorization][:acquire]
-          raise InvalidDefinitionError, "'acquire' block is required for authorization" unless acquire
-
-          Action.new(
-            action: {
-              execute: ->(connection) { instance_exec(connection, &acquire) }
-            },
-            connection: connection.merge(
-              authorization: connection[:authorization].merge(
-                apply: nil
-              )
-            ),
-            methods: @_methods
-          ).execute(settings)
+          connection.authorization.acquire(settings)
         end
 
         def refresh_oauth2_token_using_refresh(settings)
-          refresh = connection[:authorization][:refresh]
-          new_tokens, new_settings = Action.new(
-            action: {
-              execute: lambda do |connection|
-                instance_exec(connection, connection[:refresh_token], &refresh)
-              end
-            },
-            methods: @_methods
-          ).execute(settings)
-
+          new_tokens, new_settings = connection.authorization.refresh(settings, settings[:refresh_token])
           new_tokens.with_indifferent_access.merge(new_settings || {})
         end
 
         def refresh_oauth2_token_using_token_url(settings)
           if settings[:refresh_token].blank?
-            raise NotImplementedError, 'workato-connector-sdk does not support OAuth2 authorization process. '\
-                                       'Use Workato Debugger UI to acquire access_token and refresh_token'
+            raise NotImplementedError, 'refresh_token is empty. ' \
+                                       'Use workato oauth2 command to acquire access_token and refresh_token'
           end
 
           response = RestClient::Request.execute(
-            url: connection[:authorization][:token_url].call(settings),
+            url: connection.authorization.token_url(settings),
             method: :post,
             payload: {
-              client_id: connection[:authorization][:client_id].call(settings),
-              client_secret: connection[:authorization][:client_secret].call(settings),
+              client_id: connection.authorization.client_id(settings),
+              client_secret: connection.authorization.client_secret(settings),
               grant_type: :refresh_token,
               refresh_token: settings[:refresh_token]
             },
@@ -198,9 +178,9 @@ module Workato
         end
 
         def refresh_oauth2_token(settings)
-          if connection[:authorization][:refresh]
+          if connection.authorization.refresh?
             refresh_oauth2_token_using_refresh(settings)
-          elsif connection[:authorization][:token_url]
+          elsif connection.authorization.token_url?
             refresh_oauth2_token_using_token_url(settings)
           else
             raise InvalidDefinitionError, "'refresh' block or 'token_url' is required for refreshing the token"

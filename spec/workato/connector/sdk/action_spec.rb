@@ -6,19 +6,20 @@ module Workato::Connector::Sdk
 
     let(:action_definition) do
       {
-        'execute' => lambda do |settings, input, extended_input_schema, extended_output_schema|
-          call('join', settings, input, extended_input_schema, extended_output_schema)
+        'execute' => lambda do |settings, input, extended_input_schema, extended_output_schema, continue|
+          call('join', settings, input, extended_input_schema, extended_output_schema, continue)
         end
       }
     end
     let(:methods) do
       {
-        'join' => lambda do |settings, input, extended_input_schema, extended_output_schema|
+        'join' => lambda do |settings, input, extended_input_schema, extended_output_schema, continue|
           {
             settings: settings,
             input: input,
             extended_input_schema: extended_input_schema,
-            extended_output_schema: extended_output_schema
+            extended_output_schema: extended_output_schema,
+            continue: continue
           }
         end
       }
@@ -43,7 +44,8 @@ module Workato::Connector::Sdk
         'settings' => settings.with_indifferent_access,
         'input' => input.with_indifferent_access,
         'extended_input_schema' => [extended_input_schema.with_indifferent_access],
-        'extended_output_schema' => [extended_output_schema.with_indifferent_access]
+        'extended_output_schema' => [extended_output_schema.with_indifferent_access],
+        'continue' => {}.with_indifferent_access
       )
     end
 
@@ -51,6 +53,65 @@ module Workato::Connector::Sdk
       let(:action_definition) { {} }
 
       it { expect { action.execute }.to raise_error(InvalidDefinitionError) }
+    end
+
+    context 'when multistep action' do
+      let(:action_definition) do
+        {
+          'execute' => lambda do |settings, input, extended_input_schema, extended_output_schema, continue|
+            if continue.blank?
+              reinvoke_after(seconds: 5, continue: { completed: true })
+              return { completed: false }
+            end
+
+            call('join', settings, input, extended_input_schema, extended_output_schema, continue)
+          end
+        }
+      end
+
+      it 'executes execute block multiple times' do
+        expect(action).to receive(:sleep).with(5).once
+
+        output = action.execute(settings, input, [extended_input_schema], [extended_output_schema])
+        expect(output).to eq(
+          'settings' => settings.with_indifferent_access,
+          'input' => input.with_indifferent_access,
+          'extended_input_schema' => [extended_input_schema.with_indifferent_access],
+          'extended_output_schema' => [extended_output_schema.with_indifferent_access],
+          'continue' => { completed: true }.with_indifferent_access
+        )
+      end
+
+      it 'can be speed up in tests' do
+        expect(action).to receive(:reinvoke_sleep).once
+
+        expect { action.execute }.to change { Process.clock_gettime(Process::CLOCK_MONOTONIC) }.by_at_most(4.99)
+      end
+
+      it 'can be speed up in CLI' do
+        begin
+          ENV['WAIT_REINVOKE_AFTER'] = '0'
+
+          expect { action.execute }.to change { Process.clock_gettime(Process::CLOCK_MONOTONIC) }.by_at_most(4.99)
+        ensure
+          ENV.delete('WAIT_REINVOKE_AFTER')
+        end
+      end
+
+      context 'when infinite reinvokes' do
+        let(:action_definition) do
+          {
+            'execute' => lambda {
+              reinvoke_after(seconds: 10, continue: { completed: false })
+            }
+          }
+        end
+
+        it 'executes execute block no more than allowed times' do
+          expect(action).to receive(:sleep).with(10).exactly(5)
+          expect { action.execute }.to raise_error('Max number of reinvokes on SDK Gem reached. Current limit is 5')
+        end
+      end
     end
   end
 end

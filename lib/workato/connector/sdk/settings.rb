@@ -45,6 +45,8 @@ module Workato
             begin
               @encrypted = false
               read_plain_file
+            rescue KeyError
+              raise
             rescue StandardError
               @encrypted = true
               read_encrypted_file
@@ -76,7 +78,7 @@ module Workato
             YAML.safe_load(f.read, [::Symbol]).to_hash.with_indifferent_access
           end
 
-          name ? all_settings.fetch(name) : all_settings
+          (name ? all_settings.fetch(name) : all_settings) || {}
         end
 
         def update_plain_file(new_settings)
@@ -93,7 +95,7 @@ module Workato
         def read_encrypted_file
           all_settings = encrypted_configuration.config.with_indifferent_access
 
-          name ? all_settings.fetch(name) : all_settings
+          (name ? all_settings.fetch(name) : all_settings) || {}
         end
 
         def update_encrypted_file(new_settings)
@@ -106,7 +108,8 @@ module Workato
 
         def merge_settings(all_settings, new_settings)
           if name
-            all_settings[name] = new_settings
+            all_settings[name] ||= {}
+            all_settings[name].merge!(new_settings)
           else
             all_settings.merge!(new_settings)
           end

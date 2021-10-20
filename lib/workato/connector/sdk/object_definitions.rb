@@ -10,23 +10,23 @@ module Workato
 
         def initialize(object_definitions:, connection:, methods:, settings:)
           @object_definitions_source = object_definitions
-          @methods = methods
+          @methods_source = methods
           @connection = connection
           @settings = settings
           define_object_definition_methods(object_definitions)
         end
 
         def lazy(settings = nil, config_fields = {})
-          object_definitions_lazy_hash = DupHashWithIndifferentAccess.new do |h, name|
-            fields_proc = @object_definitions_source[name][:fields]
-            h[name] = Action.new(
+          DupHashWithIndifferentAccess.new do |object_definitions, name|
+            fields_proc = object_definitions_source[name][:fields]
+            object_definitions[name] = Action.new(
               action: {
                 execute: lambda do |connection, input|
-                  instance_exec(connection, input, object_definitions_lazy_hash, &fields_proc)
+                  instance_exec(connection, input, object_definitions, &fields_proc)
                 end
               },
-              methods: @methods,
-              connection: @connection,
+              methods: methods_source,
+              connection: connection,
               settings: @settings
             ).execute(settings, config_fields)
           end
@@ -34,10 +34,10 @@ module Workato
 
         private
 
-        attr_reader :methods,
+        attr_reader :methods_source,
                     :connection,
-                    :objects,
-                    :settings
+                    :settings,
+                    :object_definitions_source
 
         def define_object_definition_methods(object_definitions)
           object_definitions.each do |(object, _definition)|

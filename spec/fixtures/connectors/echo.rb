@@ -1,6 +1,61 @@
 # frozen_string_literal: true
 
 {
+  connection: {
+    base_uri: lambda do |connection|
+      {
+        connection: connection
+      }
+    end,
+
+    authorization: {
+      type: :oauth2,
+
+      authorization_url: lambda do |connection|
+        {
+          connection: connection
+        }
+      end,
+
+      token_url: lambda do |connection|
+        {
+          connection: connection
+        }
+      end,
+
+      client_id: lambda do |connection|
+        {
+          connection: connection
+        }
+      end,
+
+      client_secret: lambda do |connection|
+        {
+          connection: connection
+        }
+      end,
+
+      acquire: lambda do |connection, oauth2_code, redirect_url|
+        {
+          connection: connection,
+          oauth2_code: oauth2_code,
+          redirect_url: redirect_url
+        }
+      end,
+
+      refresh: lambda do |connection, refresh_token|
+        {
+          connection: connection,
+          refresh_token: refresh_token
+        }
+      end,
+
+      refresh_on: 401,
+
+      detect_on: 404
+    }
+  },
+
   test: lambda do |connection, input|
     {
       connection: connection,
@@ -10,12 +65,13 @@
 
   actions: {
     echo_action: {
-      execute: lambda do |connection, input, eis, eos|
+      execute: lambda do |connection, input, eis, eos, continue|
         {
           connection: connection,
           input: input,
           extended_input_schema: eis,
-          extended_output_schema: eos
+          extended_output_schema: eos,
+          continue: continue
         }
       end,
 
