@@ -2,6 +2,7 @@
 
 require_relative './dsl'
 require_relative './block_invocation_refinements'
+require_relative './schema'
 
 module Workato
   module Connector
@@ -18,7 +19,7 @@ module Workato
 
         def initialize(connection:, operation: {}, methods: {}, settings: {}, object_definitions: nil)
           @connection = connection
-          @settings = settings.with_indifferent_access
+          @settings = settings
           @operation = operation.with_indifferent_access
           @_methods = methods.with_indifferent_access
           @object_definitions = object_definitions
@@ -87,6 +88,23 @@ module Workato
 
         private
 
+        def apply_input_schema(input, schema)
+          input = schema.trim(input)
+          schema.apply(input, enforce_required: true) do |value, field|
+            field.render_input(value, @_methods[field[:render_input]])
+          end
+        end
+
+        def apply_output_schema(output, schema)
+          schema.apply(output, enforce_required: false) do |value, field|
+            field.parse_output(value, @_methods[field[:parse_output]])
+          end
+        end
+
+        def config_fields_schema
+          operation[:config_fields] || []
+        end
+
         def summarize(data, paths)
           return data unless paths.present?
 
@@ -94,7 +112,7 @@ module Workato
         end
 
         def schema_fields(object_definitions_hash, settings, config_fields, &schema_proc)
-          return {} unless schema_proc
+          return [] unless schema_proc
 
           execute(settings, config_fields) do |connection, input|
             instance_exec(

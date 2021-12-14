@@ -41,6 +41,60 @@ module Workato::CLI
 
     {
       # actions
+      'actions.with_schema_action' => lambda do
+        {
+          connection: settings,
+          input: input,
+          input_schema: [
+            {
+              'control_type' => 'number',
+              'label' => 'Input',
+              'name' => 'input',
+              'optional' => true,
+              'parse_output' => 'float_conversion',
+              'type' => 'number'
+            }
+          ],
+          output_schema: [
+            {
+              'label' => 'Input',
+              'name' => 'input',
+              'optional' => true,
+              'properties' => [],
+              'type' => 'object'
+            },
+            {
+              'label' => 'Connection',
+              'name' => 'connection',
+              'optional' => true,
+              'properties' => [],
+              'type' => 'object'
+            },
+            {
+              'label' => 'Input schema',
+              'name' => 'input_schema',
+              'optional' => true,
+              'properties' => [],
+              'type' => 'object'
+            },
+            {
+              'label' => 'Output schema',
+              'name' => 'output_schema',
+              'optional' => true,
+              'properties' => [],
+              'type' => 'object'
+            },
+            {
+              'label' => 'Continue',
+              'name' => 'continue',
+              'optional' => true,
+              'properties' => [],
+              'type' => 'object'
+            }
+          ]
+        }.with_indifferent_access
+      end,
+
       'actions.echo_action.execute' => lambda do
         {
           connection: settings,
@@ -228,14 +282,26 @@ module Workato::CLI
       context 'when less params than expected' do
         let(:path) { 'methods.echo_method4' }
 
-        it { expect(output).to eq('wrong number of arguments (given 3, expected 4)') }
+        it { expect { output }.to raise_error(ArgumentError, /wrong number of arguments \(given 3, expected 4\)/) }
       end
 
       context 'when more params than expected' do
         let(:path) { 'methods.echo_method2' }
 
-        it { expect(output).to eq('wrong number of arguments (given 3, expected 2)') }
+        it { expect { output }.to raise_error(ArgumentError, /wrong number of arguments \(given 3, expected 2\)/) }
       end
+    end
+
+    context 'when execute action without input' do
+      let(:options) do
+        {
+          connector: 'spec/fixtures/connectors/echo.rb',
+          output: false
+        }
+      end
+      let(:path) { 'actions.with_schema_action' }
+
+      it { expect(output).to include('connection' => {}, 'input' => {}) }
     end
   end
 end

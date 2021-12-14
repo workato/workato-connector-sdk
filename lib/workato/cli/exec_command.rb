@@ -7,6 +7,8 @@ module Workato
     class ExecCommand
       include Thor::Shell
 
+      DebugExceptionError = Class.new(StandardError)
+
       def initialize(path:, options:)
         @path = path
         @options = options
@@ -122,16 +124,25 @@ module Workato
         methods = path.split('.')
         method = methods.pop
         object = methods.inject(params[:connector]) { |obj, m| obj.public_send(m) }
+        output = invoke_method(object, method)
+        if output.respond_to?(:invoke)
+          invoke_method(output, :invoke)
+        else
+          output
+        end
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        raise DebugExceptionError, e if options[:debug]
+
+        raise
+      end
+
+      def invoke_method(object, method)
         parameters = object.method(method).parameters.reject { |p| p[0] == :block }.map(&:second)
         args = params.values_at(*parameters)
         if parameters.last == :args
           args = args.take(args.length - 1) + Array.wrap(args.last).flatten(1)
         end
         object.public_send(method, *args)
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        raise e if options[:debug]
-
-        e.message
       end
 
       def show_output(output)

@@ -1,3 +1,11 @@
+# 0.3.0 - Workato Schema, exit codes
+
+## Enhancements
+
+- Add support of Workato Schema. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/schema.html#attribute-description)
+  - Now `input_fields`/`output_fields` is being evaluated and applied to input/output data if action or trigger runs as a whole
+- CLI command exits with code `1` on failure
+
 # 0.2.0 - OAuth2 helper, Multistep actions
 
 ## Enhancements

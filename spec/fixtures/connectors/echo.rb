@@ -97,6 +97,34 @@
           input: input
         }
       end
+    },
+
+    with_schema_action: {
+      execute: lambda do |connection, input, eis, eos, continue|
+        {
+          connection: connection,
+          input: input,
+          input_schema: eis,
+          output_schema: eos,
+          continue: continue
+        }
+      end,
+
+      input_fields: lambda do |_object_definitions, _connection, _config_fields|
+        [
+          { name: :input, type: :boolean }
+        ]
+      end,
+
+      output_fields: lambda do |_object_definitions, _connection, _config_fields|
+        [
+          { name: :input, type: :object },
+          { name: :connection, type: :object },
+          { name: :input_schema, type: :object },
+          { name: :output_schema, type: :object },
+          { name: :continue, type: :object }
+        ]
+      end
     }
   },
 

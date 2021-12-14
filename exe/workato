@@ -2,4 +2,15 @@
 # frozen_string_literal: true
 
 require 'workato/cli/main'
-Workato::CLI::Main.start
+
+begin
+  Workato::CLI::Main.start
+rescue Workato::CLI::ExecCommand::DebugExceptionError => e
+  raise e.cause
+rescue SystemExit, SignalException
+  raise
+rescue Exception => e # rubocop:disable Lint/RescueException
+  puts ''
+  puts e.message
+  exit(false)
+end

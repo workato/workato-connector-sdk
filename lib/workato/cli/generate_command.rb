@@ -70,8 +70,7 @@ module Workato
       def ensure_connector_source
         return if connector
 
-        error "Can't find connector source code"
-        exit
+        raise "Can't find connector source code"
       end
 
       def create_spec_file(type, name)

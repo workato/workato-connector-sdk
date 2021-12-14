@@ -10,6 +10,26 @@ module Workato::Connector::Sdk
       expect(connector.actions['test_action']).to be_kind_of(Action)
     end
 
+    it 'executes action' do
+      expect(connector.actions.test_action({})).to eq('message' => 'Hello World!')
+    end
+
+    it 'executes poll trigger' do
+      expect(connector.triggers.poll_trigger({})).to include(
+        'events' => [
+          { 'message' => 'Hello World from poll trigger!' }
+        ]
+      )
+    end
+
+    it 'executes webhook trigger' do
+      expect(connector.triggers.webhook_trigger({})).to include(
+        events: [
+          { message: 'Hello World from webhook trigger!' }
+        ]
+      )
+    end
+
     context 'when read from connector file' do
       subject(:connector) { described_class.from_file('./spec/fixtures/connectors/hello_world.rb') }
 
@@ -37,7 +57,29 @@ module Workato::Connector::Sdk
         actions: {
           test_action: {
             execute: lambda do
-              puts 'Hello, World!'
+              { message: 'Hello World!' }
+            end
+          }
+        },
+
+        triggers: {
+          poll_trigger: {
+            poll: lambda do
+              {
+                events: [
+                  { message: 'Hello World from poll trigger!' }
+                ]
+              }
+            end
+          },
+
+          webhook_trigger: {
+            webhook_notification: lambda do
+              {
+                events: [
+                  { message: 'Hello World from webhook trigger!' }
+                ]
+              }
             end
           }
         }

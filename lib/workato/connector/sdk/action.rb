@@ -61,6 +61,17 @@ module Workato
           sleep(RETRY_DELAY) && retry
         end
 
+        def invoke(input = {})
+          extended_schema = extended_schema(nil, input)
+          config_schema = Schema.new(schema: config_fields_schema)
+          input_schema = Schema.new(schema: extended_schema[:input])
+          output_schema = Schema.new(schema: extended_schema[:output])
+
+          input = apply_input_schema(input, config_schema + input_schema)
+          output = execute(nil, input, input_schema, output_schema)
+          apply_output_schema(output, output_schema)
+        end
+
         def checkpoint!(continue:, temp_output: nil)
           # no-op
         end

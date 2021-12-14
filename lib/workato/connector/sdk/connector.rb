@@ -115,7 +115,7 @@ module Workato
 
         def define_action_methods(actions)
           actions.each do |action, definition|
-            define_singleton_method(action) do
+            define_singleton_method(action) do |input_ = nil|
               @actions ||= {}
               @actions[action] ||= Action.new(
                 action: definition,
@@ -124,6 +124,9 @@ module Workato
                 connection: connection,
                 settings: settings
               )
+              return @actions[action] if input_.nil?
+
+              @actions[action].invoke(input_)
             end
           end
         end
@@ -221,7 +224,7 @@ module Workato
 
         def define_trigger_methods(triggers)
           triggers.each do |trigger, definition|
-            define_singleton_method(trigger) do
+            define_singleton_method(trigger) do |input_ = nil, payload = {}, headers = {}, params = {}|
               @triggers[trigger] ||= Trigger.new(
                 trigger: definition,
                 object_definitions: object_definitions,
@@ -229,6 +232,10 @@ module Workato
                 connection: connection,
                 settings: settings
               )
+
+              return @triggers[trigger] if input_.nil?
+
+              @triggers[trigger].invoke(input_, payload, headers, params)
             end
           end
         end

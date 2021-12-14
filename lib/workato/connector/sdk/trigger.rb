@@ -89,7 +89,32 @@ module Workato
           end
         end
 
+        def invoke(input = {}, payload = {}, headers = {}, params = {})
+          extended_schema = extended_schema(nil, input)
+          config_schema = Schema.new(schema: config_fields_schema)
+          input_schema = Schema.new(schema: extended_schema[:input])
+          output_schema = Schema.new(schema: extended_schema[:output])
+
+          input = apply_input_schema(input, config_schema + input_schema)
+          output = if webhook_notification?
+                     webhook_notification(input, payload, input_schema, output_schema, headers, params)
+                   else
+                     poll(nil, input, nil, input_schema, output_schema)
+                   end
+          output[:events].each do |event|
+            apply_output_schema(event, output_schema)
+          end
+
+          output
+        end
+
+        private
+
         alias trigger operation
+
+        def webhook_notification?
+          trigger[:webhook_notification].present?
+        end
       end
     end
   end

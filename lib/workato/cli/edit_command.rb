@@ -28,7 +28,7 @@ module Workato
 
         puts 'File encrypted and saved.'
       rescue ActiveSupport::MessageEncryptor::InvalidMessage
-        puts "Couldn't decrypt #{encrypted_file_path}. Perhaps you passed the wrong key?"
+        raise "Couldn't decrypt #{encrypted_file_path}. Perhaps you passed the wrong key?"
       end
 
       private
@@ -63,8 +63,6 @@ module Workato
         yield
       rescue Interrupt
         puts 'Aborted changing file: nothing saved.'
-      rescue ActiveSupport::EncryptedFile::MissingKeyError => e
-        puts e.message
       end
     end
   end

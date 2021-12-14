@@ -32,7 +32,7 @@ module Workato
 
         say_status :success, "Open #{authorize_url} in browser"
         Launchy.open(authorize_url) do |exception|
-          raise(Error, "Attempted to open #{authorize_url} and failed because #{exception}")
+          raise "Attempted to open #{authorize_url} and failed because #{exception}"
         end
 
         code = await_code
@@ -45,11 +45,9 @@ module Workato
         settings_store.update(tokens)
         say_status :success, 'Update settings file'
       rescue Timeout::Error
-        say "Have not received callback from OAuth2 provider in #{AWAIT_CODE_TIMEOUT_INTERVAL} seconds. Aborting!"
+        raise "Have not received callback from OAuth2 provider in #{AWAIT_CODE_TIMEOUT_INTERVAL} seconds. Aborting!"
       rescue Errno::EADDRINUSE
-        say "Port #{port} already in use. Try to use different port with --port=#{rand(10_000..65_664)}"
-      rescue StandardError => e
-        say e.message
+        raise "Port #{port} already in use. Try to use different port with --port=#{rand(10_000..65_664)}"
       ensure
         stop_webrick
       end

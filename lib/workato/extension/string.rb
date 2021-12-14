@@ -98,7 +98,7 @@ module Workato
       alias encode_hex to_hex
 
       def decode_hex
-        Binary.new([self].pack('H*'))
+        Extension::Binary.new([self].pack('H*'))
       end
 
       def encode_base64
@@ -106,7 +106,7 @@ module Workato
       end
 
       def decode_base64
-        Binary.new(Base64.decode64(self))
+        Extension::Binary.new(Base64.decode64(self))
       end
 
       def encode_urlsafe_base64
@@ -118,21 +118,27 @@ module Workato
       end
 
       def decode_urlsafe_base64
-        Binary.new(Base64.urlsafe_decode64(self))
+        Extension::Binary.new(Base64.urlsafe_decode64(self))
       end
 
       def encode_sha256
-        Binary.new(::Digest::SHA256.digest(self))
+        Extension::Binary.new(::Digest::SHA256.digest(self))
       end
 
       def hmac_sha256(key)
         digest = ::OpenSSL::Digest.new('sha256')
-        Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
+        Extension::Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
       end
 
       def hmac_sha512(key)
         digest = ::OpenSSL::Digest.new('sha512')
-        Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
+        Extension::Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
+      end
+
+      def rsa_sha256(key)
+        digest = ::OpenSSL::Digest.new('sha256')
+        private_key = ::OpenSSL::PKey::RSA.new(key)
+        Workato::Extension::Binary.new(private_key.sign(digest, self))
       end
 
       def md5_hexdigest
@@ -140,17 +146,17 @@ module Workato
       end
 
       def sha1
-        Binary.new(::Digest::SHA1.digest(self))
+        Extension::Binary.new(::Digest::SHA1.digest(self))
       end
 
       def hmac_sha1(key)
         digest = ::OpenSSL::Digest.new('sha1')
-        Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
+        Extension::Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
       end
 
       def hmac_md5(key)
         digest = ::OpenSSL::Digest.new('md5')
-        Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
+        Extension::Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
       end
 
       def from_xml
@@ -228,7 +234,7 @@ module Workato
       end
 
       def as_string(encoding)
-        String.new(self, encoding: encoding).encode(encoding, invalid: :replace, undef: :replace)
+        ::String.new(self, encoding: encoding).encode(encoding, invalid: :replace, undef: :replace)
       end
 
       def as_utf8

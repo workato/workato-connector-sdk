@@ -49,13 +49,9 @@ module Workato
         say_status :waiting, 'Process package' if verbose?
 
         result = await_import(import_id)
-        if result.fetch('status') == 'failed'
-          say result.fetch('error').gsub("#{PACKAGE_ENTRY_NAME}.json: ", '')
-        else
-          say "Connector was successfully uploaded to #{api_base_url}"
-        end
-      rescue StandardError => e
-        say e.message
+        raise human_friendly_error(result) if result.fetch('status') == 'failed'
+
+        say "Connector was successfully uploaded to #{api_base_url}"
       ensure
         FileUtils.rm_f(zip_file_path) if zip_file_path
       end
@@ -206,6 +202,10 @@ module Workato
               say_status :success, "Fetch root folder ID: #{folder_id}" if verbose?
             end
           end
+      end
+
+      def human_friendly_error(result)
+        result.fetch('error').gsub("#{PACKAGE_ENTRY_NAME}.json: ", '')
       end
 
       private_constant :IMPORT_IN_PROGRESS,

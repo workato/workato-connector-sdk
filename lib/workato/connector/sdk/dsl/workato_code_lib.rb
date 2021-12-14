@@ -63,7 +63,7 @@ module Workato
                 raise "The requested length or random bytes sequence should be <= #{RANDOM_SIZE}"
               end
 
-              String::Binary.new(::OpenSSL::Random.random_bytes(len))
+              Extension::Binary.new(::OpenSSL::Random.random_bytes(len))
             end
 
             ALLOWED_KEY_SIZES = [128, 192, 256].freeze
@@ -78,7 +78,7 @@ module Workato
               cipher.encrypt
               cipher.key = key
               cipher.iv = init_vector if init_vector.present?
-              String::Binary.new(cipher.update(string) + cipher.final)
+              Extension::Binary.new(cipher.update(string) + cipher.final)
             end
 
             def aes_cbc_decrypt(string, key, init_vector = nil)
@@ -91,11 +91,11 @@ module Workato
               cipher.decrypt
               cipher.key = key
               cipher.iv = init_vector if init_vector.present?
-              String::Binary.new(cipher.update(string) + cipher.final)
+              Extension::Binary.new(cipher.update(string) + cipher.final)
             end
 
             def pbkdf2_hmac_sha1(string, salt, iterations = 1000, key_len = 16)
-              String::Binary.new(::OpenSSL::PKCS5.pbkdf2_hmac_sha1(string, salt, iterations, key_len))
+              Extension::Binary.new(::OpenSSL::PKCS5.pbkdf2_hmac_sha1(string, salt, iterations, key_len))
             end
           end
         end
