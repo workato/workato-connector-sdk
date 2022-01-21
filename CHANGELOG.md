@@ -1,3 +1,14 @@
+# 0.4.0 - AWS, parallel, verify_rsa, decode_url
+
+## Enhancements
+
+- Implement AWS connection methods. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/guides/authentication/aws_auth.html)
+- Implement `parallel` method. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/guides/building-actions/multi-threaded-actions.html)
+- Implement `verify_rsa` and `decode_url`
+
+## Misc
+- Introduce custom `Workato::Connector::SDK::RuntimeError` exception type for `error` method.
+
 # 0.3.0 - Workato Schema, exit codes
 
 ## Enhancements

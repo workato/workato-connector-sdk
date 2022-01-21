@@ -117,6 +117,10 @@ module Workato
         ::ERB::Util.url_encode(self)
       end
 
+      def decode_url
+        CGI.unescape(self)
+      end
+
       def decode_urlsafe_base64
         Extension::Binary.new(Base64.urlsafe_decode64(self))
       end

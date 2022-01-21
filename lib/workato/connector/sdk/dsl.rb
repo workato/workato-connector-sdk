@@ -10,6 +10,7 @@ require_relative './dsl/lookup_table'
 require_relative './dsl/workato_code_lib'
 require_relative './dsl/workato_schema'
 require_relative './dsl/time'
+require_relative './dsl/aws'
 
 module Workato
   module Connector
@@ -21,6 +22,7 @@ module Workato
           include LookupTable
           include WorkatoCodeLib
           include WorkatoSchema
+          include AWS
 
           def sleep(seconds)
             ::Kernel.sleep(seconds.presence || 0)

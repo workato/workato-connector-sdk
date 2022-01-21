@@ -6,6 +6,10 @@ module Workato
       module Dsl
         # https://docs.workato.com/developing-connectors/sdk/sdk-reference/http.html#http-methods
         module HTTP
+          PARALLEL_SUCCESS_INDEX = 0
+          PARALLEL_RESULTS_INDEX = 1
+          PARALLEL_ERRORS_INDEX = 2
+
           def get(url, params = {})
             http_request(url, method: 'GET').params(params).response_format_json
           end
@@ -40,6 +44,21 @@ module Workato
 
           def move(url, payload = nil)
             http_request(url, method: 'MOVE').payload(payload).format_json
+          end
+
+          def parallel(requests = [], threads: 1, rpm: nil, requests_per_period: nil, period: 1.minute.to_i) # rubocop:disable Lint/UnusedMethodArgument
+            requests.each.with_object([true, [], []]) do |request, result|
+              response = nil
+              exception = nil
+              begin
+                response = request.execute!
+              rescue RequestError, RuntimeError => e
+                exception = e.to_s
+              end
+              result[PARALLEL_SUCCESS_INDEX] &&= exception.nil?
+              result[PARALLEL_RESULTS_INDEX] << response
+              result[PARALLEL_ERRORS_INDEX] << exception
+            end
           end
 
           private

@@ -6,7 +6,7 @@ module Workato
       module Dsl
         module Error
           def error(message)
-            raise message
+            raise Sdk::RuntimeError, message
           end
         end
       end

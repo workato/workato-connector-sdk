@@ -9,6 +9,8 @@ module Workato
 
       CustomRequestError = Class.new(StandardError)
 
+      RuntimeError = Class.new(StandardError)
+
       class RequestError < StandardError
         attr_reader :method,
                     :code,
@@ -22,7 +24,7 @@ module Workato
         end
       end
 
-      class NotImplementedError < RuntimeError
+      class NotImplementedError < StandardError
         def initialize(msg = 'This part of Connector SDK is not implemented in workato-connector-sdk yet')
           super
         end

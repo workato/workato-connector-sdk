@@ -20,7 +20,7 @@ RSpec.describe 'oauth_refresh', :vcr do
   end
 
   around(:each) do |example|
-    Workato::Connector::Sdk::Operation.on_settings_updated = lambda { |_http_body, _http_code, _exception, new_settings|
+    Workato::Connector::Sdk::Operation.on_settings_updated = lambda { |_message, new_settings|
       expect(new_settings).to eq(
         {
           access_token: 'eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjIyNzMwNjEsXCJpXCI6NTU0Nzc1MixcImNcIjo0NTk0NTkyLFwidlwiOlwiXCIsXCJ1XCI6NDY1NzE1NyxcInJcIjpcIlVTXCIsXCJzXCI6W1wiTlwiXSxcInpcIjpbXSxcInRcIjoxNTQxMDc3MTE4MDAwfSIsImV4cCI6MTU0MTA3NzExOCwiaWF0IjoxNTQxMDczNTE4fQ.WpNhXU4-f5rZp--IVKbjQsSR8fSmUZxWy2_SbZ7GmnE', # rubocop:disable Layout/LineLength

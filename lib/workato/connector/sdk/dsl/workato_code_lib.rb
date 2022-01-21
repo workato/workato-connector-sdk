@@ -10,6 +10,8 @@ module Workato
           JWT_ALGORITHMS = %w[RS256 RS384 RS512].freeze
           JWT_RSA_KEY_MIN_LENGTH = 2048
 
+          VERIFY_RCA_ALGORITHMS = %w[SHA SHA1 SHA224 SHA256 SHA384 SHA512].freeze
+
           def workato
             WorkatoCodeLib
           end
@@ -36,6 +38,21 @@ module Workato
 
               header_fields = header_fields.present? ? header_fields.with_indifferent_access.except(:typ, :alg) : {}
               ::JWT.encode(payload, rsa_private, algorithm, header_fields)
+            end
+
+            def verify_rsa(payload, certificate, signature, algorithm = 'SHA256')
+              algorithm = algorithm.to_s.upcase
+              unless VERIFY_RCA_ALGORITHMS.include?(algorithm)
+                raise "Unsupported signing method. Supports only #{VERIFY_RCA_ALGORITHMS.join(', ')}. Got: '#{algorithm}'" # rubocop:disable Layout/LineLength
+              end
+
+              cert = OpenSSL::X509::Certificate.new(certificate)
+              digest = OpenSSL::Digest.new(algorithm)
+              cert.public_key.verify(digest, signature, payload)
+            rescue OpenSSL::PKey::PKeyError
+              raise 'An error occurred during signature verification. Check arguments'
+            rescue OpenSSL::X509::CertificateError
+              raise 'Invalid certificate format'
             end
 
             def parse_yaml(yaml)

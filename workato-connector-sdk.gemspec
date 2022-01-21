@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 2.4'
 
   spec.add_runtime_dependency 'activesupport', '~> 5.2'
+  spec.add_runtime_dependency 'aws-sigv4', '= 1.2.4'
   spec.add_runtime_dependency 'countries', '= 1.2.2'
   spec.add_runtime_dependency 'currencies', '= 0.4.2'
   spec.add_runtime_dependency 'em-http-request', '~> 1.0'

@@ -81,7 +81,7 @@ module Workato
 
           settings.merge!(new_settings)
 
-          on_settings_updated&.call(http_body, http_code, exception, settings)
+          on_settings_updated&.call("Refresh token triggered on response \"#{exception}\"", settings)
 
           settings
         end

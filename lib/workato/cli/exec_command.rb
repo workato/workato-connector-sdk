@@ -85,10 +85,10 @@ module Workato
         )
         @settings = settings_store.read
 
-        Workato::Connector::Sdk::Operation.on_settings_updated = lambda do |_, _, exception, new_settings|
+        Workato::Connector::Sdk::Operation.on_settings_updated = lambda do |message, new_settings|
           $stdout.pause if verbose?
           say('')
-          say("Refresh token triggered on response \"#{exception}\"")
+          say(message)
           loop do
             answer = ask('Updated settings file with new connection attributes? (Yes or No)').to_s.downcase
             break if %w[n no].include?(answer)
