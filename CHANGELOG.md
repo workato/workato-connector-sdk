@@ -1,3 +1,11 @@
+# 0.4.1 - Fix AWS and update loofah
+
+## Bugfixes
+- Fix missing constant in AWS module
+
+## Misc
+- Update loofah gem 
+
 # 0.4.0 - AWS, parallel, verify_rsa, decode_url
 
 ## Enhancements

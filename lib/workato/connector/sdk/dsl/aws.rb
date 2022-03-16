@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'aws-sigv4'
+
 module Workato
   module Connector
     module Sdk

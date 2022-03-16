@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'gyoku', '= 1.3.1'
   spec.add_runtime_dependency 'jwt', '= 1.5.6'
   spec.add_runtime_dependency 'launchy', '~> 2.0'
-  spec.add_runtime_dependency 'loofah', '= 2.12.0'
+  spec.add_runtime_dependency 'loofah', '= 2.14.0'
   spec.add_runtime_dependency 'net-http-digest_auth', '= 1.4.0'
   spec.add_runtime_dependency 'nokogiri', '= 1.10.10'
   spec.add_runtime_dependency 'oauth2', '~> 1.0'
