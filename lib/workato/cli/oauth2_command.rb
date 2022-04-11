@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'securerandom'
 require 'workato/web/app'
 
 module Workato
@@ -112,6 +113,7 @@ module Workato
         @authorize_url =
           if (authorization_url = connector.connection.authorization.authorization_url(settings))
             params = {
+              state: SecureRandom.hex(8),
               client_id: connector.connection.authorization.client_id(settings),
               redirect_uri: redirect_url
             }

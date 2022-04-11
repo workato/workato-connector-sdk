@@ -39,12 +39,39 @@ module Workato
         create_spec_files
       end
 
-      desc 'schema', 'Generate schema by JSON example'
+      desc 'schema', 'Generate schema from example'
+
+      method_option :json, type: :string, desc: 'Path to JSON sample file'
+      method_option :csv, type: :string, desc: 'Path to CSV sample file'
+      method_option :col_sep,
+                    type: :string,
+                    desc: 'Use separator for CSV convertor',
+                    enum: SchemaCommand::CSV_SEPARATORS,
+                    default: 'comma'
+      method_option :api_email,
+                    type: :string,
+                    desc: 'Email for accessing Workato API or '\
+                          "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} env"
+      method_option :api_token,
+                    type: :string,
+                    desc: 'Token for accessing Workato API or ' \
+                          "set #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} env"
+
+      long_desc <<~HELP
+        The 'workato generate schema' command generates Workato Schema from a sample file.
+        Supported inputs #{SchemaCommand::SAMPLE_TO_SCHEMA_SUPPORT_TYPES.join(', ')}
+
+        Example:
+
+          workato generate schema --csv=input.csv --col-sep=semicolon # This generates a schema from CSV file.
+
+          workato generate schema --json=input.json
+      HELP
+
       def schema
-        say <<~HELP
-          Generate schema is not implemented yet.
-          Use Workato UI "JSON to Schema" converter for now.
-        HELP
+        SchemaCommand.new(
+          options: options
+        ).call
       end
 
       private

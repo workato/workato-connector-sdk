@@ -1,3 +1,9 @@
+# 0.5.0 - Schema generator
+
+## Enhancements
+- Add command `workato generate schema` for easier building schemas from existing sample input/output
+- Add `state` param to OAuth2 authorize URL
+
 # 0.4.1 - Fix AWS and update loofah
 
 ## Bugfixes
@@ -41,9 +47,9 @@
 ## Bugfixes
 
 - Multiple fixes for Windows platform:
-    - fix `worato push` not working
-    - handle missing `tzinfo-data` and require it to install
-    - fix `workato new` flood terminal with repeated message
+  - fix `worato push` not working
+  - handle missing `tzinfo-data` and require it to install
+  - fix `workato new` flood terminal with repeated message
 
 # 0.1.1 - Update metadata
 

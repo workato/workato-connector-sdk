@@ -10,9 +10,6 @@ module Workato
     class PushCommand
       include Thor::Shell
 
-      WORKATO_API_TOKEN_ENV = 'WORKATO_API_TOKEN'
-      WORKATO_API_EMAIL_ENV = 'WORKATO_API_EMAIL'
-
       ENVIRONMENTS = {
         'preview' => 'https://app.preview.workato.com',
         'preview-eu' => 'https://app.preview.eu.workato.com',
@@ -35,8 +32,8 @@ module Workato
       def initialize(options:)
         @options = options
         @api_base_url = ENVIRONMENTS.fetch(options[:environment])
-        @api_email = options[:api_email] || ENV[WORKATO_API_EMAIL_ENV]
-        @api_token = options[:api_token] || ENV[WORKATO_API_TOKEN_ENV]
+        @api_email = options[:api_email] || ENV[Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV]
+        @api_token = options[:api_token] || ENV[Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV]
         @folder_id = options[:folder]
       end
 

@@ -19,6 +19,9 @@ module Workato
       DEFAULT_TIME_ZONE = 'Pacific Time (US & Canada)'
 
       DEFAULT_SCHEMAS_PATH = 'workato_schemas.json'
+
+      WORKATO_API_EMAIL_ENV = 'WORKATO_API_EMAIL'
+      WORKATO_API_TOKEN_ENV = 'WORKATO_API_TOKEN'
     end
   end
 end

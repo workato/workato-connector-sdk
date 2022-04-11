@@ -4,6 +4,7 @@ require 'thor'
 require 'workato/connector/sdk'
 require_relative './exec_command'
 require_relative './edit_command'
+require_relative './schema_command'
 require_relative './generate_command'
 require_relative './push_command'
 require_relative './oauth2_command'
@@ -125,11 +126,11 @@ module Workato
       method_option :api_email,
                     type: :string,
                     desc: 'Email for accessing Workato API or '\
-                          "set #{Workato::CLI::PushCommand::WORKATO_API_EMAIL_ENV} env"
+                          "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} env"
       method_option :api_token,
                     type: :string,
                     desc: 'Token for accessing Workato API or ' \
-                          "set #{Workato::CLI::PushCommand::WORKATO_API_TOKEN_ENV} env"
+                          "set #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} env"
       method_option :environment,
                     type: :string,
                     enum: Workato::CLI::PushCommand::ENVIRONMENTS.keys,
