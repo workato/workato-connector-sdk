@@ -319,7 +319,27 @@ Commands:
   workato generate test            # Generate empty test for connector
 ```
 
-**NOTE: `workato generate schema` is currently not implemented.**
+
+### 3.4.1 workato generate schema
+Use command to generate Workato Schema from a sample file. Supported inputs csv, json
+
+```
+workato generate help schema
+
+Usage:
+  workato generate schema
+
+Options:
+  [--json=JSON]            # Path to JSON sample file
+  [--csv=CSV]              # Path to CSV sample file
+  [--col-sep=COL_SEP]      # Use separator for CSV converter
+                           # Default: comma
+                           # Possible values: comma, space, tab, colon, semicolon, pipe
+  [--api-email=API_EMAIL]  # Email for accessing Workato API or set WORKATO_API_EMAIL environment variable
+  [--api-token=API_TOKEN]  # Token for accessing Workato API or set WORKATO_API_TOKEN environment variable
+```
+
+### 3.4.2 workato generate test
 
 - Use `workato generate test` to generate tests based on your connector.rb file.
 
