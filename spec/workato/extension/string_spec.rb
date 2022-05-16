@@ -74,5 +74,28 @@ module Workato::Extension
         it { is_expected.to eq(expected_hmac_sha256) }
       end
     end
+
+    describe '#to_date' do
+      subject(:to_date) { input.to_date(format: format).to_s }
+
+      let(:input) { '24/12/2014 10:30PM' }
+      let(:format) { nil }
+      let(:expected_date) { '2014-12-24' }
+
+      it { is_expected.to eq(expected_date) }
+
+      context 'custom date format' do
+        let(:input) { '12/24/2014 10:30PM' }
+        let(:format) { 'MM/DD/YYYY' }
+
+        it { is_expected.to eq(expected_date) }
+      end
+
+      context 'when unknown format' do
+        let(:input) { '12/24/2014 10:30PM' }
+
+        it { expect { to_date }.to raise_error(ArgumentError, 'invalid date') }
+      end
+    end
   end
 end

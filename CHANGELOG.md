@@ -1,3 +1,9 @@
+# 1.0.1 - Fix String#to_date
+
+## Bugfixes
+
+- Fix String#to_date unexpected argument
+
 # 1.0.0 - Improve webhook_notification, bugfixes
 
 ## Enhancements

@@ -268,4 +268,4 @@ module Workato
   end
 end
 
-String.include(Workato::Extension::String)
+String.prepend(Workato::Extension::String)
