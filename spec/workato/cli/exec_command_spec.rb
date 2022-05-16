@@ -20,6 +20,7 @@ module Workato::CLI
         webhook_payload: 'spec/fixtures/webhook_payload.json',
         webhook_params: 'spec/fixtures/webhook_params.json',
         webhook_headers: 'spec/fixtures/webhook_headers.json',
+        webhook_subscribe_output: 'spec/fixtures/webhook_subscribe_output.json',
         webhook_url: 'http://www.example.com',
         output: false,
         oauth2_code: '1234567890',
@@ -37,6 +38,7 @@ module Workato::CLI
     let(:webhook_payload) { JSON.parse(File.read(options[:webhook_payload])) }
     let(:webhook_headers) { JSON.parse(File.read(options[:webhook_headers])) }
     let(:webhook_params) { JSON.parse(File.read(options[:webhook_params])) }
+    let(:webhook_subscribe_output) { JSON.parse(File.read(options[:webhook_subscribe_output])) }
     let(:webhook_url) { options[:webhook_url] }
 
     {
@@ -125,6 +127,73 @@ module Workato::CLI
       end,
 
       # triggers
+      'triggers.with_schema_webhook_trigger' => lambda do
+        {
+          input: input,
+          payload: webhook_payload,
+          extended_input_schema: [
+            {
+              'control_type' => 'number',
+              'label' => 'Input',
+              'name' => 'input',
+              'optional' => true,
+              'parse_output' => 'float_conversion',
+              'type' => 'number'
+            }
+          ],
+          extended_output_schema: [
+            { 'label' => 'Input', 'name' => 'input', 'optional' => true, 'properties' => [], 'type' => 'object' },
+            { 'label' => 'Payload', 'name' => 'payload', 'optional' => true, 'properties' => [], 'type' => 'object' },
+            {
+              'label' => 'Extended input schema',
+              'name' => 'extended_input_schema',
+              'optional' => true, 'properties' => [],
+              'type' => 'object'
+            },
+            {
+              'label' => 'Extended output schema',
+              'name' => 'extended_output_schema',
+              'optional' => true,
+              'properties' => [],
+              'type' => 'object'
+            },
+            { 'label' => 'Headers', 'name' => 'headers', 'optional' => true, 'properties' => [], 'type' => 'object' },
+            { 'label' => 'Params', 'name' => 'params', 'optional' => true, 'properties' => [], 'type' => 'object' },
+            {
+              'label' => 'Connection',
+              'name' => 'connection',
+              'optional' => true,
+              'properties' => [],
+              'type' => 'object'
+            },
+            {
+              'label' => 'Webhook subscribe output',
+              'name' => 'webhook_subscribe_output',
+              'optional' => true,
+              'properties' => [], 'type' => 'object'
+            }
+          ],
+          headers: webhook_headers,
+          params: webhook_params,
+          connection: settings,
+          webhook_subscribe_output: { 'webhook_subscribe_output' => true }
+        }
+      end,
+
+      'triggers.with_schema_poll_trigger' => lambda do
+        {
+          events: [
+            {
+              connection: settings,
+              input: input,
+              closure: nil
+            }
+          ],
+          can_poll_more: false,
+          next_poll: Time
+        }.with_indifferent_access
+      end,
+
       'triggers.echo_trigger.poll' => lambda do
         {
           events: a_hash_including(
@@ -148,7 +217,9 @@ module Workato::CLI
           extended_input_schema: extended_input_schema,
           extended_output_schema: extended_output_schema,
           headers: webhook_headers,
-          params: webhook_params
+          params: webhook_params,
+          connection: settings,
+          webhook_subscribe_output: webhook_subscribe_output
         }
       end,
       'triggers.echo_trigger.webhook_subscribe' => lambda do
@@ -162,7 +233,7 @@ module Workato::CLI
       end,
       'triggers.echo_trigger.webhook_unsubscribe' => lambda do
         {
-          webhook_subscribe_output: input
+          webhook_subscribe_output: webhook_subscribe_output
         }.with_indifferent_access
       end,
 

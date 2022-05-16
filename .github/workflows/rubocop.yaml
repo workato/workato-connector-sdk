@@ -17,6 +17,9 @@ jobs:
           ruby-version: '2.5'
           bundler-cache: true
 
+      # Required to install `rubocop` on Ruby 2.5.
+      - run: gem install rubocop-ast:1.17.0
+
       - name: Run Rubocop
         uses: reviewdog/action-rubocop@v1
         with:

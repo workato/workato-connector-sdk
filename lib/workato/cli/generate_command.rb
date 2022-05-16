@@ -45,17 +45,17 @@ module Workato
       method_option :csv, type: :string, desc: 'Path to CSV sample file'
       method_option :col_sep,
                     type: :string,
-                    desc: 'Use separator for CSV convertor',
+                    desc: 'Use separator for CSV converter',
                     enum: SchemaCommand::CSV_SEPARATORS,
                     default: 'comma'
       method_option :api_email,
                     type: :string,
                     desc: 'Email for accessing Workato API or '\
-                          "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} env"
+                          "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} environment variable"
       method_option :api_token,
                     type: :string,
                     desc: 'Token for accessing Workato API or ' \
-                          "set #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} env"
+                          "set #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} environment variable"
 
       long_desc <<~HELP
         The 'workato generate schema' command generates Workato Schema from a sample file.

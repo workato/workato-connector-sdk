@@ -54,6 +54,7 @@ module Workato
       method_option :webhook_payload, type: :string, aliases: '-w', desc: 'Path to file with webhook payload JSON'
       method_option :webhook_params, type: :string, desc: 'Path to file with webhook params JSON'
       method_option :webhook_headers, type: :string, desc: 'Path to file with webhook headers JSON'
+      method_option :webhook_subscribe_output, type: :string, desc: 'Path to file with webhook subscribe output JSON'
       method_option :webhook_url, type: :string, desc: 'Webhook URL for automatic webhook subscription'
       method_option :output, type: :string, aliases: '-o', desc: 'Write output to JSON file'
       method_option :oauth2_code, type: :string, desc: 'OAuth2 code exchange to tokens pair'
@@ -126,11 +127,11 @@ module Workato
       method_option :api_email,
                     type: :string,
                     desc: 'Email for accessing Workato API or '\
-                          "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} env"
+                          "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} environment variable"
       method_option :api_token,
                     type: :string,
                     desc: 'Token for accessing Workato API or ' \
-                          "set #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} env"
+                          "set #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} environment variable"
       method_option :environment,
                     type: :string,
                     enum: Workato::CLI::PushCommand::ENVIRONMENTS.keys,

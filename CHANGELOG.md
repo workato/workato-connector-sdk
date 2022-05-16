@@ -1,3 +1,18 @@
+# 1.0.0 - Improve webhook_notification, bugfixes
+
+## Enhancements
+
+- Add `settings ` and `webhook_subscribe_output` params to `webhook_notification` callback
+
+## Bugfixes
+
+- Fix `workato exec triggers.test_trigger` incorrectly handles output
+- Fix binary string console output
+
+## Misc
+
+- Now `workato exec 'trigger.webhook_unsubscribe'` uses `--webhook-subscribe-output` as input argument. Previously was `--input`
+
 # 0.5.0 - Schema generator
 
 ## Enhancements

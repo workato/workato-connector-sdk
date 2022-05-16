@@ -17,7 +17,7 @@
 
   triggers: {
     test_trigger: {
-      webhook_notification: lambda do |_input, payload, _eis, _eos, _headers, _params|
+      webhook_notification: lambda do |_input, payload, _eis, _eos, _headers, _params, _settings, _wso|
         payload['post']
       end,
 

@@ -265,27 +265,28 @@ Usage:
   workato exec <PATH>
 
 Options:
-  -c, [--connector=CONNECTOR]                            # Path to connector source code
-  -s, [--settings=SETTINGS]                              # Path to plain or encrypted file with connection configs, passwords, tokens, secrets etc
-  -n, [--connection=CONNECTION]                          # Connection name if settings file contains multiple settings
-  -k, [--key=KEY]                                        # Path to file with encrypt/decrypt key. NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
-  -i, [--input=INPUT]                                    # Path to file with input JSON
-      [--closure=CLOSURE]                                # Path to file with next poll closure JSON
-      [--continue=CONTINUE]                              # Path to file with next multistep action continue closure JSON
-  -a, [--args=ARGS]                                      # Path to file with method arguments JSON
-      [--extended-input-schema=EXTENDED_INPUT_SCHEMA]    # Path to file with extended input schema definition JSON
-      [--extended-output-schema=EXTENDED_OUTPUT_SCHEMA]  # Path to file with extended output schema definition JSON
-      [--config-fields=CONFIG_FIELDS]                    # Path to file with config fields JSON
-  -w, [--webhook-payload=WEBHOOK_PAYLOAD]                # Path to file with webhook payload JSON
-      [--webhook-params=WEBHOOK_PARAMS]                  # Path to file with webhook params JSON
-      [--webhook-headers=WEBHOOK_HEADERS]                # Path to file with webhook headers JSON
-      [--webhook-url=WEBHOOK_URL]                        # Webhook URL for automatic webhook subscription
-  -o, [--output=OUTPUT]                                  # Write output to JSON file
-      [--oauth2-code=OAUTH2_CODE]                        # OAuth2 code exchange to tokens pair
-      [--redirect-url=REDIRECT_URL]                      # OAuth2 callback url
-      [--refresh-token=REFRESH_TOKEN]                    # OAuth2 refresh token
-      [--debug], [--no-debug]                            
-      [--verbose], [--no-verbose]                        
+  -c, [--connector=CONNECTOR]                                # Path to connector source code
+  -s, [--settings=SETTINGS]                                  # Path to plain or encrypted file with connection configs, passwords, tokens, secrets etc
+  -n, [--connection=CONNECTION]                              # Connection name if settings file contains multiple settings
+  -k, [--key=KEY]                                            # Path to file with encrypt/decrypt key. NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
+  -i, [--input=INPUT]                                        # Path to file with input JSON
+      [--closure=CLOSURE]                                    # Path to file with next poll closure JSON
+      [--continue=CONTINUE]                                  # Path to file with next multistep action continue closure JSON
+  -a, [--args=ARGS]                                          # Path to file with method arguments JSON
+      [--extended-input-schema=EXTENDED_INPUT_SCHEMA]        # Path to file with extended input schema definition JSON
+      [--extended-output-schema=EXTENDED_OUTPUT_SCHEMA]      # Path to file with extended output schema definition JSON
+      [--config-fields=CONFIG_FIELDS]                        # Path to file with config fields JSON
+  -w, [--webhook-payload=WEBHOOK_PAYLOAD]                    # Path to file with webhook payload JSON
+      [--webhook-params=WEBHOOK_PARAMS]                      # Path to file with webhook params JSON
+      [--webhook-headers=WEBHOOK_HEADERS]                    # Path to file with webhook headers JSON
+      [--webhook-subscribe-output=WEBHOOK_SUBSCRIBE_OUTPUT]  # Path to file with webhook subscribe output JSON
+      [--webhook-url=WEBHOOK_URL]                            # Webhook URL for automatic webhook subscription
+  -o, [--output=OUTPUT]                                      # Write output to JSON file
+      [--oauth2-code=OAUTH2_CODE]                            # OAuth2 code exchange to tokens pair
+      [--redirect-url=REDIRECT_URL]                          # OAuth2 callback url
+      [--refresh-token=REFRESH_TOKEN]                        # OAuth2 refresh token
+      [--debug], [--no-debug]
+      [--verbose], [--no-verbose]                    
 
 Description:
   The 'workato exec' executes connector's lambda block at <PATH>. Lambda's parameters can be provided if needed, see options part.
@@ -318,7 +319,6 @@ Commands:
   workato generate schema          # Generate schema by JSON example
   workato generate test            # Generate empty test for connector
 ```
-
 
 ### 3.4.1 workato generate schema
 Use command to generate Workato Schema from a sample file. Supported inputs csv, json
@@ -420,8 +420,8 @@ Options:
   -l, [--logo=LOGO]                # Path to connector logo: png or jpeg file
   -n, [--notes=NOTES]              # Release notes
   -c, [--connector=CONNECTOR]      # Path to connector source code
-      [--api-email=API_EMAIL]      # Email for accessing Workato API or set WORKATO_API_EMAIL env
-      [--api-token=API_TOKEN]      # Token for accessing Workato API or set WORKATO_API_TOKEN env
+      [--api-email=API_EMAIL]      # Email for accessing Workato API or set WORKATO_API_EMAIL environment variable
+      [--api-token=API_TOKEN]      # Token for accessing Workato API or set WORKATO_API_TOKEN environment variable
       [--environment=ENVIRONMENT]  # Server to push connector code to
                                    # Default: live
                                    # Possible values: preview, preview-eu, live, live-eu

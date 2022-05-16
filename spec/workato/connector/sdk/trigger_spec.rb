@@ -97,8 +97,10 @@ module Workato::Connector::Sdk
         eos = { g: :h }
         headers = { i: :j }
         params = { k: :l }
+        settings = { m: :n }
+        wso = { o: :p }
 
-        output = trigger.webhook_notification(input, payload, [eis], [eos], headers, params)
+        output = trigger.webhook_notification(input, payload, [eis], [eos], headers, params, settings, wso)
 
         expect(output).to eq(
           {
@@ -107,7 +109,9 @@ module Workato::Connector::Sdk
             extended_input_schema: [eis.with_indifferent_access],
             extended_output_schema: [eos.with_indifferent_access],
             headers: headers.with_indifferent_access,
-            params: params.with_indifferent_access
+            params: params.with_indifferent_access,
+            settings: settings.with_indifferent_access,
+            webhook_subscribe_output: wso.with_indifferent_access
           }
         )
       end
@@ -142,6 +146,19 @@ module Workato::Connector::Sdk
 
         it 'raises error' do
           expect { trigger.webhook_notification }.to raise_error(NoMethodError, /undefined method `call'/)
+        end
+      end
+
+      context 'with connector-wide settings' do
+        subject(:trigger) { described_class.new(trigger: trigger_definition, settings: settings) }
+
+        let(:settings) { { foo: :bar }.with_indifferent_access }
+        let(:trigger_definition) { with_webhooks }
+
+        it 'returns result' do
+          output = trigger.webhook_notification
+
+          expect(output).to include(settings: settings)
         end
       end
     end
@@ -220,14 +237,16 @@ module Workato::Connector::Sdk
 
     def with_webhooks
       {
-        webhook_notification: lambda do |input, payload, eis, eos, headers, params|
+        webhook_notification: lambda do |input, payload, eis, eos, headers, params, settings, wso|
           {
             input: input,
             payload: payload,
             extended_input_schema: eis,
             extended_output_schema: eos,
             headers: headers,
-            params: params
+            params: params,
+            settings: settings,
+            webhook_subscribe_output: wso
           }
         end,
 

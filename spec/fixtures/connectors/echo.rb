@@ -146,14 +146,16 @@
         { record: record }
       end,
 
-      webhook_notification: lambda do |input, payload, eis, eos, headers, params|
+      webhook_notification: lambda do |input, payload, eis, eos, headers, params, connection, wso|
         {
           input: input,
           payload: payload,
           extended_input_schema: eis,
           extended_output_schema: eos,
           headers: headers,
-          params: params
+          params: params,
+          connection: connection,
+          webhook_subscribe_output: wso
         }
       end,
 
@@ -171,6 +173,68 @@
         {
           webhook_subscribe_output: webhook_subscribe_output
         }
+      end
+    },
+
+    with_schema_webhook_trigger: {
+      webhook_notification: lambda do |input, payload, eis, eos, headers, params, connection, wso|
+        {
+          input: input,
+          payload: payload,
+          extended_input_schema: eis,
+          extended_output_schema: eos,
+          headers: headers,
+          params: params,
+          connection: connection,
+          webhook_subscribe_output: wso
+        }
+      end,
+
+      input_fields: lambda do |_object_definitions, _connection, _config_fields|
+        [
+          { name: :input, type: :boolean }
+        ]
+      end,
+
+      output_fields: lambda do |_object_definitions, _connection, _config_fields|
+        [
+          { name: :input, type: :object },
+          { name: :payload, type: :object },
+          { name: :extended_input_schema, type: :object },
+          { name: :extended_output_schema, type: :object },
+          { name: :headers, type: :object },
+          { name: :params, type: :object },
+          { name: :connection, type: :object },
+          { name: :webhook_subscribe_output, type: :object }
+        ]
+      end
+    },
+
+    with_schema_poll_trigger: {
+      poll: lambda do |connection, input, closure|
+        {
+          events: {
+            connection: connection,
+            input: input,
+            closure: closure
+          },
+          can_poll_more: false,
+          next_poll: 1.minute.from_now
+        }
+      end,
+
+      input_fields: lambda do |_object_definitions, _connection, _config_fields|
+        [
+          { name: :input, type: :boolean }
+        ]
+      end,
+
+      output_fields: lambda do |_object_definitions, _connection, _config_fields|
+        [
+          { name: :connection, type: :object },
+          { name: :input, type: :object },
+          { name: :closure, type: :object }
+        ]
       end
     }
   },

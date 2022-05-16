@@ -56,8 +56,16 @@ module Workato
           trigger[:dedup].call(input)
         end
 
-        def webhook_notification(input = {}, payload = {}, extended_input_schema = [],
-                                 extended_output_schema = [], headers = {}, params = {})
+        def webhook_notification(
+          input = {},
+          payload = {},
+          extended_input_schema = [],
+          extended_output_schema = [],
+          headers = {},
+          params = {},
+          settings = nil,
+          webhook_subscribe_output = {}
+        )
           Dsl::WithDsl.execute(
             input.with_indifferent_access,
             payload.with_indifferent_access,
@@ -65,6 +73,8 @@ module Workato
             extended_output_schema.map(&:with_indifferent_access),
             headers.with_indifferent_access,
             params.with_indifferent_access,
+            (settings || @settings).with_indifferent_access,
+            webhook_subscribe_output.with_indifferent_access,
             &trigger[:webhook_notification]
           )
         end
@@ -89,23 +99,33 @@ module Workato
           end
         end
 
-        def invoke(input = {}, payload = {}, headers = {}, params = {})
+        def invoke(input = {}, payload = {}, headers = {}, params = {}, webhook_subscribe_output = {})
           extended_schema = extended_schema(nil, input)
           config_schema = Schema.new(schema: config_fields_schema)
           input_schema = Schema.new(schema: extended_schema[:input])
           output_schema = Schema.new(schema: extended_schema[:output])
 
           input = apply_input_schema(input, config_schema + input_schema)
-          output = if webhook_notification?
-                     webhook_notification(input, payload, input_schema, output_schema, headers, params)
-                   else
-                     poll(nil, input, nil, input_schema, output_schema)
-                   end
-          output[:events].each do |event|
-            apply_output_schema(event, output_schema)
+          if webhook_notification?
+            webhook_notification(
+              input,
+              payload,
+              input_schema,
+              output_schema,
+              headers,
+              params,
+              nil,
+              webhook_subscribe_output
+            ).tap do |event|
+              apply_output_schema(event, output_schema)
+            end
+          else
+            output = poll(nil, input, nil, input_schema, output_schema)
+            output[:events].each do |event|
+              apply_output_schema(event, output_schema)
+            end
+            output
           end
-
-          output
         end
 
         private

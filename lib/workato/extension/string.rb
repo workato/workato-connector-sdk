@@ -229,6 +229,10 @@ module Workato
         self
       end
 
+      def to_json(_options = nil)
+        summary
+      end
+
       def binary?
         true
       end
@@ -245,18 +249,11 @@ module Workato
         as_string('utf-8')
       end
 
-      # representation in event title
-      def title
-        if length.positive?
-          "0x#{byteslice(0, TITLE_LENGTH).unpack1('H*')}#{bytesize > TITLE_LENGTH ? '…' : ''}"
-        else
-          ''
-        end
-      end
-
       def sha1
         Binary.new(::Digest::SHA1.digest(self))
       end
+
+      private
 
       def summary
         if length.positive?
@@ -266,10 +263,6 @@ module Workato
         else
           ''
         end
-      end
-
-      def self.from_base64(base64str)
-        new(Base64.strict_decode64(base64str))
       end
     end
   end

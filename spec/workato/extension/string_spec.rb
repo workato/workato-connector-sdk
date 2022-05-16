@@ -58,5 +58,21 @@ module Workato::Extension
         end
       end
     end
+
+    describe '#hmac_sha256' do
+      subject(:hmac_sha256) { input.hmac_sha256(key).to_json }
+
+      let(:input) { 'abc' }
+      let(:key) { '$ecRet' }
+      let(:expected_hmac_sha256) { '0xb37699f713c0317d93a13f2fdd648957a21e30acfc36e541c455a3160d196e6d' }
+
+      it { is_expected.to eq(expected_hmac_sha256) }
+
+      context 'when binary input' do
+        let(:input) { Binary.new('abc') }
+
+        it { is_expected.to eq(expected_hmac_sha256) }
+      end
+    end
   end
 end

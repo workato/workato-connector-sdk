@@ -50,7 +50,7 @@ module Workato
           settings: settings,
           input: from_json(options[:input]),
           output: from_json(options[:input]),
-          webhook_subscribe_output: from_json(options[:input]),
+          webhook_subscribe_output: from_json(options[:webhook_subscribe_output]).presence,
           args: from_json(options[:args]).presence || [],
           extended_input_schema: from_json(options[:extended_input_schema]).presence || [],
           extended_output_schema: from_json(options[:extended_output_schema]).presence || [],
