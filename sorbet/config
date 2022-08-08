@@ -1,0 +1,5 @@
+--dir
+exe
+lib
+sorbet
+--ignore=/vendor/bundle

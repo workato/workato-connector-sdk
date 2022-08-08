@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 require_relative './block_invocation_refinements'
@@ -27,20 +28,34 @@ module Workato
           def sleep(seconds)
             ::Kernel.sleep(seconds.presence || 0)
           end
+
+          def puts(*args)
+            T.unsafe(::Kernel).puts(*args)
+          end
         end
 
         class WithDsl
+          extend T::Sig
+
           include Global
 
           using BlockInvocationRefinements
 
-          def execute(*args, &block)
-            instance_exec(*args, &block)
+          sig { params(connection: Connection, args: T.untyped, block: T.untyped).returns(T.untyped) }
+          def execute(connection, *args, &block)
+            @connection = connection
+            T.unsafe(self).instance_exec(*args, &block)
           end
 
-          def self.execute(*args, &block)
-            WithDsl.new.execute(*args, &block)
+          sig { params(connection: Connection, args: T.untyped, block: T.untyped).returns(T.untyped) }
+          def self.execute(connection, *args, &block)
+            T.unsafe(WithDsl.new).execute(connection, *args, &block)
           end
+
+          private
+
+          sig { returns(Connection) }
+          attr_reader :connection
         end
       end
     end

@@ -1,3 +1,4 @@
+# typed: strict
 # frozen_string_literal: true
 
 require 'securerandom'
@@ -5,19 +6,41 @@ require 'securerandom'
 module Workato
   module Connector
     module Sdk
+      module SorbetTypes
+        WebhookSubscribeOutputHash = T.type_alias { T::Hash[T.any(String, Symbol), T.untyped] }
+      end
+
       class Trigger < Operation
         using BlockInvocationRefinements
 
-        def initialize(trigger:, connection: {}, methods: {}, settings: {}, object_definitions: nil)
+        sig do
+          params(
+            trigger: SorbetTypes::SourceHash,
+            methods: SorbetTypes::SourceHash,
+            connection: Connection,
+            object_definitions: T.nilable(ObjectDefinitions)
+          ).void
+        end
+        def initialize(trigger:, methods: {}, connection: Connection.new, object_definitions: nil)
           super(
             operation: trigger,
             connection: connection,
             methods: methods,
-            settings: settings,
             object_definitions: object_definitions
           )
         end
 
+        sig do
+          params(
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            input: SorbetTypes::OperationInputHash,
+            closure: T.untyped,
+            extended_input_schema: SorbetTypes::OperationSchema,
+            extended_output_schema: SorbetTypes::OperationSchema
+          ).returns(
+            HashWithIndifferentAccess
+          )
+        end
         def poll_page(settings = nil, input = {}, closure = nil, extended_input_schema = [],
                       extended_output_schema = [])
           poll_proc = trigger[:poll]
@@ -34,8 +57,19 @@ module Workato
           output
         end
 
+        sig do
+          params(
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            input: SorbetTypes::OperationInputHash,
+            closure: T.untyped,
+            extended_input_schema: SorbetTypes::OperationSchema,
+            extended_output_schema: SorbetTypes::OperationSchema
+          ).returns(
+            HashWithIndifferentAccess
+          )
+        end
         def poll(settings = nil, input = {}, closure = nil, extended_input_schema = [], extended_output_schema = [])
-          events = []
+          events = T.let([], T::Array[T::Hash[T.any(String, Symbol), T.untyped]])
 
           loop do
             output = poll_page(settings, input, closure, extended_input_schema, extended_output_schema)
@@ -52,10 +86,25 @@ module Workato
           }.with_indifferent_access
         end
 
+        sig { params(input: SorbetTypes::OperationInputHash).returns(T.untyped) }
         def dedup(input = {})
           trigger[:dedup].call(input)
         end
 
+        sig do
+          params(
+            input: SorbetTypes::OperationInputHash,
+            payload: T::Hash[T.any(String, Symbol), T.untyped],
+            extended_input_schema: SorbetTypes::OperationSchema,
+            extended_output_schema: SorbetTypes::OperationSchema,
+            headers: T::Hash[T.any(String, Symbol), T.untyped],
+            params: T::Hash[T.any(String, Symbol), T.untyped],
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash
+          ).returns(
+            HashWithIndifferentAccess
+          )
+        end
         def webhook_notification(
           input = {},
           payload = {},
@@ -66,19 +115,31 @@ module Workato
           settings = nil,
           webhook_subscribe_output = {}
         )
+          connection.merge_settings!(settings) if settings
           Dsl::WithDsl.execute(
+            connection,
             input.with_indifferent_access,
             payload.with_indifferent_access,
-            extended_input_schema.map(&:with_indifferent_access),
-            extended_output_schema.map(&:with_indifferent_access),
+            Array.wrap(extended_input_schema).map(&:with_indifferent_access),
+            Array.wrap(extended_output_schema).map(&:with_indifferent_access),
             headers.with_indifferent_access,
             params.with_indifferent_access,
-            (settings || @settings).with_indifferent_access,
+            connection.settings,
             webhook_subscribe_output.with_indifferent_access,
             &trigger[:webhook_notification]
-          )
+          ).with_indifferent_access
         end
 
+        sig do
+          params(
+            webhook_url: String,
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            input: SorbetTypes::OperationInputHash,
+            recipe_id: String
+          ).returns(
+            SorbetTypes::WebhookSubscribeOutputHash
+          )
+        end
         def webhook_subscribe(webhook_url = '', settings = nil, input = {}, recipe_id = SecureRandom.uuid)
           webhook_subscribe_proc = trigger[:webhook_subscribe]
           execute(settings, { input: input, webhook_url: webhook_url, recipe_id: recipe_id }) do |connection, payload|
@@ -92,6 +153,7 @@ module Workato
           end
         end
 
+        sig { params(webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash).returns(T.untyped) }
         def webhook_unsubscribe(webhook_subscribe_output = {})
           webhook_unsubscribe_proc = trigger[:webhook_unsubscribe]
           execute(nil, webhook_subscribe_output) do |_connection, input|
@@ -99,6 +161,17 @@ module Workato
           end
         end
 
+        sig do
+          params(
+            input: SorbetTypes::OperationInputHash,
+            payload: T::Hash[T.any(String, Symbol), T.untyped],
+            headers: T::Hash[T.any(String, Symbol), T.untyped],
+            params: T::Hash[T.any(String, Symbol), T.untyped],
+            webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash
+          ).returns(
+            T::Hash[T.any(String, Symbol), T.untyped]
+          )
+        end
         def invoke(input = {}, payload = {}, headers = {}, params = {}, webhook_subscribe_output = {})
           extended_schema = extended_schema(nil, input)
           config_schema = Schema.new(schema: config_fields_schema)
@@ -132,6 +205,7 @@ module Workato
 
         alias trigger operation
 
+        sig { returns(T::Boolean) }
         def webhook_notification?
           trigger[:webhook_notification].present?
         end

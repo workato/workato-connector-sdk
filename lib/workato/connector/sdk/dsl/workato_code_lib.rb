@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 require 'jwt'
@@ -19,6 +20,43 @@ module Workato
           def parse_json(source)
             WorkatoCodeLib.parse_json(source)
           end
+
+          def uuid
+            WorkatoCodeLib.uuid
+          end
+
+          def encrypt(text, key)
+            ::Kernel.require('ruby_rncryptor')
+
+            enc_text = ::RubyRNCryptor.encrypt(text, key)
+            ::Base64.strict_encode64(enc_text)
+          end
+
+          def decrypt(text, key)
+            ::Kernel.require('ruby_rncryptor')
+
+            text = ::Base64.decode64(text)
+            dec_text = ::RubyRNCryptor.decrypt(text, key)
+            Workato::Extension::Binary.new(dec_text)
+          rescue Exception => e # rubocop:disable Lint/RescueException
+            message = e.message.to_s
+            case message
+            when /Password may be incorrect/
+              ::Kernel.raise 'invalid/corrupt input or key'
+            when /RubyRNCryptor only decrypts version/
+              ::Kernel.raise 'invalid/corrupt input'
+            else
+              ::Kernel.raise
+            end
+          end
+
+          def blank; end
+
+          def clear; end
+
+          def null; end
+
+          def skip; end
 
           class << self
             def jwt_encode_rs256(payload, key, header_fields = {})

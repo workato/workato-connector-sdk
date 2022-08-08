@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'securerandom'
@@ -55,11 +56,11 @@ module Workato
 
       private
 
-      attr_reader :https,
-                  :base_url,
-                  :redirect_url,
-                  :port,
-                  :options
+      attr_reader :https
+      attr_reader :base_url
+      attr_reader :redirect_url
+      attr_reader :port
+      attr_reader :options
 
       def verbose?
         !!options[:verbose]

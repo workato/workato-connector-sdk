@@ -1,3 +1,22 @@
+# 1.0.2 - Multiple improvements
+
+## Enhancements
+
+- Use UTC timezone for system timezone and warn if TZ is not UTC
+- Implement missing SDK methods: workato.uuid, workato.encrypt, workato.decrypt
+- Introduce runtime type checks with Sorbet
+
+## Bugfixes
+
+- Fix default value for webhook_subscribe_output input param
+
+## Misc 
+
+- Update loofah 2.14.0 -> 2.16.0
+- Update rubyzip 1.3 -> 2.3
+- Update activesupport 5.2.7.1 -> 5.2.8.1
+- Refactoring, code polishing, improving stability overall  
+
 # 1.0.1 - Fix String#to_date
 
 ## Bugfixes

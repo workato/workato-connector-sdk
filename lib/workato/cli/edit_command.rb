@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 require 'active_support/encrypted_configuration'
@@ -33,9 +34,9 @@ module Workato
 
       private
 
-      attr_reader :key_path,
-                  :encrypted_file_path,
-                  :encrypted_config
+      attr_reader :key_path
+      attr_reader :encrypted_file_path
+      attr_reader :encrypted_config
 
       def ensure_encryption_key_present
         return if encrypted_config.key.present?

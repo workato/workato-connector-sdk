@@ -104,15 +104,15 @@ module Workato::Connector::Sdk
 
         expect(output).to eq(
           {
-            input: input.with_indifferent_access,
-            payload: payload.with_indifferent_access,
-            extended_input_schema: [eis.with_indifferent_access],
-            extended_output_schema: [eos.with_indifferent_access],
-            headers: headers.with_indifferent_access,
-            params: params.with_indifferent_access,
-            settings: settings.with_indifferent_access,
-            webhook_subscribe_output: wso.with_indifferent_access
-          }
+            input: input,
+            payload: payload,
+            extended_input_schema: [eis],
+            extended_output_schema: [eos],
+            headers: headers,
+            params: params,
+            settings: settings,
+            webhook_subscribe_output: wso
+          }.with_indifferent_access
         )
       end
 
@@ -150,7 +150,9 @@ module Workato::Connector::Sdk
       end
 
       context 'with connector-wide settings' do
-        subject(:trigger) { described_class.new(trigger: trigger_definition, settings: settings) }
+        subject(:trigger) do
+          described_class.new(trigger: trigger_definition, connection: Connection.new(settings: settings))
+        end
 
         let(:settings) { { foo: :bar }.with_indifferent_access }
         let(:trigger_definition) { with_webhooks }

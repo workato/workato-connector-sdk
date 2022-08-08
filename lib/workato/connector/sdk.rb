@@ -1,4 +1,8 @@
+# typed: strict
 # frozen_string_literal: true
+
+require 'sorbet-runtime'
+::Method.prepend(T::CompatibilityPatches::MethodExtensions)
 
 module Workato
   module Connector

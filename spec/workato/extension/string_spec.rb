@@ -97,5 +97,22 @@ module Workato::Extension
         it { expect { to_date }.to raise_error(ArgumentError, 'invalid date') }
       end
     end
+
+    describe '#to_time' do
+      subject(:to_time) { input.to_time.strftime('%Y-%m-%dT%H:%M:%S%z') }
+
+      [
+        '2021-12-22T00:00:00.000000-00:00',
+        '2021-12-22T05:00:00.000000-10:00',
+        '2021-12-22T08:00:00.000000+04:00'
+      ].each do |string|
+        context "when #{string}" do
+          let(:input) { string }
+          let(:expected_time) { input.in_time_zone('UTC').strftime('%Y-%m-%dT%H:%M:%S%z') }
+
+          it { is_expected.to eq(expected_time) }
+        end
+      end
+    end
   end
 end

@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 module Workato
@@ -29,8 +30,8 @@ module Workato
 
         private
 
-        attr_reader :data,
-                    :paths
+        attr_reader :data
+        attr_reader :paths
 
         def above_summarization_limit?(candidate)
           candidate.is_a?(::Array) && candidate.length > ARRAY_SUMMARIZATION_LIMIT ||

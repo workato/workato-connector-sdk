@@ -15,7 +15,7 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    Workato::Connector::Sdk::Operation.on_settings_updated = nil
+    Workato::Connector::Sdk::Connection.on_settings_update = nil
   end
 
   require 'webmock/rspec'

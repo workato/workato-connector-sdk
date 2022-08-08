@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'delegate'
@@ -13,15 +14,16 @@ module Workato
   module Connector
     module Sdk
       class Request < SimpleDelegator
+        extend T::Sig
+
         using BlockInvocationRefinements
 
-        def initialize(uri, method: 'GET', settings: {}, connection: nil, action: nil)
+        def initialize(uri, method: 'GET', connection: nil, action: nil)
           super(nil)
           @uri = uri
           @method = method
-          @settings = settings
-          @authorization = connection&.authorization
-          @base_uri = connection&.base_uri(settings)
+          @connection = connection
+          @base_uri = connection&.base_uri(connection&.settings || {})
           @action = action
           @headers = {}
           @case_sensitive_headers = {}
@@ -237,6 +239,10 @@ module Workato
           self
         end
 
+        def puts(*args)
+          ::Kernel.puts(*args)
+        end
+
         private
 
         attr_reader :method
@@ -321,9 +327,9 @@ module Workato
         end
 
         def detect_error!(response)
-          return unless @authorization
+          return unless authorized?
 
-          error_patterns = @authorization.detect_on
+          error_patterns = connection.authorization.detect_on
           return unless error_patterns.any? { |pattern| pattern === response rescue false }
 
           Kernel.raise(CustomRequestError, response.to_s)
@@ -358,16 +364,21 @@ module Workato
           (@action || self).instance_exec(*args, &block)
         end
 
-        def authorized
-          return yield unless @authorization
+        sig { returns(T::Boolean) }
+        def authorized?
+          !!@connection&.authorization?
+        end
 
-          apply = @authorization.source[:apply] || @authorization.source[:credentials]
+        def authorized
+          return yield unless authorized?
+
+          apply = connection.authorization.source[:apply] || connection.authorization.source[:credentials]
           return yield unless apply
 
           first = true
           begin
-            settings = @settings.with_indifferent_access
-            if /oauth2/i =~ @authorization.type
+            settings = connection.settings
+            if /oauth2/i =~ connection.authorization.type
               instance_exec(settings, settings[:access_token], @auth_type, &apply)
             else
               instance_exec(settings, @auth_type, &apply)
@@ -375,16 +386,31 @@ module Workato
             yield
           rescue StandardError => e
             Kernel.raise e unless first
-            Kernel.raise e unless @action&.refresh_authorization!(
-              e.try(:http_code),
-              e.try(:http_body),
-              e.message,
-              @settings
-            )
+            Kernel.raise e unless refresh_authorization!(e.try(:http_code), e.try(:http_body), e.message)
 
             first = false
             retry
           end
+        end
+
+        sig do
+          params(
+            http_code: T.nilable(Integer),
+            http_body: T.nilable(String),
+            exception: T.nilable(String)
+          ).returns(T::Boolean)
+        end
+        def refresh_authorization!(http_code, http_body, exception)
+          return false unless connection.authorization.refresh?(http_code, http_body, exception)
+
+          connection.update_settings!("Refresh token triggered on response \"#{exception}\"") do
+            connection.authorization.refresh!(connection.settings)
+          end
+        end
+
+        sig { returns(Connection) }
+        def connection
+          T.must(@connection)
         end
 
         class Part < StringIO
@@ -395,7 +421,9 @@ module Workato
             @original_filename = original_filename
           end
 
-          attr_reader :path, :content_type, :original_filename
+          attr_reader :path
+          attr_reader :content_type
+          attr_reader :original_filename
         end
       end
     end

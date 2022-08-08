@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 module Workato
@@ -64,13 +65,7 @@ module Workato
           private
 
           def http_request(url, method:)
-            Request.new(
-              url,
-              method: method,
-              connection: connection,
-              settings: settings,
-              action: self
-            )
+            Request.new(url, method: method, connection: connection, action: self)
           end
         end
       end

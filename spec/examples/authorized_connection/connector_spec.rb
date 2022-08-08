@@ -21,13 +21,15 @@ RSpec.describe 'authorized_connection', :vcr do
     let(:connection_name) { 'My Invalid Connection' }
 
     around(:each) do |example|
-      Workato::Connector::Sdk::Operation.on_settings_updated = lambda { |_, new_settings|
-        expect(new_settings).to eq({ password: 'password', user: 'user' }.with_indifferent_access)
+      Workato::Connector::Sdk::Connection.on_settings_update = lambda { |_, &refresher|
+        refresher.call.tap do |new_settings|
+          expect(new_settings).to eq({ password: 'password', user: 'user' }.with_indifferent_access)
+        end
       }
 
       example.call
 
-      Workato::Connector::Sdk::Operation.on_settings_updated = nil
+      Workato::Connector::Sdk::Connection.on_settings_update = nil
     end
 
     it 'makes request' do

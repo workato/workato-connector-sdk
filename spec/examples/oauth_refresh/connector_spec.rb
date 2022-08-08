@@ -20,22 +20,24 @@ RSpec.describe 'oauth_refresh', :vcr do
   end
 
   around(:each) do |example|
-    Workato::Connector::Sdk::Operation.on_settings_updated = lambda { |_message, new_settings|
-      expect(new_settings).to eq(
-        {
-          access_token: 'eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjIyNzMwNjEsXCJpXCI6NTU0Nzc1MixcImNcIjo0NTk0NTkyLFwidlwiOlwiXCIsXCJ1XCI6NDY1NzE1NyxcInJcIjpcIlVTXCIsXCJzXCI6W1wiTlwiXSxcInpcIjpbXSxcInRcIjoxNTQxMDc3MTE4MDAwfSIsImV4cCI6MTU0MTA3NzExOCwiaWF0IjoxNTQxMDczNTE4fQ.WpNhXU4-f5rZp--IVKbjQsSR8fSmUZxWy2_SbZ7GmnE', # rubocop:disable Layout/LineLength
-          refresh_token: 'eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjIyNzMwNjEsXCJpXCI6NTU0Nzc1MixcImNcIjo0NTk0NTkyLFwidlwiOlwiXCIsXCJ1XCI6NDY1NzE1NyxcInJcIjpcIlVTXCIsXCJzXCI6W1wiTlwiXSxcInpcIjpbXCJyc2hcIl0sXCJ0XCI6MTU0MTA3NzExODAwMH0iLCJleHAiOjE1NDEwNzcxMTgsImlhdCI6MTU0MTA3MzUxOH0.VMea1_neRzzZG-ZJzWZwJse3zqOD_pJjrDdXLAPHl7E', # rubocop:disable Layout/LineLength
-          domain: 'https://www.example.com',
-          client_id: 'zXkWHvok',
-          client_secret: 'KlXvpJqyFEmymODgJa6kHKUATpSUS2BA07LHsi22ynKn29lqAi970EYkBNjPtkDh',
-          token_type: 'Bearer'
-        }.with_indifferent_access
-      )
+    Workato::Connector::Sdk::Connection.on_settings_update = lambda { |_message, &refresher|
+      refresher.call.tap do |new_settings|
+        expect(new_settings).to eq(
+          {
+            access_token: 'eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjIyNzMwNjEsXCJpXCI6NTU0Nzc1MixcImNcIjo0NTk0NTkyLFwidlwiOlwiXCIsXCJ1XCI6NDY1NzE1NyxcInJcIjpcIlVTXCIsXCJzXCI6W1wiTlwiXSxcInpcIjpbXSxcInRcIjoxNTQxMDc3MTE4MDAwfSIsImV4cCI6MTU0MTA3NzExOCwiaWF0IjoxNTQxMDczNTE4fQ.WpNhXU4-f5rZp--IVKbjQsSR8fSmUZxWy2_SbZ7GmnE', # rubocop:disable Layout/LineLength
+            refresh_token: 'eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjIyNzMwNjEsXCJpXCI6NTU0Nzc1MixcImNcIjo0NTk0NTkyLFwidlwiOlwiXCIsXCJ1XCI6NDY1NzE1NyxcInJcIjpcIlVTXCIsXCJzXCI6W1wiTlwiXSxcInpcIjpbXCJyc2hcIl0sXCJ0XCI6MTU0MTA3NzExODAwMH0iLCJleHAiOjE1NDEwNzcxMTgsImlhdCI6MTU0MTA3MzUxOH0.VMea1_neRzzZG-ZJzWZwJse3zqOD_pJjrDdXLAPHl7E', # rubocop:disable Layout/LineLength
+            domain: 'https://www.example.com',
+            client_id: 'zXkWHvok',
+            client_secret: 'KlXvpJqyFEmymODgJa6kHKUATpSUS2BA07LHsi22ynKn29lqAi970EYkBNjPtkDh',
+            token_type: 'Bearer'
+          }.with_indifferent_access
+        )
+      end
     }
 
     example.call
 
-    Workato::Connector::Sdk::Operation.on_settings_updated = nil
+    Workato::Connector::Sdk::Connection.on_settings_update = nil
   end
 
   it 'refreshes token' do

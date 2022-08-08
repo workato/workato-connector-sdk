@@ -5,7 +5,7 @@
     base_uri: lambda do |connection|
       {
         connection: connection
-      }
+      }.to_json
     end,
 
     authorization: {
@@ -14,25 +14,25 @@
       authorization_url: lambda do |connection|
         {
           connection: connection
-        }
+        }.to_json
       end,
 
       token_url: lambda do |connection|
         {
           connection: connection
-        }
+        }.to_json
       end,
 
       client_id: lambda do |connection|
         {
           connection: connection
-        }
+        }.to_json
       end,
 
       client_secret: lambda do |connection|
         {
           connection: connection
-        }
+        }.to_json
       end,
 
       acquire: lambda do |connection, oauth2_code, redirect_url|
@@ -84,11 +84,11 @@
       end,
 
       output_fields: lambda do |object_definitions, connection, config_fields|
-        {
+        [{
           object_definitions: object_definitions,
           connection: connection,
           config_fields: config_fields
-        }
+        }]
       end,
 
       sample_output: lambda do |connection, input|
@@ -124,6 +124,12 @@
           { name: :output_schema, type: :object },
           { name: :continue, type: :object }
         ]
+      end
+    },
+
+    with_error: {
+      execute: lambda do
+        error('Oops! Something went wrong')
       end
     }
   },

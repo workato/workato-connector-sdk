@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'aws-sigv4'
@@ -19,10 +20,14 @@ module Workato
           WWW_FORM_CONTENT_TYPE = 'application/x-www-form-urlencoded; charset=utf-8'
 
           def aws
-            AWS
+            @aws ||= Private.new(connection: connection)
           end
 
-          class << self
+          class Private
+            def initialize(connection:)
+              @connection = connection
+            end
+
             def generate_signature(connection:,
                                    service:,
                                    region:,
@@ -61,27 +66,25 @@ module Workato
             end
 
             def iam_external_id
-              settings[:aws_external_id] || DUMMY_AWS_IAM_EXTERNAL_ID
+              @connection.settings[:aws_external_id] || DUMMY_AWS_IAM_EXTERNAL_ID
             end
 
             def workato_account_id
-              settings[:aws_workato_account_id] || AMAZON_ROLE_CLIENT_ID || DUMMY_AWS_WORKATO_ACCOUNT_ID
+              @connection.settings[:aws_workato_account_id] || AMAZON_ROLE_CLIENT_ID || DUMMY_AWS_WORKATO_ACCOUNT_ID
             end
 
             private
 
-            def on_settings_updated
-              Workato::Connector::Sdk::Operation.on_settings_updated
-            end
-
             def role_based_auth(settings:)
-              settings[:aws_external_id] ||= iam_external_id
-              temp_credentials = settings[:temp_credentials] || {}
+              temp_credentials = settings[:temp_credentials] || @connection.settings[:temp_credentials] || {}
 
               # Refresh temp token that will expire within 60 seconds.
               expiration = temp_credentials[:expiration]&.to_time(:utc)
               if !expiration || expiration <= TEMP_CREDENTIALS_REFRESH_TIMEOUT.seconds.from_now
-                temp_credentials = refresh_temp_credentials(settings)
+                @connection.update_settings!('Refresh AWS temporary credentials') do
+                  { temp_credentials: refresh_temp_credentials(settings) }
+                end
+                temp_credentials = @connection.settings[:temp_credentials]
               end
               {
                 access_key_id: temp_credentials[:api_key],
@@ -91,6 +94,7 @@ module Workato
             end
 
             def refresh_temp_credentials(settings)
+              aws_external_id = settings[:aws_external_id] || iam_external_id
               sts_credentials = {
                 access_key_id: amazon_role_client_key(settings),
                 secret_access_key: amazon_role_client_secret(settings)
@@ -101,7 +105,7 @@ module Workato
                 'Action' => 'AssumeRole',
                 'RoleSessionName' => 'workato',
                 'RoleArn' => settings[:aws_assume_role],
-                'ExternalId' => settings[:aws_external_id].presence
+                'ExternalId' => aws_external_id.presence
               }.compact
 
               sts_auth_url, sts_auth_headers = create_signature(
@@ -116,22 +120,12 @@ module Workato
                 }
               )
 
-              request_temp_credentials(url: sts_auth_url, headers: sts_auth_headers).tap do |temp_credentials|
-                update_settings(settings, temp_credentials)
-              end
+              request_temp_credentials(url: sts_auth_url, headers: sts_auth_headers)
             rescue StandardError => e
-              raise e if settings[:aws_external_id].blank?
+              raise e if aws_external_id.blank?
 
-              settings[:aws_external_id] = nil
+              aws_external_id = nil
               retry
-            end
-
-            def update_settings(settings, temp_credentials)
-              settings.merge!(temp_credentials: temp_credentials)
-              Workato::Connector::Sdk::Operation.on_settings_updated&.call(
-                'Refresh AWS temporary credentials',
-                settings
-              )
             end
 
             def request_temp_credentials(url:, headers:)
@@ -213,13 +207,15 @@ module Workato
             end
 
             def amazon_role_client_key(settings)
-              settings[:access_key_id] || AMAZON_ROLE_CLIENT_KEY
+              settings[:access_key_id] || @connection.settings[:access_key_id] || AMAZON_ROLE_CLIENT_KEY
             end
 
             def amazon_role_client_secret(settings)
-              settings[:secret_access_key] || AMAZON_ROLE_CLIENT_SECRET
+              settings[:secret_access_key] || @connection.settings[:access_key_id] || AMAZON_ROLE_CLIENT_SECRET
             end
           end
+
+          private_constant :Private
         end
       end
     end

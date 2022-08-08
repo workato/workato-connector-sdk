@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 require 'uri'
@@ -55,10 +56,10 @@ module Workato
 
       private
 
-      attr_reader :options,
-                  :api_token,
-                  :api_email,
-                  :api_base_url
+      attr_reader :options
+      attr_reader :api_token
+      attr_reader :api_email
+      attr_reader :api_base_url
 
       def verbose?
         @options[:verbose]

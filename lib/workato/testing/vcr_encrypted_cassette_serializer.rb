@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 module Workato
@@ -24,6 +25,7 @@ module Workato
         File.binread(content_path)
       ensure
         File.unlink(content_path) if content_path.exist?
+        @content_path = ''
       end
 
       def deserialize(string)
@@ -32,6 +34,9 @@ module Workato
         end
         File.write(@content_path, string)
         ::YAML.safe_load(read).presence || {}
+      ensure
+        File.unlink(content_path) if content_path.exist?
+        @content_path = ''
       end
     end
   end

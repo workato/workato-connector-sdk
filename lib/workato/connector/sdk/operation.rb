@@ -1,3 +1,4 @@
+# typed: strict
 # frozen_string_literal: true
 
 require_relative './dsl'
@@ -7,7 +8,39 @@ require_relative './schema'
 module Workato
   module Connector
     module Sdk
+      module SorbetTypes
+        OperationInputHash = T.type_alias { T::Hash[T.any(Symbol, String), T.untyped] }
+
+        OperationExecuteProc = T.type_alias do
+          T.proc.params(
+            arg0: HashWithIndifferentAccess,
+            arg1: HashWithIndifferentAccess,
+            arg2: T.any(Schema, T::Array[HashWithIndifferentAccess]),
+            arg3: T.any(Schema, T::Array[HashWithIndifferentAccess]),
+            arg4: HashWithIndifferentAccess
+          ).returns(
+            T.untyped
+          )
+        end
+
+        OperationSchema = T.type_alias do
+          T.any(Schema, T::Array[T::Hash[T.any(Symbol, String), T.untyped]])
+        end
+
+        OperationSchemaProc = T.type_alias do
+          T.proc.params(
+            arg0: HashWithIndifferentAccess,
+            arg1: HashWithIndifferentAccess,
+            arg2: HashWithIndifferentAccess
+          ).returns(
+            T.nilable(T.any(SorbetTypes::OperationSchema, T::Hash[T.any(Symbol, String), T.untyped]))
+          )
+        end
+      end
+
       class Operation
+        extend T::Sig
+
         include Dsl::Global
         include Dsl::HTTP
         include Dsl::Call
@@ -15,21 +48,38 @@ module Workato
 
         using BlockInvocationRefinements
 
-        cattr_accessor :on_settings_updated
-
-        def initialize(connection:, operation: {}, methods: {}, settings: {}, object_definitions: nil)
-          @connection = connection
-          @settings = settings
-          @operation = operation.with_indifferent_access
-          @_methods = methods.with_indifferent_access
-          @object_definitions = object_definitions
+        sig do
+          params(
+            operation: SorbetTypes::SourceHash,
+            methods: SorbetTypes::SourceHash,
+            connection: Connection,
+            object_definitions: T.nilable(ObjectDefinitions)
+          ).void
+        end
+        def initialize(operation: {}, methods: {}, connection: Connection.new, object_definitions: nil)
+          @operation = T.let(operation.with_indifferent_access, HashWithIndifferentAccess)
+          @_methods = T.let(methods.with_indifferent_access, HashWithIndifferentAccess)
+          @connection = T.let(connection, Connection)
+          @object_definitions = T.let(object_definitions, T.nilable(ObjectDefinitions))
         end
 
+        sig do
+          params(
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            input: SorbetTypes::OperationInputHash,
+            extended_input_schema: SorbetTypes::OperationSchema,
+            extended_output_schema: SorbetTypes::OperationSchema,
+            continue: T::Hash[T.any(Symbol, String), T.untyped],
+            block: SorbetTypes::OperationExecuteProc
+          ).returns(
+            T.untyped
+          )
+        end
         def execute(settings = nil, input = {}, extended_input_schema = [], extended_output_schema = [], continue = {},
                     &block)
-          @settings = settings.with_indifferent_access if settings # is being used in request for refresh tokens
-          request_or_result = instance_exec(
-            @settings.with_indifferent_access, # a copy of settings hash is being used in executable blocks
+          connection.merge_settings!(settings) if settings
+          request_or_result = T.unsafe(self).instance_exec(
+            connection.settings,
             input.with_indifferent_access,
             Array.wrap(extended_input_schema).map(&:with_indifferent_access),
             Array.wrap(extended_output_schema).map(&:with_indifferent_access),
@@ -39,55 +89,78 @@ module Workato
           resolve_request(request_or_result)
         end
 
+        sig do
+          params(
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            config_fields: SorbetTypes::OperationInputHash
+          ).returns(
+            HashWithIndifferentAccess
+          )
+        end
         def extended_schema(settings = nil, config_fields = {})
           object_definitions_hash = object_definitions.lazy(settings, config_fields)
           {
-            input: schema_fields(object_definitions_hash, settings, config_fields, &operation[:input_fields]),
+            input: Array.wrap(
+              schema_fields(object_definitions_hash, settings, config_fields, &operation[:input_fields])
+            ),
             output: schema_fields(object_definitions_hash, settings, config_fields, &operation[:output_fields])
           }.with_indifferent_access
         end
 
+        sig do
+          params(
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            config_fields: SorbetTypes::OperationInputHash
+          ).returns(
+            SorbetTypes::OperationSchema
+          )
+        end
         def input_fields(settings = nil, config_fields = {})
           object_definitions_hash = object_definitions.lazy(settings, config_fields)
-          schema_fields(object_definitions_hash, settings, config_fields, &operation[:input_fields])
+          Array.wrap(schema_fields(object_definitions_hash, settings, config_fields, &operation[:input_fields]))
         end
 
+        sig do
+          params(
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            config_fields: SorbetTypes::OperationInputHash
+          ).returns(
+            T.nilable(SorbetTypes::OperationSchema)
+          )
+        end
         def output_fields(settings = nil, config_fields = {})
           object_definitions_hash = object_definitions.lazy(settings, config_fields)
-          schema_fields(object_definitions_hash, settings, config_fields, &operation[:output_fields])
+          T.cast(
+            schema_fields(object_definitions_hash, settings, config_fields, &operation[:output_fields]),
+            T.nilable(SorbetTypes::OperationSchema)
+          )
         end
 
+        sig { params(input: SorbetTypes::OperationInputHash).returns(T.untyped) }
         def summarize_input(input = {})
           summarize(input, operation[:summarize_input])
         end
 
+        sig { params(output: SorbetTypes::OperationInputHash).returns(T.untyped) }
         def summarize_output(output = {})
           summarize(output, operation[:summarize_output])
         end
 
+        sig do
+          params(
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            input: SorbetTypes::OperationInputHash
+          ).returns(
+            T.untyped
+          )
+        end
         def sample_output(settings = nil, input = {})
           execute(settings, input, &operation[:sample_output])
         end
 
-        def refresh_authorization!(http_code, http_body, exception, settings = {})
-          return unless refresh_auth?(http_code, http_body, exception)
-
-          new_settings = if /oauth2/i =~ connection.authorization.type
-                           refresh_oauth2_token(settings)
-                         elsif connection.authorization.acquire?
-                           acquire_token(settings)
-                         end
-          return unless new_settings
-
-          settings.merge!(new_settings)
-
-          on_settings_updated&.call("Refresh token triggered on response \"#{exception}\"", settings)
-
-          settings
-        end
-
         private
 
+        sig { params(input: SorbetTypes::OperationInputHash, schema: Schema).returns(SorbetTypes::OperationInputHash) }
         def apply_input_schema(input, schema)
           input = schema.trim(input)
           schema.apply(input, enforce_required: true) do |value, field|
@@ -95,27 +168,40 @@ module Workato
           end
         end
 
+        sig { params(output: SorbetTypes::OperationInputHash, schema: Schema).returns(SorbetTypes::OperationInputHash) }
         def apply_output_schema(output, schema)
           schema.apply(output, enforce_required: false) do |value, field|
             field.parse_output(value, @_methods[field[:parse_output]])
           end
         end
 
+        sig { returns(SorbetTypes::OperationSchema) }
         def config_fields_schema
           operation[:config_fields] || []
         end
 
+        sig { params(data: SorbetTypes::OperationInputHash, paths: T::Array[String]).returns(T.untyped) }
         def summarize(data, paths)
           return data unless paths.present?
 
           Summarize.new(data: data, paths: paths).call
         end
 
+        sig do
+          params(
+            object_definitions_hash: HashWithIndifferentAccess,
+            settings: T.nilable(SorbetTypes::SettingsHash),
+            config_fields: SorbetTypes::OperationInputHash,
+            schema_proc: T.nilable(SorbetTypes::OperationSchemaProc)
+          ).returns(
+            T.nilable(T.any(SorbetTypes::OperationSchema, T::Hash[T.any(Symbol, String), T.untyped]))
+          )
+        end
         def schema_fields(object_definitions_hash, settings, config_fields, &schema_proc)
           return [] unless schema_proc
 
           execute(settings, config_fields) do |connection, input|
-            instance_exec(
+            T.unsafe(self).instance_exec(
               object_definitions_hash,
               connection,
               input,
@@ -124,6 +210,7 @@ module Workato
           end
         end
 
+        sig { params(request_or_result: T.untyped).returns(T.untyped) }
         def resolve_request(request_or_result)
           case request_or_result
           when Request
@@ -151,64 +238,16 @@ module Workato
           end
         end
 
-        def refresh_auth?(http_code, http_body, exception)
-          refresh_on = connection.authorization.refresh_on
-          refresh_on.blank? || refresh_on.any? do |pattern|
-            pattern.is_a?(::Integer) && pattern == http_code ||
-              pattern === exception&.to_s ||
-              pattern === http_body
-          end
+        sig { returns(ObjectDefinitions) }
+        def object_definitions
+          T.must(@object_definitions)
         end
 
-        def acquire_token(settings)
-          connection.authorization.acquire(settings)
-        end
+        sig { returns(HashWithIndifferentAccess) }
+        attr_reader :operation
 
-        def refresh_oauth2_token_using_refresh(settings)
-          new_tokens, new_settings = connection.authorization.refresh(settings, settings[:refresh_token])
-          new_tokens.with_indifferent_access.merge(new_settings || {})
-        end
-
-        def refresh_oauth2_token_using_token_url(settings)
-          if settings[:refresh_token].blank?
-            raise NotImplementedError, 'refresh_token is empty. ' \
-                                       'Use workato oauth2 command to acquire access_token and refresh_token'
-          end
-
-          response = RestClient::Request.execute(
-            url: connection.authorization.token_url(settings),
-            method: :post,
-            payload: {
-              client_id: connection.authorization.client_id(settings),
-              client_secret: connection.authorization.client_secret(settings),
-              grant_type: :refresh_token,
-              refresh_token: settings[:refresh_token]
-            },
-            headers: {
-              accept: :json
-            }
-          )
-          tokens = JSON.parse(response.body)
-          {
-            access_token: tokens['access_token'],
-            refresh_token: tokens['refresh_token'].presence || settings[:refresh_token]
-          }.with_indifferent_access
-        end
-
-        def refresh_oauth2_token(settings)
-          if connection.authorization.refresh?
-            refresh_oauth2_token_using_refresh(settings)
-          elsif connection.authorization.token_url?
-            refresh_oauth2_token_using_token_url(settings)
-          else
-            raise InvalidDefinitionError, "'refresh' block or 'token_url' is required for refreshing the token"
-          end
-        end
-
-        attr_reader :operation,
-                    :connection,
-                    :settings,
-                    :object_definitions
+        sig { returns(Connection) }
+        attr_reader :connection
       end
     end
   end

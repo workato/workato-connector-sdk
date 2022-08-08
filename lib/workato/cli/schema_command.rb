@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 module Workato
@@ -31,9 +32,9 @@ module Workato
 
       private
 
-      attr_reader :options,
-                  :api_token,
-                  :api_email
+      attr_reader :options
+      attr_reader :api_token
+      attr_reader :api_email
 
       def verbose?
         @options[:verbose]

@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 require_relative './block_invocation_refinements'
@@ -8,11 +9,10 @@ module Workato
       class ObjectDefinitions
         using BlockInvocationRefinements
 
-        def initialize(object_definitions:, connection:, methods:, settings:)
+        def initialize(object_definitions:, connection:, methods:)
           @object_definitions_source = object_definitions
           @methods_source = methods
           @connection = connection
-          @settings = settings
           define_object_definition_methods(object_definitions)
         end
 
@@ -26,18 +26,17 @@ module Workato
                 end
               },
               methods: methods_source,
-              connection: connection,
-              settings: @settings
+              connection: connection
             ).execute(settings, config_fields)
           end
         end
 
         private
 
-        attr_reader :methods_source,
-                    :connection,
-                    :settings,
-                    :object_definitions_source
+        attr_reader :methods_source
+        attr_reader :connection
+        attr_reader :settings
+        attr_reader :object_definitions_source
 
         def define_object_definition_methods(object_definitions)
           object_definitions.each do |(object, _definition)|

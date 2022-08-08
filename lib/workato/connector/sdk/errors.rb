@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 module Workato
@@ -12,9 +13,9 @@ module Workato
       RuntimeError = Class.new(StandardError)
 
       class RequestError < StandardError
-        attr_reader :method,
-                    :code,
-                    :response
+        attr_reader :method
+        attr_reader :code
+        attr_reader :response
 
         def initialize(message:, method:, code:, response:)
           super(message)

@@ -1,3 +1,4 @@
+# typed: true
 # frozen_string_literal: true
 
 module Workato
@@ -19,6 +20,11 @@ module Workato
 end
 
 begin
+  if ENV['TZ'].present? && ENV['TZ'] != 'UTC'
+    warn "WARNING: TZ environment variable is set to '#{ENV['TZ']}'. Set TZ=UTC for consistency with Workato platform'"
+  else
+    ENV['TZ'] = 'UTC'
+  end
   ::Time.zone = Workato::Connector::Sdk::DEFAULT_TIME_ZONE
 rescue TZInfo::DataSourceNotFound
   puts ''

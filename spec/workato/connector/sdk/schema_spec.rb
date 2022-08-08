@@ -4,7 +4,7 @@ module Workato::Connector::Sdk
   RSpec.describe Schema do
     subject(:schema) { described_class.new(schema: properties) }
 
-    let(:int_field) { { name: :int_field, type: :integer } }
+    let(:int_field) { { name: :int_field, type: :integer, optional: false } }
     let(:float_field) { { name: 'float_field', type: 'number' } }
     let(:boolean_field) { { 'name' => :boolean_field, 'type' => :boolean } }
     let(:date_field) { { name: :date_field, type: :date } }
@@ -103,7 +103,6 @@ module Workato::Connector::Sdk
             'name' => 'int_field',
             'control_type' => 'number',
             'label' => 'Int field',
-            'optional' => true,
             'parse_output' => 'integer_conversion'
           },
           {
@@ -273,9 +272,10 @@ module Workato::Connector::Sdk
       end
 
       context 'when unsupported data type' do
+        subject(:output) { schema.apply(input, enforce_required: false) }
+
         let(:input) { { symbol_field: :symbol_field } }
         let(:properties) { [{ name: :symbol_field }] }
-        subject(:output) { schema.apply(input, enforce_required: false) }
 
         it 'converts to string' do
           expect { output }.to raise_error(ArgumentError, 'Unsupported data type: Symbol')
@@ -297,6 +297,16 @@ module Workato::Connector::Sdk
 
         it 'applies to array and each field' do
           expect(output).to eq('array_field' => %w[1111 2222 3333 1111 2222 3333 1111 2222 3333 1111 2222 3333])
+        end
+      end
+
+      context 'when require input is missing' do
+        subject(:output) { schema.apply(input, enforce_required: true) }
+
+        let(:input) { {} }
+
+        it 'fails with error' do
+          expect { output }.to raise_error(MissingRequiredInput, "'Int field' must be present")
         end
       end
     end

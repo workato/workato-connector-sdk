@@ -14,14 +14,14 @@
         }
       end,
       output_fields: lambda do |object_definitions, connection, config_fields|
-        {
+        [{
           object_definitions: {
             event: object_definitions['event']
           },
           connection: connection,
           config_fields: config_fields,
           customer: get('http://httpbin.org/anything/object_definitions/customer')
-        }
+        }]
       end
     }
   },

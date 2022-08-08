@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 module Workato
@@ -164,7 +165,7 @@ module Workato
       end
 
       def from_xml
-        XML.parse_xml_to_hash self
+        Connector::Sdk::Xml.parse_xml_to_hash self
       end
 
       TO_COUNTRY_METHODS.each do |suffix|

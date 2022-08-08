@@ -41,7 +41,7 @@ module Workato::Connector::Sdk
 
       context 'when passed within authorize block' do
         let(:request) do
-          described_class.new(uri, connection: connection, settings: settings.with_indifferent_access).format_json
+          described_class.new(uri, connection: connection).format_json
         end
         let(:settings) { { user: 'user', password: 'password' } }
         let(:connection) do
@@ -53,7 +53,8 @@ module Workato::Connector::Sdk
                   password(connection[:password])
                 }
               }
-            }
+            },
+            settings: settings.with_indifferent_access
           )
         end
 
@@ -64,9 +65,11 @@ module Workato::Connector::Sdk
     context 'with base_uri' do
       let(:uri) { '/posts' }
       let(:base_uri) { ->(connection) { "https://#{connection[:host]}" } }
-      let(:connection) { Connection.new(connection: { base_uri: base_uri }) }
+      let(:connection) do
+        Connection.new(connection: { base_uri: base_uri }, settings: settings.with_indifferent_access)
+      end
       let(:settings) { { host: 'jsonplaceholder.typicode.com' } }
-      let(:request) { described_class.new(uri, connection: connection, settings: settings.with_indifferent_access) }
+      let(:request) { described_class.new(uri, connection: connection) }
 
       it { is_expected.to include('userId') }
     end
@@ -238,14 +241,13 @@ module Workato::Connector::Sdk
       let(:request) do
         described_class.new(
           uri,
-          connection: connection,
-          settings: settings.with_indifferent_access,
-          action: action
+          connection: connection
         ).format_json
       end
-      let(:connection) { Connection.new(connection: { authorization: authorization }) }
+      let(:connection) do
+        Connection.new(connection: { authorization: authorization }, settings: settings.with_indifferent_access)
+      end
       let(:settings) { { user: 'user', password: 'password' } }
-      let(:action) { Action.new(action: {}) }
 
       context 'with user and password' do
         let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
@@ -263,7 +265,6 @@ module Workato::Connector::Sdk
 
       context 'with acquire' do
         let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
-        let(:action) { Action.new(action: {}, connection: connection) }
         let(:authorization) do
           {
             apply: lambda { |connection|
@@ -281,7 +282,6 @@ module Workato::Connector::Sdk
 
       context 'with refresh' do
         let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
-        let(:action) { Action.new(action: {}, connection: connection) }
         let(:settings) { { user: 'user', access_token: 'expired', refresh_token: 'password' } }
         let(:authorization) do
           {

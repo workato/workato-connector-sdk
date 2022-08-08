@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'thor'
@@ -24,8 +25,8 @@ module Workato
 
       private
 
-      attr_reader :path,
-                  :options
+      attr_reader :path
+      attr_reader :options
 
       # rubocop:disable Style/GuardClause
       def load_from_default_files
@@ -46,11 +47,9 @@ module Workato
 
       def params
         @params ||= {
-          connector: connector,
           settings: settings,
           input: from_json(options[:input]),
-          output: from_json(options[:input]),
-          webhook_subscribe_output: from_json(options[:webhook_subscribe_output]).presence,
+          webhook_subscribe_output: from_json(options[:webhook_subscribe_output]),
           args: from_json(options[:args]).presence || [],
           extended_input_schema: from_json(options[:extended_input_schema]).presence || [],
           extended_output_schema: from_json(options[:extended_output_schema]).presence || [],
@@ -69,7 +68,7 @@ module Workato
       end
 
       def connector
-        Workato::Connector::Sdk::Connector.from_file(
+        @connector ||= Workato::Connector::Sdk::Connector.from_file(
           options[:connector] || Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH,
           settings
         )
@@ -85,16 +84,23 @@ module Workato
         )
         @settings = settings_store.read
 
-        Workato::Connector::Sdk::Operation.on_settings_updated = lambda do |message, new_settings|
-          $stdout.pause if verbose?
-          say('')
-          say(message)
-          loop do
-            answer = ask('Updated settings file with new connection attributes? (Yes or No)').to_s.downcase
-            break if %w[n no].include?(answer)
-            break settings_store.update(new_settings) if %w[y yes].include?(answer)
+        Workato::Connector::Sdk::Connection.on_settings_update = lambda do |message, &refresher|
+          begin
+            $stdout.pause if verbose?
+            say('')
+            say(message)
+            new_settings = refresher.call
+            loop do
+              answer = ask('Updated settings file with new connection attributes? (Yes or No)').to_s.downcase
+              break new_settings if %w[n no].include?(answer)
+              next unless %w[y yes].include?(answer)
+
+              settings_store.update(new_settings)
+              break new_settings
+            end
+          ensure
+            $stdout.resume if verbose?
           end
-          $stdout.resume if verbose?
         end
 
         @settings
@@ -103,9 +109,9 @@ module Workato
       def from_json(path, parse_json_times: false)
         old_parse_json_times = ActiveSupport.parse_json_times
         ::ActiveSupport.parse_json_times = parse_json_times
-        result = path ? ::ActiveSupport::JSON.decode(File.read(path)) : {}
+        path ? ::ActiveSupport::JSON.decode(File.read(path)) : {}
+      ensure
         ::ActiveSupport.parse_json_times = old_parse_json_times
-        result
       end
 
       def inspect_params(params)
@@ -121,28 +127,11 @@ module Workato
       end
 
       def execute_path
-        methods = path.split('.')
-        method = methods.pop
-        object = methods.inject(params[:connector]) { |obj, m| obj.public_send(m) }
-        output = invoke_method(object, method)
-        if output.respond_to?(:invoke)
-          invoke_method(output, :invoke)
-        else
-          output
-        end
+        connector.invoke(path, params)
       rescue Exception => e # rubocop:disable Lint/RescueException
         raise DebugExceptionError, e if options[:debug]
 
         raise
-      end
-
-      def invoke_method(object, method)
-        parameters = object.method(method).parameters.reject { |p| p[0] == :block }.map(&:second)
-        args = params.values_at(*parameters)
-        if parameters.last == :args
-          args = args.take(args.length - 1) + Array.wrap(args.last).flatten(1)
-        end
-        object.public_send(method, *args)
       end
 
       def show_output(output)

@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'active_support/encrypted_configuration'
@@ -5,6 +6,10 @@ require 'active_support/encrypted_configuration'
 module Workato
   module Connector
     module Sdk
+      module SorbetTypes
+        SettingsHash = T.type_alias { T.any(HashWithIndifferentAccess, T::Hash[T.any(Symbol, String), T.untyped]) }
+      end
+
       class Settings
         class << self
           def from_file(path = DEFAULT_SETTINGS_PATH, name = nil)
@@ -68,10 +73,10 @@ module Workato
 
         private
 
-        attr_reader :key_path,
-                    :name,
-                    :path,
-                    :encrypted
+        attr_reader :key_path
+        attr_reader :name
+        attr_reader :path
+        attr_reader :encrypted
 
         def read_plain_file
           all_settings = File.open(path) do |f|
