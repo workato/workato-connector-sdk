@@ -9,6 +9,7 @@ require 'net/http'
 require 'net/http/digest_auth'
 
 require_relative './block_invocation_refinements'
+require_relative './../../utilities/encoding'
 
 module Workato
   module Connector
@@ -27,7 +28,6 @@ module Workato
           @action = action
           @headers = {}
           @case_sensitive_headers = {}
-          @params = {}.with_indifferent_access
           @render_request = ->(payload) { payload }
           @parse_response = ->(payload) { payload }
           @after_response = ->(_response_code, parsed_response, _response_headers) { parsed_response }
@@ -58,7 +58,7 @@ module Workato
               detect_error!(response.body)
               parsed_response = @parse_response.call(response)
               detect_error!(parsed_response)
-              within_action_context(response.code, parsed_response, response.headers, &@after_response)
+              apply_after_response(response.code, parsed_response, response.headers)
             end
           )
         rescue RestClient::Exception => e
@@ -81,7 +81,12 @@ module Workato
         end
 
         def params(params)
-          @params.merge!(params)
+          if params.is_a?(Hash)
+            @params ||= HashWithIndifferentAccess.new
+            @params.merge!(params)
+          else
+            @params = params
+          end
           self
         end
 
@@ -142,13 +147,17 @@ module Workato
 
         def request_format_json
           @content_type_header = :json
-          @render_request = ->(payload) { ActiveSupport::JSON.encode(payload) if payload }
+          @render_request = lambda_with_error_wrap(JSONRequestFormatError) do |payload|
+            ActiveSupport::JSON.encode(payload) if payload
+          end
           self
         end
 
         def response_format_json
           @accept_header = :json
-          @parse_response = ->(payload) { ActiveSupport::JSON.decode(payload.presence || '{}') }
+          @parse_response = lambda_with_error_wrap(JSONResponseFormatError) do |payload|
+            ActiveSupport::JSON.decode(payload.presence || '{}')
+          end
           self
         end
 
@@ -158,17 +167,19 @@ module Workato
 
         def request_format_xml(root_element_name, namespaces = {})
           @content_type_header = :xml
-          @render_request = Kernel.lambda { |payload|
+          @render_request = lambda_with_error_wrap(XMLRequestFormatError) do |payload|
             next unless payload
 
             Gyoku.xml({ root_element_name => payload.merge(namespaces).deep_symbolize_keys }, key_converter: :none)
-          }
+          end
           self
         end
 
         def response_format_xml(strip_response_namespaces: false)
           @accept_header = :xml
-          @parse_response = ->(payload) { Xml.parse_xml_to_hash(payload, strip_namespaces: strip_response_namespaces) }
+          @parse_response = lambda_with_error_wrap(XMLResponseFormatError) do |payload|
+            Xml.parse_xml_to_hash(payload, strip_namespaces: strip_response_namespaces)
+          end
           self
         end
 
@@ -179,7 +190,7 @@ module Workato
         end
 
         def response_format_raw
-          @parse_response = Kernel.lambda do |payload|
+          @parse_response = lambda_with_error_wrap(RAWResponseFormatError) do |payload|
             payload.body.force_encoding(::Encoding::BINARY)
             payload.body.valid_encoding? ? payload.body : payload.body.force_encoding(::Encoding::BINARY)
           end
@@ -189,7 +200,7 @@ module Workato
         def request_format_multipart_form
           @content_type_header = nil
 
-          @render_request = Kernel.lambda do |payload|
+          @render_request = lambda_with_error_wrap(MultipartFormRequestFormatError) do |payload|
             payload&.each_with_object({}) do |(name, (value, content_type, original_filename)), rendered|
               rendered[name] = if content_type.present?
                                  Part.new(name, content_type, original_filename || ::File.basename(name), value.to_s)
@@ -204,7 +215,7 @@ module Workato
 
         def request_format_www_form_urlencoded
           @content_type_header = 'application/x-www-form-urlencoded'
-          @render_request = Kernel.lambda { |payload| payload.to_param }
+          @render_request = lambda_with_error_wrap(WWWFormURLEncodedRequestFormatError, &:to_param)
           self
         end
 
@@ -228,6 +239,8 @@ module Workato
             OpenSSL::X509::Certificate.new(intermediate)
           end
           self
+        rescue OpenSSL::OpenSSLError => e
+          Kernel.raise(RequestTLSCertificateFormatError, e)
         end
 
         def tls_server_certs(certificates:, strict: true)
@@ -237,10 +250,16 @@ module Workato
             @ssl_cert_store.add_cert(OpenSSL::X509::Certificate.new(certificate))
           end
           self
+        rescue OpenSSL::OpenSSLError => e
+          Kernel.raise(RequestTLSCertificateFormatError, e)
         end
 
         def puts(*args)
           ::Kernel.puts(*args)
+        end
+
+        def try(*args, &block)
+          execute!.try(*args, &block)
         end
 
         private
@@ -295,14 +314,14 @@ module Workato
                   URI.parse(@uri)
                 end
 
-          return uri.to_s unless @params.any? || @user || @password
+          return uri.to_s unless @params || @user || @password
 
           unless @digest_auth
             uri.user = URI.encode_www_form_component(@user) if @user
             uri.password = URI.encode_www_form_component(@password) if @password
           end
 
-          return uri.to_s unless @params.any?
+          return uri.to_s unless @params
 
           query = uri.query.to_s.split('&').select(&:present?).join('&').presence
           params = @params.to_param.presence
@@ -360,6 +379,13 @@ module Workato
           )
         end
 
+        def apply_after_response(code, parsed_response, headers)
+          encoded_headers = (headers || {}).each_with_object(HashWithIndifferentAccess.new) do |(k, v), h|
+            h[k] = Workato::Utilities::Encoding.force_best_encoding!(v.to_s)
+          end
+          within_action_context(code, parsed_response, encoded_headers, &@after_response)
+        end
+
         def within_action_context(*args, &block)
           (@action || self).instance_exec(*args, &block)
         end
@@ -384,7 +410,7 @@ module Workato
               instance_exec(settings, @auth_type, &apply)
             end
             yield
-          rescue StandardError => e
+          rescue RestClient::Exception, CustomRequestError => e
             Kernel.raise e unless first
             Kernel.raise e unless refresh_authorization!(e.try(:http_code), e.try(:http_body), e.message)
 
@@ -411,6 +437,16 @@ module Workato
         sig { returns(Connection) }
         def connection
           T.must(@connection)
+        end
+
+        def lambda_with_error_wrap(error_type, &block)
+          Kernel.lambda do |payload|
+            begin
+              block.call(payload)
+            rescue StandardError => e
+              Kernel.raise error_type.new(e)
+            end
+          end
         end
 
         class Part < StringIO

@@ -18,16 +18,22 @@ module Workato
 
         def lazy(settings = nil, config_fields = {})
           DupHashWithIndifferentAccess.new do |object_definitions, name|
-            fields_proc = object_definitions_source[name][:fields]
-            object_definitions[name] = Action.new(
-              action: {
-                execute: lambda do |connection, input|
-                  instance_exec(connection, input, object_definitions, &fields_proc)
-                end
-              },
-              methods: methods_source,
-              connection: connection
-            ).execute(settings, config_fields)
+            fields_proc = object_definitions_source.dig(name, :fields)
+            raise Workato::Connector::Sdk::UnresolvedObjectDefinitionError, name unless fields_proc
+
+            begin
+              object_definitions[name] = Action.new(
+                action: {
+                  execute: lambda do |connection, input|
+                    instance_exec(connection, input, object_definitions, &fields_proc)
+                  end
+                },
+                methods: methods_source,
+                connection: connection
+              ).execute(settings, config_fields)
+            rescue SystemStackError => e
+              raise Workato::Connector::Sdk::CircleReferenceObjectDefinitionError.new(name, e.backtrace)
+            end
           end
         end
 

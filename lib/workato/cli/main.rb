@@ -41,8 +41,8 @@ module Workato
                                  desc: 'Connection name if settings file contains multiple settings'
       method_option :key, type: :string, aliases: '-k',
                           lazy_default: Workato::Connector::Sdk::DEFAULT_MASTER_KEY_PATH,
-                          desc: 'Path to file with encrypt/decrypt key. '\
-                          "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
+                          desc: "Path to file with encrypt/decrypt key.\n"\
+                                "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
       method_option :input, type: :string, aliases: '-i', desc: 'Path to file with input JSON'
       method_option :closure, type: :string, desc: 'Path to file with next poll closure JSON'
       method_option :continue, type: :string, desc: 'Path to file with next multistep action continue closure JSON'
@@ -75,7 +75,7 @@ module Workato
 
       method_option :key, type: :string, aliases: '-k',
                           lazy_default: Workato::Connector::Sdk::DEFAULT_MASTER_KEY_PATH,
-                          desc: 'Path to file with encrypt/decrypt key. '\
+                          desc: "Path to file with encrypt/decrypt key.\n"\
                                 "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
 
       def edit(path)
@@ -127,17 +127,20 @@ module Workato
                     lazy_default: Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH
       method_option :api_email,
                     type: :string,
-                    desc: 'Email for accessing Workato API or '\
-                          "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} environment variable"
+                    desc: "Email for accessing Workato API.\n"\
+                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} "\
+                          'environment variable.'
       method_option :api_token,
                     type: :string,
-                    desc: 'Token for accessing Workato API or ' \
-                          "set #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} environment variable"
+                    desc: "Token for accessing Workato API.\n" \
+                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} "\
+                          'environment variable.'
       method_option :environment,
                     type: :string,
-                    enum: Workato::CLI::PushCommand::ENVIRONMENTS.keys,
-                    default: 'live',
-                    desc: 'Server to push connector code to'
+                    desc: "Data center specific URL to push connector code.\n"\
+                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_BASE_URL_ENV} "\
+                          "environment variable.\n"\
+                          "Examples: 'https://app.workato.com', 'https://app.eu.workato.com'"
       method_option :folder,
                     type: :string,
                     desc: 'Folder ID if you what to push to folder other than Home'
@@ -168,7 +171,7 @@ module Workato
                     type: :string,
                     aliases: '-k',
                     lazy_default: Workato::Connector::Sdk::DEFAULT_MASTER_KEY_PATH,
-                    desc: 'Path to file with encrypt/decrypt key. '\
+                    desc: "Path to file with encrypt/decrypt key.\n"\
                           "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
       method_option :port,
                     type: :string,
@@ -186,6 +189,35 @@ module Workato
         OAuth2Command.new(
           options: options
         ).call
+      end
+
+      class << self
+        def print_options(shell, options, group_name = nil)
+          return if options.empty?
+
+          list = []
+          padding = options.map { |o| o.aliases.size }.max.to_i * 4
+
+          options.each do |option|
+            next if option.hide
+
+            description = []
+            description_lines = option.description ? option.description.split("\n") : []
+            first_line = description_lines.shift
+            description << [option.usage(padding), first_line ? "# #{first_line}" : '']
+            description_lines.each do |line|
+              description << ['', "# #{line}"]
+            end
+
+            list.concat(description)
+            list << ['', "# Default: #{option.default}"] if option.show_default?
+            list << ['', "# Possible values: #{option.enum.join(', ')}"] if option.enum
+          end
+
+          shell.say(group_name ? "#{group_name} options:" : 'Options:')
+          shell.print_table(list, indent: 2)
+          shell.say ''
+        end
       end
     end
   end

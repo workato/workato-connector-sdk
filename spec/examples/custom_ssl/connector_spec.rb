@@ -114,8 +114,8 @@ RSpec.describe 'custom_ssl' do
         }
       end
 
-      it 'should fail with certificate error' do
-        expect { output }.to raise_error(OpenSSL::X509::CertificateError)
+      it 'fails with certificate error' do
+        expect { output }.to raise_error(Workato::Connector::Sdk::RequestTLSCertificateFormatError)
       end
     end
   end

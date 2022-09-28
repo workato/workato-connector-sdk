@@ -17,13 +17,27 @@
   methods: {
     test_method: lambda do |input|
       get('https://httpbin.org/anything', input)['args']
-    end
+    end,
+
+    unexpected_type_error: :to_s
   },
 
   actions: {
     test_action: {
       execute: lambda do |_connection, input|
         call(:test_method, input)
+      end
+    },
+
+    with_unexpected_type_error: {
+      execute: lambda do
+        call(:unexpected_type_error)
+      end
+    },
+
+    with_undefined_method_error: {
+      execute: lambda do
+        call(:unknown)
       end
     }
   }

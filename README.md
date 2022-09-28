@@ -248,8 +248,9 @@ Usage:
   workato edit <PATH>
 
 Options:
-  -k, [--key=KEY]                  # Path to file with encrypt/decrypt key. NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
-      [--verbose], [--no-verbose]  
+  -k, [--key=KEY]                  # Path to file with encrypt/decrypt key.
+                                   # NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
+      [--verbose], [--no-verbose]
 
 Edit encrypted file, e.g. settings.yaml.enc
 ```
@@ -261,6 +262,7 @@ Edit encrypted file, e.g. settings.yaml.enc
 ### 3.3 workato exec
 ```
 workato help exec
+
 Usage:
   workato exec <PATH>
 
@@ -268,7 +270,8 @@ Options:
   -c, [--connector=CONNECTOR]                                # Path to connector source code
   -s, [--settings=SETTINGS]                                  # Path to plain or encrypted file with connection configs, passwords, tokens, secrets etc
   -n, [--connection=CONNECTION]                              # Connection name if settings file contains multiple settings
-  -k, [--key=KEY]                                            # Path to file with encrypt/decrypt key. NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
+  -k, [--key=KEY]                                            # Path to file with encrypt/decrypt key.
+                                                             # NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
   -i, [--input=INPUT]                                        # Path to file with input JSON
       [--closure=CLOSURE]                                    # Path to file with next poll closure JSON
       [--continue=CONTINUE]                                  # Path to file with next multistep action continue closure JSON
@@ -286,7 +289,7 @@ Options:
       [--redirect-url=REDIRECT_URL]                          # OAuth2 callback url
       [--refresh-token=REFRESH_TOKEN]                        # OAuth2 refresh token
       [--debug], [--no-debug]
-      [--verbose], [--no-verbose]                    
+      [--verbose], [--no-verbose]
 
 Description:
   The 'workato exec' executes connector's lambda block at <PATH>. Lambda's parameters can be provided if needed, see options part.
@@ -394,13 +397,14 @@ Options:
   -c, [--connector=CONNECTOR]      # Path to connector source code
   -s, [--settings=SETTINGS]        # Path to plain or encrypted file with connection configs, passwords, tokens, secrets etc
   -n, [--connection=CONNECTION]    # Connection name if settings file contains multiple settings
-  -k, [--key=KEY]                  # Path to file with encrypt/decrypt key. NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
+  -k, [--key=KEY]                  # Path to file with encrypt/decrypt key.
+                                   # NOTE: key from WORKATO_CONNECTOR_MASTER_KEY has higher priority
       [--port=PORT]                # Listen requests on specific port
                                    # Default: 45555
       [--ip=IP]                    # Listen requests on specific interface
                                    # Default: 127.0.0.1
       [--https], [--no-https]      # Start HTTPS server using self-signed certificate
-      [--verbose], [--no-verbose]  
+      [--verbose], [--no-verbose]
 
 Implements OAuth Authorization Code flow
 ```
@@ -420,11 +424,13 @@ Options:
   -l, [--logo=LOGO]                # Path to connector logo: png or jpeg file
   -n, [--notes=NOTES]              # Release notes
   -c, [--connector=CONNECTOR]      # Path to connector source code
-      [--api-email=API_EMAIL]      # Email for accessing Workato API or set WORKATO_API_EMAIL environment variable
-      [--api-token=API_TOKEN]      # Token for accessing Workato API or set WORKATO_API_TOKEN environment variable
-      [--environment=ENVIRONMENT]  # Server to push connector code to
-                                   # Default: live
-                                   # Possible values: preview, preview-eu, live, live-eu
+      [--api-email=API_EMAIL]      # Email for accessing Workato API.
+                                   # If present overrides value from WORKATO_API_EMAIL environment variable.
+      [--api-token=API_TOKEN]      # Token for accessing Workato API.
+                                   # If present overrides value from WORKATO_API_TOKEN environment variable.
+      [--environment=ENVIRONMENT]  # Data center specific URL to push connector code.
+                                   # If present overrides value from WORKATO_BASE_URL environment variable.
+                                   # Examples: 'https://app.workato.com', 'https://app.eu.workato.com'
       [--folder=FOLDER]            # Folder ID if you what to push to folder other than Home
       [--verbose], [--no-verbose]
 

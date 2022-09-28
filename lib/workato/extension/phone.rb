@@ -5,7 +5,7 @@ module Workato
   module Extension
     module Phone
       def to_phone(options = {})
-        ActiveSupport::NumberHelper::NumberToPhoneConverter(self, options).to_s
+        ActiveSupport::NumberHelper::NumberToPhoneConverter.convert(self, options).to_s
       end
     end
   end

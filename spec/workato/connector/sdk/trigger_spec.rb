@@ -67,24 +67,6 @@ module Workato::Connector::Sdk
           next_poll: 1.minute.from_now
         }.with_indifferent_access)
       end
-
-      context 'when output has duplicates' do
-        let(:trigger_definition) { with_dedup }
-
-        it 'returns result without duplicates' do
-          settings = { a: :b }
-          input = { c: :d }
-          closure = 1.minute.ago
-
-          output = trigger.poll(settings, input, closure)
-
-          expect(output).to eq({
-            events: [{ 'at' => 4, 'id' => 3 }, { 'at' => 3, 'id' => 1 }, { 'at' => 2, 'id' => 2 }],
-            can_poll_more: false,
-            next_poll: 1.minute.from_now
-          }.with_indifferent_access)
-        end
-      end
     end
 
     describe 'webhook_notification' do
@@ -104,15 +86,15 @@ module Workato::Connector::Sdk
 
         expect(output).to eq(
           {
-            input: input,
+            input: input.with_indifferent_access,
             payload: payload,
-            extended_input_schema: [eis],
-            extended_output_schema: [eos],
-            headers: headers,
-            params: params,
-            settings: settings,
-            webhook_subscribe_output: wso
-          }.with_indifferent_access
+            extended_input_schema: [eis.with_indifferent_access],
+            extended_output_schema: [eos.with_indifferent_access],
+            headers: headers.with_indifferent_access,
+            params: params.with_indifferent_access,
+            settings: settings.with_indifferent_access,
+            webhook_subscribe_output: wso.with_indifferent_access
+          }
         )
       end
 
@@ -218,21 +200,6 @@ module Workato::Connector::Sdk
             can_poll_more: closure < now,
             next_poll: 1.minute.from_now
           }
-        end
-      }
-    end
-
-    def with_dedup
-      {
-        poll: lambda do |_connection, _input, closure|
-          {
-            events: [{ id: 1, at: 1 }, { id: 2, at: 2 }, { id: 1, at: 3 }, { id: 3, at: 4 }],
-            can_poll_more: closure < now,
-            next_poll: 1.minute.from_now
-          }
-        end,
-        dedup: lambda do |record|
-          record[:id]
         end
       }
     end

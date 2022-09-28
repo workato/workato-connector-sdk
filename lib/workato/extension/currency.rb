@@ -5,7 +5,7 @@ module Workato
   module Extension
     module Currency
       def to_currency(options = {})
-        ActiveSupport::NumberHelper::NumberToCurrencyConverter(self, options)
+        ActiveSupport::NumberHelper::NumberToCurrencyConverter.convert(self, options)
       end
     end
   end

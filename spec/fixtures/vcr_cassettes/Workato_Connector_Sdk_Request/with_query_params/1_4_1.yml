@@ -2,83 +2,49 @@
 http_interactions:
 - request:
     method: get
-    uri: https://jsonplaceholder.typicode.com/posts?userId=10
+    uri: https://httpbin.org/anything?userId=10
     body:
       encoding: US-ASCII
       string: ''
     headers:
       Accept:
-      - "*/*"
+      - application/json
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Content-Type:
+      - application/json
       Host:
-      - jsonplaceholder.typicode.com
+      - httpbin.org
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 05 May 2021 12:33:58 GMT
+      - Fri, 16 Sep 2022 09:43:11 GMT
       Content-Type:
-      - application/json; charset=utf-8
-      Transfer-Encoding:
-      - chunked
+      - application/json
+      Content-Length:
+      - '514'
       Connection:
       - keep-alive
-      Set-Cookie:
-      - __cfduid=dc49e565ddee4778951f8a2cf8ea58c8e1620218038; expires=Fri, 04-Jun-21
-        12:33:58 GMT; path=/; domain=.typicode.com; HttpOnly; SameSite=Lax
-      X-Powered-By:
-      - Express
-      X-Ratelimit-Limit:
-      - '1000'
-      X-Ratelimit-Remaining:
-      - '999'
-      X-Ratelimit-Reset:
-      - '1620125390'
-      Vary:
-      - Origin, Accept-Encoding
+      Server:
+      - gunicorn/19.9.0
+      Access-Control-Allow-Origin:
+      - "*"
       Access-Control-Allow-Credentials:
       - 'true'
-      Cache-Control:
-      - max-age=43200
-      Pragma:
-      - no-cache
-      Expires:
-      - "-1"
-      X-Content-Type-Options:
-      - nosniff
-      Etag:
-      - W/"a68-bp+xhXz2hSYZZUvrpfEFLIhQbe4"
-      Content-Encoding:
-      - gzip
-      Via:
-      - 1.1 vegur
-      Cf-Cache-Status:
-      - HIT
-      Age:
-      - '13159'
-      Cf-Request-Id:
-      - '09de1e625200002b71d5ac9000000001'
-      Expect-Ct:
-      - max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
-      Report-To:
-      - '{"group":"cf-nel","endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=L5Mqa0UzsRi2TYJdU63cD%2BONU%2BnoBN%2Bh9nNc6NIjSAR8fhGQ9jVcdPCfF7kQmzZuBduMjwgsn5vlmmCJ3pgQWoZ40ploZ%2Bgr2x%2B4NanEqrq77G5MqMo6oqz0rcvd"}],"max_age":604800}'
-      Nel:
-      - '{"report_to":"cf-nel","max_age":604800}'
-      Server:
-      - cloudflare
-      Cf-Ray:
-      - 64aa0016ea712b71-FRA
-      Alt-Svc:
-      - h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        H4sIAAAAAAAAA42WzW7kNhCE7/sUhM97sJPNz+YN8gyZHHqkHm8DFCmL5MCLIO+eKorS0JoEmYMBWdKQrK+rq/XHJ+f+wp9zTyXp8vv49Jt7ef683jH+9/Wl/Zcte8WNJynZyaTZJR2f2sNzHL/zmbezLtFdoy9zlqxOrxoM78qsi8nE35xCKiG72cugglVKGmy27KboNWWThBdsMm9vRd2lvOJRwC+D5IJH+j7raFncEEPSt4K7y4frMfq4aHJvxcRpTE73vZ5w2L8//7/kH46SF8kWA9S8u6xBuQ30XHTRMFo6QiAgbKrvg8541dxoAw7spYwSshVQMABYdMFlsG/mT6F7SFr5FMQFJYHJgk3i4uViAxWB2E6n4Va8PsRpiqN16AHgUcE/HgWfQUvUJSyGky86lCRhFD1KXWFP3Otc0ogyjWWwqaStJKg0a1IBkMtbiQBxjovFJNMp7Meta6BYENvt50q1maNjTiHElMkMNnHQml2OmYskXOqyxGV/d/fdvMSrjRq4s7lQvJdHoXw5QuEK/NvPnJx5H52lvJXpzgoJPgnVl7txG1SSkHMVuNWzc/fmYjYaBEIWEM3ABszAiT4JAzzpJnllcyTRWd2oHqqznUKcAmBeZMDCqbaPzam0Jlrtd3NRfflRKj8dqdhI7Vi1mRFI6kaTk7G59r5FVFjHrvg4KrqpK9fZwwDQguNf1aPAvWtmQZgQqgx0Cv0GP8QVA3qhTNRVGdaKyebA83qzUuxDoyJgEy1kjGdlNtaBCSZcSxLwoduFqoIisuCyR5n9fO8kUWRKU0arEhcztduY7RKoBM9qG7ChDxwtuBDDKv6WN7W+WibGCqBp79irsbFrOJIM3WUBJ8h8D88otibTKbRzcQN912XgsRiDUzXaQCfhjI9C+OVfIKSa7wABfWiUNDPici05nLSb4c49ZT1V55HWVKgefnhLoyY8UYx3H8Nmn0DdxGgVgaz1Fzc0rEbz1VD8LOxnbwP4OmEboQ2Y2h9UMKdQ027b0V5hNLQe5tJqz4Y8rVPuUZi/HmHeuqOteyv5f2Q2d8U82zKCB6i+qeoQOSvQm+8B5pXjrpLnhDOO4+rKPfSJjGU10luqX1YKDfGj8r4e5XXhx4OCOLyzu3A/2hzJFncYi3fNwsTdIhLmEk26Ttw1HKgLr+D7pA7w9OGLZL9kQbdZXCdWG+Ctjt1AfHTQvDw/H+XK+snTJ5SKa82Mq2+Mz6O8LjqolALE1W+CLa9al+Cwc5K9N9ro3ARUFhYqhdYoa763UQP93fypKXNL4f1DqS65pcOnP/8BVKa/f2gKAAA=
+      encoding: UTF-8
+      string: "{\n  \"args\": {\n    \"userId\": \"10\"\n  }, \n  \"data\": \"\",
+        \n  \"files\": {}, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\": \"application/json\",
+        \n    \"Accept-Encoding\": \"gzip, deflate\", \n    \"Content-Type\": \"application/json\",
+        \n    \"Host\": \"httpbin.org\", \n    \"User-Agent\": \"rest-client/2.0.2
+        (darwin20.3.0 x86_64) ruby/2.4.10p364\", \n    \"X-Amzn-Trace-Id\": \"Root=1-6324452f-073fdf52098fda095b016e51\"\n
+        \ }, \n  \"json\": null, \n  \"method\": \"GET\", \n  \"origin\": \"85.113.58.230\",
+        \n  \"url\": \"https://httpbin.org/anything?userId=10\"\n}\n"
     http_version:
-  recorded_at: Wed, 05 May 2021 12:33:58 GMT
+  recorded_at: Fri, 16 Sep 2022 09:43:11 GMT
 recorded_with: VCR 3.0.3

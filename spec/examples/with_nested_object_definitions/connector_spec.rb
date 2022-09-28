@@ -61,4 +61,26 @@ RSpec.describe 'with nested object definitions', :vcr do
       end
     end
   end
+
+  describe 'circular_reference_error' do
+    subject(:recursive_object) { connector.object_definitions.circular_reference_error.fields(settings, config_fields) }
+
+    it 'raises error' do
+      expect { recursive_object }.to raise_error(
+        Workato::Connector::Sdk::CircleReferenceObjectDefinitionError,
+        "Infinite recursion occurred in object definition for 'circular_reference_error'"
+      )
+    end
+  end
+
+  describe 'unresolved_object' do
+    subject(:unresolved_error) { connector.object_definitions.unresolved_error.fields(settings, config_fields) }
+
+    it 'raises error' do
+      expect { unresolved_error }.to raise_error(
+        Workato::Connector::Sdk::UnresolvedObjectDefinitionError,
+        "Cannot find object definition for 'unknown'"
+      )
+    end
+  end
 end

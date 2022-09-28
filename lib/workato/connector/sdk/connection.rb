@@ -202,6 +202,8 @@ module Workato
             ).returns(T::Boolean)
           end
           def refresh?(http_code, http_body, exception)
+            return false unless /oauth2/i =~ type || source[:acquire].present?
+
             refresh_on = self.refresh_on
             refresh_on.blank? || refresh_on.any? do |pattern|
               pattern.is_a?(::Integer) && pattern == http_code ||

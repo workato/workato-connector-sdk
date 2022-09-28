@@ -7,9 +7,12 @@ module Workato
       module Dsl
         module Call
           def call(method, *args)
-            raise InvalidDefinitionError, "method '#{method}' does not exists" unless @_methods[method]
+            method_proc = @_methods[method]
 
-            instance_exec(*args, &@_methods[method])
+            raise UndefinedMethodError, method unless method_proc
+            raise UnexpectedMethodDefinitionError.new(method, method_proc) unless method_proc.is_a?(Proc)
+
+            instance_exec(*args, &method_proc)
           end
         end
       end

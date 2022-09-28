@@ -1,0 +1,44 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://httpbin.org/basic-auth/user/password
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Content-Type:
+      - application/json
+      Host:
+      - httpbin.org
+  response:
+    status:
+      code: 401
+      message: UNAUTHORIZED
+    headers:
+      Date:
+      - Wed, 10 Aug 2022 04:01:15 GMT
+      Content-Length:
+      - '0'
+      Connection:
+      - keep-alive
+      Server:
+      - gunicorn/19.9.0
+      Www-Authenticate:
+      - Basic realm="Fake Realm"
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Wed, 10 Aug 2022 04:01:15 GMT
+recorded_with: VCR 3.0.3

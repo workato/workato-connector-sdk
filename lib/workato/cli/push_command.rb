@@ -32,7 +32,9 @@ module Workato
 
       def initialize(options:)
         @options = options
-        @api_base_url = ENVIRONMENTS.fetch(options[:environment])
+        @api_base_url = ENVIRONMENTS.fetch(options[:environment]) do
+          options[:environment].presence || Workato::Connector::Sdk::WORKATO_BASE_URL
+        end
         @api_email = options[:api_email] || ENV[Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV]
         @api_token = options[:api_token] || ENV[Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV]
         @folder_id = options[:folder]

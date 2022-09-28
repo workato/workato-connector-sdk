@@ -11,6 +11,7 @@ module Workato::Connector::Sdk
 
     context 'when called implicitly' do
       it { expect(request.body['userId']).to be_present }
+      it { expect(request.try(:body).try(:[], 'userId')).to be_present }
     end
 
     context 'with context' do
@@ -21,14 +22,22 @@ module Workato::Connector::Sdk
     end
 
     context 'with query params' do
-      let(:request) { described_class.new(uri).params(userId: '10') }
+      let(:uri) { 'https://httpbin.org/anything' }
+      let(:request) { described_class.new(uri).params(params).format_json }
+      let(:params) { { userId: '10' } }
 
-      it { is_expected.to include('"id": 100') }
+      it { is_expected.to include('args' => { 'userId' => '10' }) }
 
       context 'when uri includes params' do
-        let(:uri) { 'https://jsonplaceholder.typicode.com/posts?id=100' }
+        let(:uri) { 'https://httpbin.org/anything?id=100' }
 
-        it { is_expected.to include('"id": 100') }
+        it { is_expected.to include('args' => { 'userId' => '10', 'id' => '100' }) }
+      end
+
+      context 'when params is string' do
+        let(:params) { 'userId=10' }
+
+        it { is_expected.to include('args' => { 'userId' => '10' }) }
       end
     end
 
@@ -54,7 +63,7 @@ module Workato::Connector::Sdk
                 }
               }
             },
-            settings: settings.with_indifferent_access
+            settings: settings
           )
         end
 
@@ -65,9 +74,7 @@ module Workato::Connector::Sdk
     context 'with base_uri' do
       let(:uri) { '/posts' }
       let(:base_uri) { ->(connection) { "https://#{connection[:host]}" } }
-      let(:connection) do
-        Connection.new(connection: { base_uri: base_uri }, settings: settings.with_indifferent_access)
-      end
+      let(:connection) { Connection.new(connection: { base_uri: base_uri }, settings: settings) }
       let(:settings) { { host: 'jsonplaceholder.typicode.com' } }
       let(:request) { described_class.new(uri, connection: connection) }
 
@@ -121,6 +128,19 @@ module Workato::Connector::Sdk
 
           it { expect(execute!).to include('json' => [1, 2, 3]) }
         end
+      end
+
+      context 'when request payload format error' do
+        let(:request) { described_class.new(uri, method: 'POST').payload(payload).format_json }
+        let(:payload) { { title: "\xE0" } }
+
+        it { expect { execute! }.to raise_error(JSONRequestFormatError) }
+      end
+
+      context 'when response payload format error' do
+        let(:uri) { 'https://httpbin.org/html' }
+
+        it { expect { execute! }.to raise_error(JSONResponseFormatError, /unexpected token at/) }
       end
     end
 
@@ -238,19 +258,13 @@ module Workato::Connector::Sdk
     end
 
     context 'authorizations' do
-      let(:request) do
-        described_class.new(
-          uri,
-          connection: connection
-        ).format_json
-      end
-      let(:connection) do
-        Connection.new(connection: { authorization: authorization }, settings: settings.with_indifferent_access)
-      end
-      let(:settings) { { user: 'user', password: 'password' } }
+      let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
+      let(:request) { described_class.new(uri, connection: connection).format_json }
+      let(:connection) { Connection.new(connection: { authorization: authorization }, settings: settings) }
+      let(:settings) { {} }
 
       context 'with user and password' do
-        let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
+        let(:settings) { { user: 'user', password: 'password' } }
         let(:authorization) do
           {
             apply: lambda { |connection|
@@ -264,7 +278,6 @@ module Workato::Connector::Sdk
       end
 
       context 'with acquire' do
-        let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
         let(:authorization) do
           {
             apply: lambda { |connection|
@@ -278,10 +291,22 @@ module Workato::Connector::Sdk
         end
 
         it { is_expected.to include('authenticated' => true) }
+
+        context 'when random error' do
+          before do
+            stub_request(:get, 'http://httpbin.org/basic-auth/user/password').to_raise(SocketError.new('bad connect'))
+          end
+
+          it 'does not trigger refresh token' do
+            allow(connection).to receive(:update_settings!).and_call_original
+
+            expect { subject }.to raise_error(SocketError, 'bad connect')
+            expect(connection).to_not have_received(:update_settings!)
+          end
+        end
       end
 
-      context 'with refresh' do
-        let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
+      context 'with oauth2 and refresh' do
         let(:settings) { { user: 'user', access_token: 'expired', refresh_token: 'password' } }
         let(:authorization) do
           {
@@ -301,6 +326,37 @@ module Workato::Connector::Sdk
         end
 
         it { is_expected.to include('authenticated' => true) }
+
+        context 'when random error' do
+          before do
+            stub_request(:get, 'http://httpbin.org/basic-auth/user/password').to_raise(SocketError.new('bad connect'))
+          end
+
+          it 'does not trigger refresh token' do
+            allow(connection).to receive(:update_settings!).and_call_original
+
+            expect { subject }.to raise_error(SocketError, 'bad connect')
+            expect(connection).to_not have_received(:update_settings!)
+          end
+        end
+      end
+
+      context 'when unauthorized response' do
+        let(:authorization) do
+          {
+            apply: lambda { |connection|
+              user(connection[:user])
+              password(connection[:password])
+            }
+          }
+        end
+
+        it 'does not trigger refresh token' do
+          allow(connection).to receive(:update_settings!).and_call_original
+
+          expect { subject }.to raise_error(RequestError, '401 Unauthorized')
+          expect(connection).to_not have_received(:update_settings!)
+        end
       end
     end
 

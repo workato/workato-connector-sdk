@@ -8,6 +8,20 @@ module Workato
     module Sdk
       module SorbetTypes
         WebhookSubscribeOutputHash = T.type_alias { T::Hash[T.any(String, Symbol), T.untyped] }
+
+        WebhookNotificationPayload = T.type_alias { T.untyped }
+
+        TriggerEventHash = T.type_alias { T::Hash[T.untyped, T.untyped] }
+
+        WebhookNotificationOutputHash = T.type_alias { T.any(T::Array[TriggerEventHash], TriggerEventHash) }
+
+        PollOutputHash = T.type_alias do
+          {
+            'events' => T::Array[TriggerEventHash],
+            'can_poll_more' => T.nilable(T::Boolean),
+            'next_poll' => T.untyped
+          }
+        end
       end
 
       class Trigger < Operation
@@ -38,7 +52,7 @@ module Workato
             extended_input_schema: SorbetTypes::OperationSchema,
             extended_output_schema: SorbetTypes::OperationSchema
           ).returns(
-            HashWithIndifferentAccess
+            SorbetTypes::PollOutputHash
           )
         end
         def poll_page(settings = nil, input = {}, closure = nil, extended_input_schema = [],
@@ -52,7 +66,10 @@ module Workato
           ) do |connection, payload, eis, eos|
             instance_exec(connection, payload[:input], payload[:closure], eis, eos, &poll_proc)
           end
-          output[:events] = ::Array.wrap(output[:events]).reverse!.uniq(&trigger[:dedup])
+          output.with_indifferent_access
+          output[:events] = Array.wrap(output[:events])
+                                 .reverse!
+                                 .map! { |event| ::Hash.try_convert(event) || event }
           output[:next_poll] = output[:next_poll].presence || closure
           output
         end
@@ -65,11 +82,11 @@ module Workato
             extended_input_schema: SorbetTypes::OperationSchema,
             extended_output_schema: SorbetTypes::OperationSchema
           ).returns(
-            HashWithIndifferentAccess
+            SorbetTypes::PollOutputHash
           )
         end
         def poll(settings = nil, input = {}, closure = nil, extended_input_schema = [], extended_output_schema = [])
-          events = T.let([], T::Array[T::Hash[T.any(String, Symbol), T.untyped]])
+          events = T.let([], T::Array[SorbetTypes::TriggerEventHash])
 
           loop do
             output = poll_page(settings, input, closure, extended_input_schema, extended_output_schema)
@@ -80,13 +97,13 @@ module Workato
           end
 
           {
-            events: events.uniq(&trigger[:dedup]),
+            events: events,
             can_poll_more: false,
             next_poll: closure
           }.with_indifferent_access
         end
 
-        sig { params(input: SorbetTypes::OperationInputHash).returns(T.untyped) }
+        sig { params(input: SorbetTypes::TriggerEventHash).returns(T.untyped) }
         def dedup(input = {})
           trigger[:dedup].call(input)
         end
@@ -94,7 +111,7 @@ module Workato
         sig do
           params(
             input: SorbetTypes::OperationInputHash,
-            payload: T::Hash[T.any(String, Symbol), T.untyped],
+            payload: SorbetTypes::WebhookNotificationPayload,
             extended_input_schema: SorbetTypes::OperationSchema,
             extended_output_schema: SorbetTypes::OperationSchema,
             headers: T::Hash[T.any(String, Symbol), T.untyped],
@@ -102,7 +119,7 @@ module Workato
             settings: T.nilable(SorbetTypes::SettingsHash),
             webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash
           ).returns(
-            HashWithIndifferentAccess
+            SorbetTypes::WebhookNotificationOutputHash
           )
         end
         def webhook_notification(
@@ -116,10 +133,10 @@ module Workato
           webhook_subscribe_output = {}
         )
           connection.merge_settings!(settings) if settings
-          Dsl::WithDsl.execute(
+          output = Dsl::WithDsl.execute(
             connection,
             input.with_indifferent_access,
-            payload.with_indifferent_access,
+            payload,
             Array.wrap(extended_input_schema).map(&:with_indifferent_access),
             Array.wrap(extended_output_schema).map(&:with_indifferent_access),
             headers.with_indifferent_access,
@@ -127,7 +144,12 @@ module Workato
             connection.settings,
             webhook_subscribe_output.with_indifferent_access,
             &trigger[:webhook_notification]
-          ).with_indifferent_access
+          )
+          if output.is_a?(::Array)
+            output.map! { |event| ::Hash.try_convert(event) || event }
+          else
+            ::Hash.try_convert(output) || output
+          end
         end
 
         sig do
@@ -169,7 +191,7 @@ module Workato
             params: T::Hash[T.any(String, Symbol), T.untyped],
             webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash
           ).returns(
-            T::Hash[T.any(String, Symbol), T.untyped]
+            T.any(SorbetTypes::WebhookNotificationOutputHash, SorbetTypes::PollOutputHash)
           )
         end
         def invoke(input = {}, payload = {}, headers = {}, params = {}, webhook_subscribe_output = {})

@@ -14,12 +14,12 @@
   end,
 
   object_definitions: {
-    recursive_object: {
+    circular_reference_error: {
       fields: lambda do |_connection, _config_fields, object_definitions|
         {
           name: 'recursive_object_field',
           type: 'object',
-          properties: object_definitions['recursive_object']
+          properties: object_definitions['circular_reference_error']
         }
       end
     },
@@ -61,6 +61,12 @@
           }
         ]
       }
+    },
+
+    unresolved_error: {
+      fields: lambda do |_connection, _config_fields, object_definitions|
+        object_definitions['unknown']
+      end
     }
   },
 

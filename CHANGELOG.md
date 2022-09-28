@@ -1,3 +1,28 @@
+# 1.1.0 - Multiple fixes & changes
+
+## Enhancements
+
+- Support Singapore DC for `workato push` command. Change `--environment` param to accept a base url instead of hardcoded alias.
+  - For example `workato push --environment='live-eu'` becomes `workato push --environment='https://app.eu.workato.com'`
+- Improve connection reauthorization logic. Now `detect_on` conditions match only network errors, previously it used to match on any exception.
+- Allow array of events for `webhook_notification` output. Previously it expected only a single event. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/triggers.html#webhook-notification) was updated too.
+
+## Bugfixes
+
+- Fix `to_currency`, `to_phone` methods
+- Fix incompatibility of `strip_tags`. Now it sanitises with correct defaults.
+- Fix incompatibility of `after_response` callback. Now it correctly detects headers encoding.
+- Fix `try` method for request. Now it is called on the response instead of the request object.
+- Fix `params` request method for non-hash values. Now method accepts string or array too.
+
+## Misc
+
+- Do not apply `dedup` to `webhook_notification` and `poll` output.
+- Raise custom error when call an incorrectly defined method.
+- Raise custom error when referring an incorrectly defined object definition.
+- Raise custom error when request payload/response format is invalid.
+- Raise custom error for request server or client certificate error.
+
 # 1.0.2 - Multiple improvements
 
 ## Enhancements

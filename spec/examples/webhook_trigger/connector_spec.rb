@@ -35,10 +35,10 @@ RSpec.describe 'poll_trigger', :vcr do
   describe 'webhook_notification' do
     it 'returns result' do
       payload = {
-        id: '1000',
-        post: {
-          id: 1,
-          title: 'Post #1'
+        'id' => '1000',
+        'post' => {
+          'id' => 1,
+          'title' => 'Post #1'
         }
       }
 

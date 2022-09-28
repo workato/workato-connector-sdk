@@ -1,6 +1,8 @@
 # typed: false
 # frozen_string_literal: true
 
+require 'rails-html-sanitizer'
+
 module Workato
   module Extension
     module String
@@ -36,7 +38,8 @@ module Workato
       end
 
       def strip_tags
-        Loofah::Helpers.strip_tags(self)
+        @html_full_sanitizer ||= Rails::Html::Sanitizer.full_sanitizer.new
+        @html_full_sanitizer.sanitize(self)
       end
 
       def to_time(form = :local, format: nil)

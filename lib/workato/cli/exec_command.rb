@@ -89,7 +89,10 @@ module Workato
             $stdout.pause if verbose?
             say('')
             say(message)
+
             new_settings = refresher.call
+            break unless new_settings
+
             loop do
               answer = ask('Updated settings file with new connection attributes? (Yes or No)').to_s.downcase
               break new_settings if %w[n no].include?(answer)
