@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    workato-connector-sdk (1.0.2)
+    workato-connector-sdk (1.0.3)
       activesupport (~> 5.2)
       aws-sigv4 (= 1.2.4)
       countries (= 1.2.2)

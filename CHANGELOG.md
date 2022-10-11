@@ -1,3 +1,10 @@
+# 1.0.3 - Add Singapore DC
+
+## Enhancements
+
+- Backport from 1.1.0. Support Singapore DC for `workato push` command. Change `--environment` param to accept a base url instead of hardcoded alias.
+  - For example `workato push --environment='live-eu'` becomes `workato push --environment='https://app.eu.workato.com'`
+
 # 1.0.2 - Multiple improvements
 
 ## Enhancements

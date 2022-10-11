@@ -26,6 +26,10 @@ module Workato
 
       WORKATO_API_EMAIL_ENV = 'WORKATO_API_EMAIL'
       WORKATO_API_TOKEN_ENV = 'WORKATO_API_TOKEN'
+
+      WORKATO_BASE_URL_ENV = 'WORKATO_BASE_URL'
+      DEFAULT_WORKATO_BASE_URL = 'https://app.workato.com'
+      WORKATO_BASE_URL = T.let(ENV.fetch(WORKATO_BASE_URL_ENV, DEFAULT_WORKATO_BASE_URL), String)
     end
   end
 end

@@ -9,7 +9,6 @@ module Workato
       SAMPLE_TO_SCHEMA_SUPPORT_TYPES = %w[csv json].freeze
       CSV_SEPARATORS = %w[comma space tab colon semicolon pipe].freeze
 
-      WORKATO_BASE_URL = ENV['WORKATO_BASE_URL'] || 'https://app.workato.com'
       API_GENERATE_SCHEMA_PATH = '/api/sdk/generate_schema'
 
       def initialize(options:)
@@ -53,7 +52,7 @@ module Workato
       end
 
       def sample_to_schema(sample)
-        url = "#{WORKATO_BASE_URL}#{API_GENERATE_SCHEMA_PATH}/#{sample.delete(:type)}"
+        url = "#{Workato::Connector::Sdk::WORKATO_BASE_URL}#{API_GENERATE_SCHEMA_PATH}/#{sample.delete(:type)}"
         response = RestClient.post(
           url,
           sample.to_json,
@@ -75,8 +74,7 @@ module Workato
         }
       end
 
-      private_constant :API_GENERATE_SCHEMA_PATH,
-                       :WORKATO_BASE_URL
+      private_constant :API_GENERATE_SCHEMA_PATH
     end
   end
 end
