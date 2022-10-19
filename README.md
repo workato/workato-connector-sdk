@@ -16,6 +16,7 @@ This guide below showcases how you can do the following things:
 2. Choose between Ruby versions `2.4.10` `2.5.X` or `2.7.X`. Our preferred version is `2.7.X`.
 3. Verify you're running a valid ruby version. Do this by running either `ruby -v` or the commands within your version manager. i.e., `rvm current` if you have installed RVM.
 4. For Windows you need tzinfo-data gem installed as well. `gem install tzinfo-data`
+5. SDK depends on `charlock_holmes` gem. Check [gem's documentation](https://github.com/brianmario/charlock_holmes#installing) if you have troubles when install this dependency. Additional [details for Windows](https://github.com/brianmario/charlock_holmes/issues/84#issuecomment-652877605)
    
 ```bash
 ruby -v
