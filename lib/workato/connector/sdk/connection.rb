@@ -3,9 +3,33 @@
 
 require_relative './block_invocation_refinements'
 
+using Workato::Extension::HashWithIndifferentAccess
+
 module Workato
   module Connector
     module Sdk
+      module SorbetTypes
+        AcquireOutput = T.type_alias do
+          T.any(
+            # oauth2
+            [
+              HashWithIndifferentAccess, # tokens
+              T.untyped, # resource_owner_id
+              T.nilable(HashWithIndifferentAccess) # settings
+            ],
+            [
+              HashWithIndifferentAccess, # tokens
+              T.untyped # resource_owner_id
+            ],
+            [
+              HashWithIndifferentAccess # tokens
+            ],
+            # custom_auth
+            HashWithIndifferentAccess
+          )
+        end
+      end
+
       class Connection
         extend T::Sig
 
@@ -15,6 +39,7 @@ module Workato
         attr_reader :source
 
         cattr_accessor :on_settings_update
+        cattr_accessor :multi_auth_selected_fallback
 
         sig do
           params(
@@ -24,8 +49,8 @@ module Workato
           ).void
         end
         def initialize(connection: {}, methods: {}, settings: {})
-          @methods_source = T.let(methods.with_indifferent_access, HashWithIndifferentAccess)
-          @source = T.let(connection.with_indifferent_access, HashWithIndifferentAccess)
+          @methods_source = T.let(HashWithIndifferentAccess.wrap(methods), HashWithIndifferentAccess)
+          @source = T.let(HashWithIndifferentAccess.wrap(connection), HashWithIndifferentAccess)
           @settings = T.let(settings, SorbetTypes::SettingsHash)
         end
 
@@ -37,6 +62,7 @@ module Workato
         sig { returns(HashWithIndifferentAccess) }
         def settings
           # we can't freeze or memoise because some developers modify it for storing something temporary in it.
+          # always return a new copy
           @settings.with_indifferent_access
         end
 
@@ -64,7 +90,10 @@ module Workato
 
         sig { params(settings: T.nilable(SorbetTypes::SettingsHash)).returns(T.nilable(String)) }
         def base_uri(settings = nil)
-          source[:base_uri]&.call(settings ? settings.with_indifferent_access.freeze : self.settings)
+          return unless source[:base_uri]
+
+          merge_settings!(settings) if settings
+          Dsl::WithDsl.execute(self, self.settings, &source[:base_uri])
         end
 
         sig do
@@ -101,9 +130,6 @@ module Workato
         class Authorization
           extend T::Sig
 
-          sig { returns(HashWithIndifferentAccess) }
-          attr_reader :source
-
           sig do
             params(
               connection: Connection,
@@ -123,6 +149,16 @@ module Workato
             (source[:type].presence || 'none').to_s
           end
 
+          sig { returns(T::Boolean) }
+          def oauth2?
+            !!(/oauth2/i =~ type)
+          end
+
+          sig { returns(T::Boolean) }
+          def multi?
+            @source[:type].to_s == 'multi'
+          end
+
           sig { returns(T::Array[T.any(String, Symbol, Regexp, Integer)]) }
           def refresh_on
             Array.wrap(source[:refresh_on]).compact
@@ -135,10 +171,10 @@ module Workato
 
           sig { params(settings: T.nilable(SorbetTypes::SettingsHash)).returns(T.nilable(String)) }
           def client_id(settings = nil)
+            @connection.merge_settings!(settings) if settings
             client_id = source[:client_id]
 
             if client_id.is_a?(Proc)
-              @connection.merge_settings!(settings) if settings
               Dsl::WithDsl.execute(@connection, @connection.settings, &client_id)
             else
               client_id
@@ -147,10 +183,10 @@ module Workato
 
           sig { params(settings: T.nilable(SorbetTypes::SettingsHash)).returns(T.nilable(String)) }
           def client_secret(settings = nil)
+            @connection.merge_settings!(settings) if settings
             client_secret_source = source[:client_secret]
 
             if client_secret_source.is_a?(Proc)
-              @connection.merge_settings!(settings) if settings
               Dsl::WithDsl.execute(@connection, @connection.settings, &client_secret_source)
             else
               client_secret_source
@@ -159,12 +195,18 @@ module Workato
 
           sig { params(settings: T.nilable(SorbetTypes::SettingsHash)).returns(T.nilable(String)) }
           def authorization_url(settings = nil)
-            source[:authorization_url]&.call(settings&.with_indifferent_access || @connection.settings)
+            @connection.merge_settings!(settings) if settings
+            return unless source[:authorization_url]
+
+            Dsl::WithDsl.execute(@connection, @connection.settings, &source[:authorization_url])
           end
 
           sig { params(settings: T.nilable(SorbetTypes::SettingsHash)).returns(T.nilable(String)) }
           def token_url(settings = nil)
-            source[:token_url]&.call(settings&.with_indifferent_access || @connection.settings)
+            @connection.merge_settings!(settings) if settings
+            return unless source[:token_url]
+
+            Dsl::WithDsl.execute(@connection, @connection.settings, &source[:token_url])
           end
 
           sig do
@@ -172,9 +214,10 @@ module Workato
               settings: T.nilable(SorbetTypes::SettingsHash),
               oauth2_code: T.nilable(String),
               redirect_url: T.nilable(String)
-            ).returns(HashWithIndifferentAccess)
+            ).returns(T.nilable(SorbetTypes::AcquireOutput))
           end
           def acquire(settings = nil, oauth2_code = nil, redirect_url = nil)
+            @connection.merge_settings!(settings) if settings
             acquire_proc = source[:acquire]
             raise InvalidDefinitionError, "Expect 'acquire' block" unless acquire_proc
 
@@ -202,7 +245,7 @@ module Workato
             ).returns(T::Boolean)
           end
           def refresh?(http_code, http_body, exception)
-            return false unless /oauth2/i =~ type || source[:acquire].present?
+            return false unless oauth2? || source[:acquire].present?
 
             refresh_on = self.refresh_on
             refresh_on.blank? || refresh_on.any? do |pattern|
@@ -214,10 +257,10 @@ module Workato
 
           sig { params(settings: HashWithIndifferentAccess).returns(T.nilable(HashWithIndifferentAccess)) }
           def refresh!(settings)
-            if /oauth2/i =~ type
+            if oauth2?
               refresh_oauth2_token(settings)
             elsif source[:acquire].present?
-              acquire(settings)
+              T.cast(acquire(settings), T.nilable(HashWithIndifferentAccess))
             end
           end
 
@@ -230,6 +273,7 @@ module Workato
             )
           end
           def refresh(settings = nil, refresh_token = nil)
+            @connection.merge_settings!(settings) if settings
             refresh_proc = source[:refresh]
             raise InvalidDefinitionError, "Expect 'refresh' block" unless refresh_proc
 
@@ -242,6 +286,27 @@ module Workato
             ).execute(settings, { refresh_token: refresh_token }) do |connection, input|
               instance_exec(connection, input[:refresh_token], &refresh_proc)
             end
+          end
+
+          sig { returns(HashWithIndifferentAccess) }
+          def source
+            return @source unless multi?
+
+            unless @source[:selected]
+              raise InvalidMultiAuthDefinition, "Multi-auth connection must define 'selected' block"
+            end
+
+            if @source[:options].blank?
+              raise InvalidMultiAuthDefinition, "Multi-auth connection must define 'options' list"
+            end
+
+            selected_auth_key = @source[:selected].call(@connection.settings)
+            selected_auth_key ||= @connection.multi_auth_selected_fallback&.call(@source[:options])
+            selected_auth_value = @source.dig(:options, selected_auth_key)
+
+            raise UnresolvedMultiAuthOptionError, selected_auth_key unless selected_auth_value
+
+            selected_auth_value
           end
 
           private
@@ -266,7 +331,10 @@ module Workato
           sig { params(settings: HashWithIndifferentAccess).returns(HashWithIndifferentAccess) }
           def refresh_oauth2_token_using_refresh(settings)
             new_tokens, new_settings = refresh(settings, settings[:refresh_token])
-            new_tokens.with_indifferent_access.merge(new_settings || {})
+            new_tokens = HashWithIndifferentAccess.wrap(new_tokens)
+            return new_tokens unless new_settings
+
+            new_tokens.merge(new_settings)
           end
 
           sig { params(settings: HashWithIndifferentAccess).returns(HashWithIndifferentAccess) }

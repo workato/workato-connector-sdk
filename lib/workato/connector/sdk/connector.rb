@@ -1,6 +1,8 @@
 # typed: strict
 # frozen_string_literal: true
 
+using Workato::Extension::HashWithIndifferentAccess
+
 module Workato
   module Connector
     module Sdk
@@ -21,10 +23,10 @@ module Workato
 
         sig { params(definition: SorbetTypes::SourceHash, settings: SorbetTypes::SettingsHash).void }
         def initialize(definition, settings = {})
-          @source = T.let(definition.with_indifferent_access, HashWithIndifferentAccess)
-          @settings = T.let(settings.with_indifferent_access, HashWithIndifferentAccess)
-          @connection_source = T.let(@source[:connection] || {}.with_indifferent_access, HashWithIndifferentAccess)
-          @methods_source = T.let(@source[:methods] || {}.with_indifferent_access, HashWithIndifferentAccess)
+          @source = T.let(HashWithIndifferentAccess.wrap(definition), HashWithIndifferentAccess)
+          @settings = T.let(HashWithIndifferentAccess.wrap(settings), HashWithIndifferentAccess)
+          @connection_source = T.let(HashWithIndifferentAccess.wrap(@source[:connection]), HashWithIndifferentAccess)
+          @methods_source = T.let(HashWithIndifferentAccess.wrap(@source[:methods]), HashWithIndifferentAccess)
         end
 
         sig { params(path: String, params: T::Hash[Symbol, T.untyped]).returns(T.untyped) }

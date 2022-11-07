@@ -3,6 +3,8 @@
 
 require 'active_support/encrypted_configuration'
 
+using Workato::Extension::HashWithIndifferentAccess
+
 module Workato
   module Connector
     module Sdk
@@ -98,13 +100,13 @@ module Workato
         end
 
         def read_encrypted_file
-          all_settings = encrypted_configuration.config.with_indifferent_access
+          all_settings = HashWithIndifferentAccess.wrap(encrypted_configuration.config)
 
           (name ? all_settings.fetch(name) : all_settings) || {}
         end
 
         def update_encrypted_file(new_settings)
-          all_settings = encrypted_configuration.config.with_indifferent_access
+          all_settings = HashWithIndifferentAccess.wrap(encrypted_configuration.config)
 
           merge_settings(all_settings, new_settings)
 

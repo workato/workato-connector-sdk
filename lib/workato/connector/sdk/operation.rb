@@ -5,6 +5,8 @@ require_relative './dsl'
 require_relative './block_invocation_refinements'
 require_relative './schema'
 
+using Workato::Extension::HashWithIndifferentAccess
+
 module Workato
   module Connector
     module Sdk
@@ -45,6 +47,7 @@ module Workato
         include Dsl::HTTP
         include Dsl::Call
         include Dsl::Error
+        include Dsl::ExecutionContext
 
         using BlockInvocationRefinements
 
@@ -57,8 +60,8 @@ module Workato
           ).void
         end
         def initialize(operation: {}, methods: {}, connection: Connection.new, object_definitions: nil)
-          @operation = T.let(operation.with_indifferent_access, HashWithIndifferentAccess)
-          @_methods = T.let(methods.with_indifferent_access, HashWithIndifferentAccess)
+          @operation = T.let(HashWithIndifferentAccess.wrap(operation), HashWithIndifferentAccess)
+          @_methods = T.let(HashWithIndifferentAccess.wrap(methods), HashWithIndifferentAccess)
           @connection = T.let(connection, Connection)
           @object_definitions = T.let(object_definitions, T.nilable(ObjectDefinitions))
         end
@@ -80,13 +83,14 @@ module Workato
           connection.merge_settings!(settings) if settings
           request_or_result = T.unsafe(self).instance_exec(
             connection.settings,
-            input.with_indifferent_access,
-            Array.wrap(extended_input_schema).map(&:with_indifferent_access),
-            Array.wrap(extended_output_schema).map(&:with_indifferent_access),
-            continue.with_indifferent_access,
+            HashWithIndifferentAccess.wrap(input),
+            Array.wrap(extended_input_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
+            Array.wrap(extended_output_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
+            HashWithIndifferentAccess.wrap(continue),
             &block
           )
-          resolve_request(request_or_result)
+          result = resolve_request(request_or_result)
+          try_convert_to_hash_with_indifferent_access(result)
         end
 
         sig do
@@ -225,7 +229,7 @@ module Workato
               end
             end
           when ::Hash
-            request_or_result.inject(request_or_result.with_indifferent_access) do |acc, (key, value)|
+            request_or_result.inject(request_or_result) do |acc, (key, value)|
               response_value = resolve_request(value)
               if response_value.equal?(value)
                 acc
@@ -235,6 +239,18 @@ module Workato
             end
           else
             request_or_result
+          end
+        end
+
+        sig { params(value: T.untyped).returns(T.untyped) }
+        def try_convert_to_hash_with_indifferent_access(value)
+          case value
+          when ::Hash
+            HashWithIndifferentAccess.wrap(value)
+          when ::Array
+            value.map! { |i| try_convert_to_hash_with_indifferent_access(i) }
+          else
+            value
           end
         end
 

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe 'oauth_refresh', :vcr do
+RSpec.describe 'oauth_refresh_manual', :vcr do
   let(:connector) do
-    Workato::Connector::Sdk::Connector.from_file('./spec/examples/oauth_refresh_token_url/connector.rb')
+    Workato::Connector::Sdk::Connector.from_file('./spec/examples/oauth_refresh_manual/connector.rb')
   end
   let(:settings) do
     {
@@ -29,7 +29,8 @@ RSpec.describe 'oauth_refresh', :vcr do
             domain: 'https://www.example.com',
             client_id: 'zXkWHvok',
             client_secret: 'KlXvpJqyFEmymODgJa6kHKUATpSUS2BA07LHsi22ynKn29lqAi970EYkBNjPtkDh',
-            token_type: 'Bearer'
+            token_type: 'bearer',
+            expires_in: 3600
           }.with_indifferent_access
         )
       end
@@ -43,5 +44,12 @@ RSpec.describe 'oauth_refresh', :vcr do
   it 'refreshes token' do
     output = connector.actions.test_action.execute(settings)
     expect(output['success']).to be_truthy
+  end
+
+  it 'acquires token' do
+    token, owner_id, other_settings = connector.connection.authorization.acquire(settings, 'C-bxv', 'http://localhost:45555/oauth/callback')
+    expect(token).to eq('access_token' => 'ACCT-OizMaC', 'refresh_token' => 'REFT-Rumsbq')
+    expect(owner_id).to eq(1)
+    expect(other_settings).to eq('expired' => nil)
   end
 end

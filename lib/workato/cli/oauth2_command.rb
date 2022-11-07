@@ -3,11 +3,13 @@
 
 require 'securerandom'
 require 'workato/web/app'
+require_relative './multi_auth_selected_fallback'
 
 module Workato
   module CLI
     class OAuth2Command
       include Thor::Shell
+      include MultiAuthSelectedFallback
 
       AWAIT_CODE_TIMEOUT_INTERVAL = 180 # seconds
       AWAIT_CODE_SLEEP_INTERVAL = 5 # seconds
@@ -24,6 +26,7 @@ module Workato
       end
 
       def call
+        ensure_oauth2_type
         require_gems
         start_webrick
 
@@ -94,16 +97,31 @@ module Workato
       end
 
       def stop_webrick
+        return unless @thread
+
         Rack::Handler::WEBrick.shutdown
         @thread.exit
       end
 
+      def ensure_oauth2_type
+        unless connector.connection.authorization.oauth2?
+          raise 'Authorization type is not OAuth2. '\
+                'For multi-auth connector ensure correct auth type was used. '\
+                "Expected: 'oauth2', got: '#{connector.connection.authorization.type}''"
+        end
+      rescue Workato::Connector::Sdk::InvalidMultiAuthDefinition => e
+        raise "#{e.message}. Please ensure:\n"\
+              "- 'selected' block is defined and returns value from 'options' list\n" \
+              "- settings file contains value expected by 'selected' block\n\n"\
+              'See more: https://docs.workato.com/developing-connectors/sdk/guides/authentication/multi_auth.html'
+      end
+
       def client
         @client ||= OAuth2::Client.new(
-          connector.connection.authorization.client_id(settings),
-          connector.connection.authorization.client_secret(settings),
-          site: connector.connection.base_uri(settings),
-          token_url: connector.connection.authorization.token_url(settings),
+          connector.connection.authorization.client_id,
+          connector.connection.authorization.client_secret,
+          site: connector.connection.base_uri,
+          token_url: connector.connection.authorization.token_url,
           redirect_uri: redirect_url
         )
       end
@@ -112,14 +130,14 @@ module Workato
         return @authorize_url if defined?(@authorize_url)
 
         @authorize_url =
-          if (authorization_url = connector.connection.authorization.authorization_url(settings))
+          if (authorization_url = connector.connection.authorization.authorization_url)
             params = {
               state: SecureRandom.hex(8),
-              client_id: connector.connection.authorization.client_id(settings),
+              client_id: connector.connection.authorization.client_id,
               redirect_uri: redirect_url
-            }
+            }.with_indifferent_access
             uri = URI(authorization_url)
-            uri.query = params.with_indifferent_access.merge(Rack::Utils.parse_nested_query(uri.query || '')).to_param
+            uri.query = params.merge(Rack::Utils.parse_nested_query(uri.query || '')).to_param
             uri.to_s
           end
       end
@@ -133,12 +151,25 @@ module Workato
       end
 
       def settings
-        @settings ||= settings_store.read
+        return @settings if defined?(@settings)
+
+        @settings = settings_store.read
+
+        Workato::Connector::Sdk::Connection.multi_auth_selected_fallback = lambda do |options|
+          next @selected_auth_type if @selected_auth_type
+
+          with_user_interaction do
+            @selected_auth_type = multi_auth_selected_fallback(options)
+          end
+        end
+
+        @settings
       end
 
       def connector
         @connector ||= Workato::Connector::Sdk::Connector.from_file(
-          options[:connector] || Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH
+          options[:connector] || Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH,
+          settings
         )
       end
 
@@ -156,8 +187,8 @@ module Workato
       end
 
       def acquire_token(code)
-        if connector.source.dig(:connection, :authorization, :acquire)
-          tokens, _, extra_settings = connector.connection.authorization.acquire(settings, await_code, redirect_url)
+        if connector.connection.authorization.source[:acquire]
+          tokens, _, extra_settings = connector.connection.authorization.acquire(nil, code, redirect_url)
           tokens ||= {}
           extra_settings ||= {}
           extra_settings.merge(tokens)
@@ -177,6 +208,13 @@ module Workato
 
         response = http.request(request)
         response.body
+      end
+
+      def with_user_interaction
+        say('')
+        yield
+      ensure
+        say('')
       end
     end
   end

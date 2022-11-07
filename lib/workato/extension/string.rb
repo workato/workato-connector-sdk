@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'rails-html-sanitizer'
+require 'workato/utilities/xml'
 
 module Workato
   module Extension
@@ -168,7 +169,7 @@ module Workato
       end
 
       def from_xml
-        Connector::Sdk::Xml.parse_xml_to_hash self
+        Workato::Utilities::Xml.parse_xml_to_hash(self)
       end
 
       TO_COUNTRY_METHODS.each do |suffix|

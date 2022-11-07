@@ -46,7 +46,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'oauth2', '~> 1.0'
   spec.add_runtime_dependency 'rack', '~> 2.0'
   spec.add_runtime_dependency 'rails-html-sanitizer', '= 1.4.3'
-  spec.add_runtime_dependency 'rest-client', '= 2.0.2'
+  spec.add_runtime_dependency 'rest-client', '= 2.1.0'
   spec.add_runtime_dependency 'ruby-progressbar', '~> 1.0'
   spec.add_runtime_dependency 'ruby_rncryptor', '~> 3.0'
   spec.add_runtime_dependency 'rubyzip', '~> 2.3'
@@ -62,4 +62,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'timecop', '~> 0.9'
   spec.add_development_dependency 'vcr', '~> 3.0'
   spec.add_development_dependency 'webmock', '~> 3.0'
+  spec.post_install_message = <<~POST_INSTALL_MESSAGE
+
+    If you updated from workato-connector-sdk prior 1.2.0 your tests could be broken.
+
+    For more details see here:
+    https://github.com/workato/workato-connector-sdk/releases/tag/v1.2.0
+
+  POST_INSTALL_MESSAGE
 end

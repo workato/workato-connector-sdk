@@ -4,6 +4,8 @@
 require 'csv'
 require 'singleton'
 
+using Workato::Extension::HashWithIndifferentAccess
+
 module Workato
   module Connector
     module Sdk
@@ -40,7 +42,7 @@ module Workato
           @table_by_id ||= {}
           @table_by_name ||= {}
           data.each do |name, table|
-            table = table.with_indifferent_access
+            table = HashWithIndifferentAccess.wrap(table)
             rows = table['rows'].freeze
             @table_by_id[table['id'].to_i] = rows
             @table_by_name[name] = rows

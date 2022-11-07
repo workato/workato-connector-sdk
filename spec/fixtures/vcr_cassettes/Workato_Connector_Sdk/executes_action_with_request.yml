@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -43,7 +43,7 @@ http_interactions:
           "user_agent": "rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364",
           "port": 53930,
           "method": "GET",
-          "encoding": "gzip, deflate",
+          "encoding": "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
           "mime": "application/json",
           "via": "1.1 google",
           "forwarded": "85.113.58.230, 163.116.178.113, 34.117.59.81,35.191.3.128"

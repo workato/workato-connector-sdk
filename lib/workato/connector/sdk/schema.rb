@@ -1,20 +1,22 @@
 # typed: false
 # frozen_string_literal: true
 
+using Workato::Extension::HashWithIndifferentAccess
+
 module Workato
   module Connector
     module Sdk
       class Schema < SimpleDelegator
         def initialize(schema: [])
-          super(Fields.new(::Array.wrap(schema).map(&:with_indifferent_access)))
+          super(Fields.new(::Array.wrap(schema).map { |i| HashWithIndifferentAccess.wrap(i) }))
         end
 
         def trim(input)
-          input.with_indifferent_access.keep_if { |property_name| includes_property?(property_name) }
+          HashWithIndifferentAccess.wrap(input).keep_if { |property_name| includes_property?(property_name) }
         end
 
         def apply(input, enforce_required:, &block)
-          input.with_indifferent_access.tap do |input_with_indifferent_access|
+          HashWithIndifferentAccess.wrap(input).tap do |input_with_indifferent_access|
             apply_to_hash(self, input_with_indifferent_access, enforce_required: enforce_required, &block)
           end
         end

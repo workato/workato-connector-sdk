@@ -205,7 +205,7 @@ module Workato::Connector::Sdk
                        .headers(headers)
                        .case_sensitive_headers(case_sensitive_headers)
       end
-      let(:uri) { 'http://lvh.me:9876/' } # run nc -l 9876
+      let(:uri) { 'http://lvh.me:9876/' } # run nc -l -p 9876
       let(:headers) do
         {
           'x-hEaDer-1': 'x-hEaDer-1',

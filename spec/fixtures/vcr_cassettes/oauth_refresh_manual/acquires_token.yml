@@ -1,0 +1,49 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://www.example.com/oauth2/token
+      body:
+        encoding: UTF-8
+        string: client_id=zXkWHvok&client_secret=KlXvpJqyFEmymODgJa6kHKUATpSUS2BA07LHsi22ynKn29lqAi970EYkBNjPtkDh&code=C-bxv&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A45555%2Foauth%2Fcallback
+      headers:
+        Accept:
+          - application/json
+        User-Agent:
+          - rest-client/2.1.0 (darwin20.3.0 x86_64) ruby/2.4.10p364
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Content-Type:
+          - application/x-www-form-urlencoded
+        Content-Length:
+          - '201'
+        Host:
+          - www.example.com
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        X-Powered-By:
+          - Express
+        Content-Type:
+          - application/json; charset=utf-8
+        Content-Length:
+          - '183'
+        Etag:
+          - W/"b7-0gLeS3AwARpRzlVL/TZ5G8Mr36Q"
+        Set-Cookie:
+          - connect.sid=s%3AlS9j4oSrDLpmi71zJzOBUQSbU_EB5XO1.k8BipCjNQdAYTyyzy5CW5frN9n16SLvrNJ4AM33GYZ4;
+            Path=/; HttpOnly
+        Date:
+          - Tue, 11 Oct 2022 12:28:00 GMT
+        Connection:
+          - keep-alive
+        Keep-Alive:
+          - timeout=5
+      body:
+        encoding: UTF-8
+        string: '{"access_token":"ACCT-OizMaC","expires_in":"3600","refresh_token":"REFT-Rumsbq","id_token":"IDT-RQ1dSg","state":"92b9bbcab8125f00","date_of_creation":1665491218,"token_type":"Bearer"}'
+      http_version:
+    recorded_at: Tue, 11 Oct 2022 12:28:00 GMT
+recorded_with: VCR 3.0.3

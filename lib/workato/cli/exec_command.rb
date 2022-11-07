@@ -2,11 +2,13 @@
 # frozen_string_literal: true
 
 require 'thor'
+require_relative './multi_auth_selected_fallback'
 
 module Workato
   module CLI
     class ExecCommand
       include Thor::Shell
+      include MultiAuthSelectedFallback
 
       DebugExceptionError = Class.new(StandardError)
 
@@ -63,7 +65,7 @@ module Workato
           oauth2_code: options[:oauth2_code],
           redirect_url: options[:redirect_url],
           refresh_token: options[:refresh_token],
-          recipe_id: SecureRandom.uuid
+          recipe_id: Workato::Connector::Sdk::Operation.recipe_id!
         }
       end
 
@@ -84,16 +86,21 @@ module Workato
         )
         @settings = settings_store.read
 
+        Workato::Connector::Sdk::Connection.multi_auth_selected_fallback = lambda do |options|
+          next @selected_auth_type if @selected_auth_type
+
+          with_user_interaction do
+            @selected_auth_type = multi_auth_selected_fallback(options)
+          end
+        end
+
         Workato::Connector::Sdk::Connection.on_settings_update = lambda do |message, &refresher|
-          begin
-            $stdout.pause if verbose?
-            say('')
-            say(message)
+          new_settings = refresher.call
+          break unless new_settings
 
-            new_settings = refresher.call
-            break unless new_settings
-
+          with_user_interaction do
             loop do
+              say(message)
               answer = ask('Updated settings file with new connection attributes? (Yes or No)').to_s.downcase
               break new_settings if %w[n no].include?(answer)
               next unless %w[y yes].include?(answer)
@@ -101,8 +108,6 @@ module Workato
               settings_store.update(new_settings)
               break new_settings
             end
-          ensure
-            $stdout.resume if verbose?
           end
         end
 
@@ -131,6 +136,11 @@ module Workato
 
       def execute_path
         connector.invoke(path, params)
+      rescue Workato::Connector::Sdk::InvalidMultiAuthDefinition => e
+        raise "#{e.message}. Please ensure:\n"\
+              "- 'selected' block is defined and returns value from 'options' list\n" \
+              "- settings file contains value expected by 'selected' block\n\n"\
+              'See more: https://docs.workato.com/developing-connectors/sdk/guides/authentication/multi_auth.html'
       rescue Exception => e # rubocop:disable Lint/RescueException
         raise DebugExceptionError, e if options[:debug]
 
@@ -179,6 +189,16 @@ module Workato
         say('')
 
         output
+      end
+
+      def with_user_interaction
+        $stdout.pause if verbose?
+        say('')
+
+        yield
+      ensure
+        say('')
+        $stdout.resume if verbose?
       end
 
       class ProgressLogger < SimpleDelegator

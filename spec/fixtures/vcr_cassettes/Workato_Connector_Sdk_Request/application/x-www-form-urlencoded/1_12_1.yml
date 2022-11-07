@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Content-Type:
@@ -43,7 +43,7 @@ http_interactions:
       string: "{\n  \"args\": {}, \n  \"data\": \"\", \n  \"files\": {}, \n  \"form\":
         {\n    \"body\": \"bar\", \n    \"title\": \"foo\", \n    \"userId\": \"1\"\n
         \ }, \n  \"headers\": {\n    \"Accept\": \"application/json\", \n    \"Accept-Encoding\":
-        \"gzip, deflate\", \n    \"Content-Length\": \"27\", \n    \"Content-Type\":
+        \"gzip;q=1.0,deflate;q=0.6,identity;q=0.3\", \n    \"Content-Length\": \"27\", \n    \"Content-Type\":
         \"application/x-www-form-urlencoded\", \n    \"Host\": \"httpbin.org\", \n
         \   \"User-Agent\": \"rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364\",
         \n    \"X-Amzn-Trace-Id\": \"Root=1-6094001c-0c8fda4d3535ab3d68574729\"\n

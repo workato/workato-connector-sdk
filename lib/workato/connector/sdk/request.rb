@@ -8,8 +8,11 @@ require 'gyoku'
 require 'net/http'
 require 'net/http/digest_auth'
 
+require 'workato/utilities/encoding'
+require 'workato/utilities/xml'
 require_relative './block_invocation_refinements'
-require_relative './../../utilities/encoding'
+
+using Workato::Extension::HashWithIndifferentAccess
 
 module Workato
   module Connector
@@ -31,6 +34,7 @@ module Workato
           @render_request = ->(payload) { payload }
           @parse_response = ->(payload) { payload }
           @after_response = ->(_response_code, parsed_response, _response_headers) { parsed_response }
+          @callstack_before_request = Array.wrap(Kernel.caller)
         end
 
         def method_missing(*args, &block)
@@ -38,36 +42,24 @@ module Workato
         end
 
         def execute!
-          __getobj__ || __setobj__(
-            authorized do
-              begin
-                request = build_request
-                response = execute(request)
-              rescue RestClient::Unauthorized => e
-                Kernel.raise e unless @digest_auth
-
-                @digest_auth = false
-                headers('Authorization' => Net::HTTP::DigestAuth.new.auth_header(
-                  URI.parse(build_url),
-                  e.response.headers[:www_authenticate],
-                  method.to_s.upcase
-                ))
-                request = build_request
-                response = execute(request)
-              end
-              detect_error!(response.body)
-              parsed_response = @parse_response.call(response)
-              detect_error!(parsed_response)
-              apply_after_response(response.code, parsed_response, response.headers)
-            end
-          )
+          __getobj__ || __setobj__(response)
         rescue RestClient::Exception => e
           if after_error_response_matches?(e)
             return apply_after_error_response(e)
           end
 
-          Kernel.raise RequestError.new(response: e.response, message: e.message, method: current_verb,
-                                        code: e.http_code)
+          Kernel.raise RequestError.new(
+            response: e.response,
+            message: e.message,
+            method: current_verb,
+            code: e.http_code
+          )
+        rescue StandardError => e
+          error_backtrace = Array.wrap(e.backtrace)
+          first_call_after_request_idx = error_backtrace.rindex { |s| s.start_with?(__FILE__) }
+          error_backtrace_after_request = error_backtrace[0..first_call_after_request_idx]
+          e.set_backtrace(error_backtrace_after_request + @callstack_before_request)
+          Kernel.raise e
         end
 
         def headers(headers)
@@ -178,7 +170,7 @@ module Workato
         def response_format_xml(strip_response_namespaces: false)
           @accept_header = :xml
           @parse_response = lambda_with_error_wrap(XMLResponseFormatError) do |payload|
-            Xml.parse_xml_to_hash(payload, strip_namespaces: strip_response_namespaces)
+            Workato::Utilities::Xml.parse_xml_to_hash(payload, strip_namespaces: strip_response_namespaces)
           end
           self
         end
@@ -266,7 +258,31 @@ module Workato
 
         attr_reader :method
 
-        def execute(request)
+        def response
+          authorized do
+            begin
+              request = RestClientRequest.new(rest_request_params)
+              response = execute_request(request)
+            rescue RestClient::Unauthorized => e
+              Kernel.raise e unless @digest_auth
+
+              @digest_auth = false
+              headers('Authorization' => Net::HTTP::DigestAuth.new.auth_header(
+                URI.parse(build_url),
+                e.response.headers[:www_authenticate],
+                method.to_s.upcase
+              ))
+              request = RestClientRequest.new(rest_request_params)
+              response = execute_request(request)
+            end
+            detect_error!(response.body)
+            parsed_response = @parse_response.call(response)
+            detect_error!(parsed_response)
+            apply_after_response(response.code, parsed_response, response.headers)
+          end
+        end
+
+        def execute_request(request)
           if @follow_redirection.nil?
             request.execute
           else
@@ -285,25 +301,22 @@ module Workato
           end
         end
 
-        def build_request
-          RestClient::Request.new(
-            {
-              method: method,
-              url: build_url,
-              headers: build_headers,
-              payload: @render_request.call(@payload)
-            }.tap do |request_hash|
-              if @ssl_client_cert.present? && @ssl_client_key.present?
-                request_hash[:ssl_client_cert] = @ssl_client_cert
-                request_hash[:ssl_client_key] = @ssl_client_key
+        def rest_request_params
+          {
+            method: method,
+            url: build_url,
+            headers: build_headers,
+            payload: @render_request.call(@payload),
+            case_sensitive_headers: @case_sensitive_headers.transform_keys(&:to_s)
+          }.tap do |request_hash|
+            if @ssl_client_cert.present? && @ssl_client_key.present?
+              request_hash[:ssl_client_cert] = @ssl_client_cert
+              request_hash[:ssl_client_key] = @ssl_client_key
+              if @ssl_client_intermediate_certs.present?
+                request_hash[:ssl_extra_chain_cert] = @ssl_client_intermediate_certs
               end
-              request_hash[:ssl_cert_store] = @ssl_cert_store if @ssl_cert_store
             end
-          ).tap do |request|
-            request.case_sensitive_headers = @case_sensitive_headers.transform_keys(&:to_s)
-            if @ssl_client_intermediate_certs.present? && @ssl_client_cert.present? && @ssl_client_key.present?
-              request.extra_chain_cert = @ssl_client_intermediate_certs
-            end
+            request_hash[:ssl_cert_store] = @ssl_cert_store if @ssl_cert_store
           end
         end
 
@@ -373,7 +386,7 @@ module Workato
           within_action_context(
             exception.http_code,
             exception.http_body,
-            exception.http_headers&.with_indifferent_access || {},
+            HashWithIndifferentAccess.wrap(exception.http_headers),
             exception.message,
             &@after_error_response
           )
@@ -404,7 +417,7 @@ module Workato
           first = true
           begin
             settings = connection.settings
-            if /oauth2/i =~ connection.authorization.type
+            if connection.authorization.oauth2?
               instance_exec(settings, settings[:access_token], @auth_type, &apply)
             else
               instance_exec(settings, @auth_type, &apply)
@@ -461,6 +474,35 @@ module Workato
           attr_reader :content_type
           attr_reader :original_filename
         end
+
+        class RestClientRequest < ::RestClient::Request
+          def initialize(args)
+            super
+            @ssl_opts[:extra_chain_cert] = args[:ssl_extra_chain_cert] if args.key?(:ssl_extra_chain_cert)
+            @case_sensitive_headers = args[:case_sensitive_headers]
+            @before_execution_proc = proc do |net_http_request, _args|
+              net_http_request.case_sensitive_headers = args[:case_sensitive_headers]
+            end
+          end
+
+          def ssl_extra_chain_cert
+            @ssl_opts[:extra_chain_cert]
+          end
+
+          def processed_headers
+            return @processed_headers if @case_sensitive_headers.blank?
+            return @case_sensitive_headers if @processed_headers.blank?
+
+            @processed_headers.merge(@case_sensitive_headers)
+          end
+
+          def net_http_object(hostname, port)
+            net = super(hostname, port)
+            net.extra_chain_cert = ssl_extra_chain_cert if ssl_extra_chain_cert
+            net
+          end
+        end
+        private_constant :RestClientRequest
       end
     end
   end

@@ -12,6 +12,7 @@ require_relative './dsl/workato_code_lib'
 require_relative './dsl/workato_schema'
 require_relative './dsl/time'
 require_relative './dsl/aws'
+require_relative './dsl/execution_context'
 
 module Workato
   module Connector

@@ -30,6 +30,17 @@ module Workato
 
       CustomRequestError = Class.new(StandardError)
 
+      InvalidMultiAuthDefinition = Class.new(InvalidDefinitionError)
+
+      class UnresolvedMultiAuthOptionError < InvalidMultiAuthDefinition
+        attr_reader :name
+
+        def initialize(name)
+          super("Cannot find multi-auth definition for '#{name}'")
+          @name = name
+        end
+      end
+
       RuntimeError = Class.new(StandardError)
 
       class UnresolvedObjectDefinitionError < StandardError

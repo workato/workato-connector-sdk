@@ -2,6 +2,9 @@
 # frozen_string_literal: true
 
 require 'aws-sigv4'
+require 'workato/utilities/xml'
+
+using Workato::Extension::HashWithIndifferentAccess
 
 module Workato
   module Connector
@@ -55,7 +58,7 @@ module Workato
                 method: method,
                 path: path,
                 params: params,
-                headers: (headers || {}).with_indifferent_access,
+                headers: HashWithIndifferentAccess.wrap(headers),
                 payload: payload
               )
 
@@ -134,7 +137,7 @@ module Workato
                 headers: headers,
                 method: :get
               )
-              response = Workato::Connector::Sdk::Xml.parse_xml_to_hash(response.body)
+              response = Workato::Utilities::Xml.parse_xml_to_hash(response.body)
 
               temp_credentials = response.dig('AssumeRoleResponse', 0, 'AssumeRoleResult', 0, 'Credentials', 0)
               {

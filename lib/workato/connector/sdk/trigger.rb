@@ -3,6 +3,8 @@
 
 require 'securerandom'
 
+using Workato::Extension::HashWithIndifferentAccess
+
 module Workato
   module Connector
     module Sdk
@@ -66,7 +68,6 @@ module Workato
           ) do |connection, payload, eis, eos|
             instance_exec(connection, payload[:input], payload[:closure], eis, eos, &poll_proc)
           end
-          output.with_indifferent_access
           output[:events] = Array.wrap(output[:events])
                                  .reverse!
                                  .map! { |event| ::Hash.try_convert(event) || event }
@@ -135,14 +136,14 @@ module Workato
           connection.merge_settings!(settings) if settings
           output = Dsl::WithDsl.execute(
             connection,
-            input.with_indifferent_access,
+            HashWithIndifferentAccess.wrap(input),
             payload,
-            Array.wrap(extended_input_schema).map(&:with_indifferent_access),
-            Array.wrap(extended_output_schema).map(&:with_indifferent_access),
-            headers.with_indifferent_access,
-            params.with_indifferent_access,
+            Array.wrap(extended_input_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
+            Array.wrap(extended_output_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
+            HashWithIndifferentAccess.wrap(headers),
+            HashWithIndifferentAccess.wrap(params),
             connection.settings,
-            webhook_subscribe_output.with_indifferent_access,
+            HashWithIndifferentAccess.wrap(webhook_subscribe_output),
             &trigger[:webhook_notification]
           )
           if output.is_a?(::Array)
@@ -162,7 +163,7 @@ module Workato
             SorbetTypes::WebhookSubscribeOutputHash
           )
         end
-        def webhook_subscribe(webhook_url = '', settings = nil, input = {}, recipe_id = SecureRandom.uuid)
+        def webhook_subscribe(webhook_url = '', settings = nil, input = {}, recipe_id = recipe_id!)
           webhook_subscribe_proc = trigger[:webhook_subscribe]
           execute(settings, { input: input, webhook_url: webhook_url, recipe_id: recipe_id }) do |connection, payload|
             instance_exec(

@@ -22,20 +22,6 @@ module Workato
       end
 
       ::Net::HTTP.include Net::HTTP
-
-      module RestClient
-        module Request
-          attr_accessor :extra_chain_cert
-
-          def net_http_object(hostname, port)
-            net = super(hostname, port)
-            net.extra_chain_cert = extra_chain_cert if extra_chain_cert
-            net
-          end
-        end
-      end
-
-      ::RestClient::Request.prepend RestClient::Request
     end
   end
 end

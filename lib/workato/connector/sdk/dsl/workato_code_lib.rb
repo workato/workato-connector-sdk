@@ -2,6 +2,9 @@
 # frozen_string_literal: true
 
 require 'jwt'
+require_relative './csv'
+
+using Workato::Extension::HashWithIndifferentAccess
 
 module Workato
   module Connector
@@ -74,7 +77,7 @@ module Workato
                 raise "A RSA key of size #{JWT_RSA_KEY_MIN_LENGTH} bits or larger MUST be used with JWT."
               end
 
-              header_fields = header_fields.present? ? header_fields.with_indifferent_access.except(:typ, :alg) : {}
+              header_fields = HashWithIndifferentAccess.wrap(header_fields).except(:typ, :alg)
               ::JWT.encode(payload, rsa_private, algorithm, header_fields)
             end
 
@@ -151,6 +154,10 @@ module Workato
 
             def pbkdf2_hmac_sha1(string, salt, iterations = 1000, key_len = 16)
               Extension::Binary.new(::OpenSSL::PKCS5.pbkdf2_hmac_sha1(string, salt, iterations, key_len))
+            end
+
+            def csv
+              Csv
             end
           end
         end

@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -50,7 +50,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -90,7 +90,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -130,7 +130,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -170,7 +170,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -210,7 +210,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -250,7 +250,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -290,7 +290,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -330,7 +330,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -363,7 +363,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:
@@ -396,7 +396,7 @@ http_interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       User-Agent:
       - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
       Host:

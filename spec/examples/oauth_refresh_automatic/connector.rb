@@ -5,20 +5,27 @@
     authorization: {
       type: 'oauth2',
 
+      authorization_url: lambda do |connection|
+        "#{connection[:domain]}/oauth2/authorize"
+      end,
+
+      token_url: lambda do |connection|
+        "#{connection[:domain]}/oauth2/token"
+      end,
+
+      client_id: lambda do |connection|
+        connection['client_id']
+      end,
+
+      client_secret: lambda do |connection|
+        connection['client_secret']
+      end,
+
       apply: lambda do |connection, access_token|
         headers(Authorization: "#{connection['token_type']} #{access_token}")
       end,
 
-      refresh_on: 401,
-
-      refresh: lambda do |connection, refresh_token|
-        post("#{connection[:domain]}/oauth2/token").payload(
-          client_id: connection[:client_id],
-          client_secret: connection['client_secret'],
-          refresh_token: refresh_token,
-          grant_type: 'refresh_token'
-        ).request_format_www_form_urlencoded
-      end
+      refresh_on: 401
     },
 
     base_uri: lambda do |connection|

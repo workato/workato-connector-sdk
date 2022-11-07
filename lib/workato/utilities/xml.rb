@@ -4,10 +4,10 @@
 require 'nokogiri'
 
 module Workato
-  module Connector
-    module Sdk
-      module Xml
-        def self.parse_xml_to_hash(payload, strip_namespaces: false)
+  module Utilities
+    module Xml
+      class << self
+        def parse_xml_to_hash(payload, strip_namespaces: false)
           parse_options = Nokogiri::XML::ParseOptions.new.nonet
           lazy_reader = Nokogiri::XML::Reader(payload, nil, nil, parse_options).to_enum.lazy
           lazy_reader.each_with_object([{}]) do |node, ancestors|

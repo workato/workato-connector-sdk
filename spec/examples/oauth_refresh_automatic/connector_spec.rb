@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe 'oauth_refresh_token_url', :vcr do
+RSpec.describe 'oauth_refresh_automatic', :vcr do
   let(:connector) do
-    Workato::Connector::Sdk::Connector.from_file('./spec/examples/oauth_refresh_token_url/connector.rb')
+    Workato::Connector::Sdk::Connector.from_file('./spec/examples/oauth_refresh_automatic/connector.rb')
   end
   let(:settings) do
     {
@@ -43,6 +43,11 @@ RSpec.describe 'oauth_refresh_token_url', :vcr do
   it 'refreshes token' do
     output = connector.actions.test_action.execute(settings)
     expect(output['success']).to be_truthy
+  end
+
+  it 'raises error for acquires token' do
+    expect { connector.connection.authorization.acquire }
+      .to raise_error(Workato::Connector::Sdk::InvalidDefinitionError)
   end
 
   context 'when refresh token is blank' do

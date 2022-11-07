@@ -1,3 +1,22 @@
+# 1.2.0 - Upgrade rest-client & multi-auth & SDK methods
+
+## Enhancements
+- Implement `execution_context`
+- Implement `workato.csv.*` methods
+  - [workato.csv.parse](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#csv-parse)
+  - [workato.csv.generate](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#csv-generate)
+- Implement multi-auth connector support. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/guides/authentication/multi_auth.html)
+- Support `lookup` and `account_property` methods in `base_uri`, `authorize_url`, `token_url`
+  - [lookup](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#lookup)
+  - [account_property](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#account-property)
+- Improve request error backtrace
+
+## Misc
+- Upgrade rest-client 2.0.2 -> 2.1.0
+  - Tests could be broken. For more details see https://github.com/workato/workato-connector-sdk/releases/tag/v1.2.0 
+- Get rid of redundant `hash_with_indifferent_access` converting
+- Add docs how to install `charlock_holmes` gem
+
 # 1.1.0 - Multiple fixes & changes
 
 ## Enhancements
@@ -35,12 +54,12 @@
 
 - Fix default value for webhook_subscribe_output input param
 
-## Misc 
+## Misc
 
 - Update loofah 2.14.0 -> 2.16.0
 - Update rubyzip 1.3 -> 2.3
 - Update activesupport 5.2.7.1 -> 5.2.8.1
-- Refactoring, code polishing, improving stability overall  
+- Refactoring, code polishing, improving stability overall
 
 # 1.0.1 - Fix String#to_date
 

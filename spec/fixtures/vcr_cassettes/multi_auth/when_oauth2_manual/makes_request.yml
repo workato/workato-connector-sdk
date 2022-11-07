@@ -1,0 +1,131 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://www.example.com/test
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        User-Agent:
+          - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+        Authorization:
+          - Bearer INVALID
+        Host:
+          - www.example.com
+    response:
+      status:
+        code: 401
+        message: Unauthorized
+      headers:
+        Server:
+          - nginx
+        Date:
+          - Thu, 01 Nov 2018 11:58:37 GMT
+        Content-Type:
+          - application/json;charset=UTF-8
+        Content-Length:
+          - '82'
+        Connection:
+          - keep-alive
+        example-Response-Id:
+          - 45322a0106d77ae
+      body:
+        encoding: UTF-8
+        string: '{"errorDescription":"Access token is unknown or invalid","error":"not_authorized"}'
+      http_version:
+    recorded_at: Tue, 25 Apr 2017 14:52:13 GMT
+  - request:
+      method: post
+      uri: https://www.example.com/oauth2/token
+      body:
+        encoding: UTF-8
+        string: client_id=zXkWHvok&client_secret=KlXvpJqyFEmymODgJa6kHKUATpSUS2BA07LHsi22ynKn29lqAi970EYkBNjPtkDh&grant_type=refresh_token&refresh_token=eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjIyNzMwNjEsXCJpXCI6NTU0Nzc1MixcImNcIjo0NTk0NTkyLFwidlwiOlwiXCIsXCJ1XCI6NDY1NzE1NyxcInJcIjpcIlVTXCIsXCJzXCI6W1wiTlwiXSxcInpcIjpbXCJyc2hcIl0sXCJ0XCI6MTU0MTA3NDcyODAwMH0iLCJleHAiOjE1NDEwNzQ3MjgsImlhdCI6MTU0MTA3MTEyOH0.Jqqro5bsprV75fDDwptHXlMf_SyIYCpLoPS7hdQgDRA
+      headers:
+        Accept:
+          - application/json
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        User-Agent:
+          - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+        Content-Length:
+          - '457'
+        Content-Type:
+          - application/x-www-form-urlencoded
+        Host:
+          - www.example.com
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - nginx
+        Date:
+          - Thu, 01 Nov 2018 11:58:38 GMT
+        Content-Type:
+          - application/json;charset=UTF-8
+        Transfer-Encoding:
+          - chunked
+        Connection:
+          - keep-alive
+        Vary:
+          - Accept-Encoding
+        example-Response-Id:
+          - 45322a0b2eb65d5
+        Pragma:
+          - no-cache
+        Cache-Control:
+          - no-cache
+        Content-Encoding:
+          - gzip
+        X-Xss-Protection:
+          - 1; mode=block
+        X-Content-Type-Options:
+          - nosniff
+        Strict-Transport-Security:
+          - max-age=31536000; includeSubDomains; preload
+      body:
+        encoding: ASCII-8BIT
+        string: !binary |-
+          H4sIAAAAAAAAA9yRXU+DMBSG/wvXbinb/LwjgFvrWtz4mtyQ0RUpY4hgAtT43z2dmuhf8KJJe/I8Padv340956Lr0reXo6iNO0OMBB1sfIVrS65tUmRLLj1JcKiwySTucL2d4fJFUp/cTgE+6oMwe/kU9dIr8cgU7VnpdjubNDu4iAUhYoqbVA4cnxgHHrHgqNe4vu/loQIPFrDaMc+O82Qy5ZpsBKcm4DQcV1HwzSjNxNAz0J6vmUYz2dd+q3sMLNgM1OFzGrgL6lh97sPwp2jBwaUwEw2sOfQYPLuX+/ge/XIUAyffTOOGFbtwMckv26SZTHD0kJWbzt/e5P4pTIZ4nKV+llwvT7VrXBjnBNO3sREQYyb2rWihKoZGtqJLJYQ7v0LowmhFDoXinyRuk5HPCmCR5pDm/qQLydMV0g+rxMqCeaGH4/Yw30CDZ/iRqtCP/3GoCgdvhaYRFXszrcVWqWQ5SYiKk550Yq5ePSdtSNk6h93aelxV167x8QkAAP//AwBqmoiixQIAAA==
+      http_version:
+    recorded_at: Tue, 25 Apr 2017 14:52:13 GMT
+  - request:
+      method: get
+      uri: https://www.example.com/test
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        User-Agent:
+          - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+        Authorization:
+          - bearer eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjIyNzMwNjEsXCJpXCI6NTU0Nzc1MixcImNcIjo0NTk0NTkyLFwidlwiOlwiXCIsXCJ1XCI6NDY1NzE1NyxcInJcIjpcIlVTXCIsXCJzXCI6W1wiTlwiXSxcInpcIjpbXSxcInRcIjoxNTQxMDc3MTE4MDAwfSIsImV4cCI6MTU0MTA3NzExOCwiaWF0IjoxNTQxMDczNTE4fQ.WpNhXU4-f5rZp--IVKbjQsSR8fSmUZxWy2_SbZ7GmnE
+        Host:
+          - www.example.com
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - nginx
+        Date:
+          - Thu, 01 Nov 2018 11:58:39 GMT
+        Content-Type:
+          - application/json;charset=UTF-8
+      body:
+        encoding: UTF-8
+        string: '{ "success": true }'
+      http_version:
+    recorded_at: Tue, 25 Apr 2017 14:52:13 GMT
+recorded_with: VCR 3.0.3

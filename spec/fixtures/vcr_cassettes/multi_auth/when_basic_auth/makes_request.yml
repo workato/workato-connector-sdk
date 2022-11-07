@@ -1,0 +1,44 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://httpbin.org/basic-auth/user/password
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      User-Agent:
+      - rest-client/2.0.2 (darwin20.3.0 x86_64) ruby/2.4.10p364
+      Host:
+      - httpbin.org
+      Authorization:
+      - Basic dXNlcjpwYXNzd29yZA==
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 Oct 2022 06:05:16 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '47'
+      Connection:
+      - keep-alive
+      Server:
+      - gunicorn/19.9.0
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+    body:
+      encoding: UTF-8
+      string: "{\n  \"authenticated\": true, \n  \"user\": \"user\"\n}\n"
+    http_version:
+  recorded_at: Wed, 05 Oct 2022 06:05:16 GMT
+recorded_with: VCR 3.0.3
