@@ -53,7 +53,7 @@ module Workato
               exception = nil
               begin
                 response = request.execute!
-              rescue RequestError, RuntimeError => e
+              rescue StandardError => e
                 exception = e.to_s
               end
               result[PARALLEL_SUCCESS_INDEX] &&= exception.nil?

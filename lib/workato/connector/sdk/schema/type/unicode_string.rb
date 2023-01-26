@@ -8,7 +8,7 @@ module Workato
         module Type
           class UnicodeString < ::String
             def initialize(str)
-              super(str, {})
+              super(str, **{})
               encode!('UTF-8')
             end
 

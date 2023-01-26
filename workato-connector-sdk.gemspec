@@ -2,11 +2,10 @@
 
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'workato/connector/sdk/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'workato-connector-sdk'
-  spec.version       = Workato::Connector::Sdk::VERSION
+  spec.version       = File.read(File.expand_path('VERSION', __dir__)).strip
   spec.authors       = ['Pavel Abolmasov']
   spec.email         = ['pavel.abolmasov@workato.com']
   spec.license       = 'MIT'
@@ -18,10 +17,11 @@ Gem::Specification.new do |spec|
     'bug_tracker_uri' => 'https://support.workato.com/',
     'documentation_uri' => 'https://docs.workato.com/developing-connectors/sdk/cli.html',
     'homepage_uri' => 'https://www.workato.com/',
-    'source_code_uri' => 'https://github.com/workato/workato-connector-sdk'
+    'source_code_uri' => 'https://github.com/workato/workato-connector-sdk',
+    'rubygems_mfa_required' => 'true'
   }
 
-  spec.files         = Dir['README.md', 'LICENSE.md', 'lib/**/*', 'exe/workato', 'templates/**/*'] +
+  spec.files         = Dir['VERSION', 'README.md', 'LICENSE.md', 'lib/**/*', 'exe/workato', 'templates/**/*'] +
                        [
                          'templates/.rspec.erb'
                        ]
@@ -29,21 +29,21 @@ Gem::Specification.new do |spec|
   spec.executables   = ['workato']
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 2.4'
+  spec.required_ruby_version = '>= 2.7.6'
 
   spec.add_runtime_dependency 'activesupport', '~> 5.2'
   spec.add_runtime_dependency 'aws-sigv4', '= 1.2.4'
+  spec.add_runtime_dependency 'bundler', '~> 2.0'
   spec.add_runtime_dependency 'charlock_holmes', '= 0.7.7'
-  spec.add_runtime_dependency 'countries', '= 1.2.2'
-  spec.add_runtime_dependency 'currencies', '= 0.4.2'
   spec.add_runtime_dependency 'em-http-request', '~> 1.0'
   spec.add_runtime_dependency 'gyoku', '= 1.3.1'
   spec.add_runtime_dependency 'i18n', '= 0.9.5'
   spec.add_runtime_dependency 'jwt', '= 1.5.6'
   spec.add_runtime_dependency 'launchy', '~> 2.0'
   spec.add_runtime_dependency 'net-http-digest_auth', '= 1.4.0'
-  spec.add_runtime_dependency 'nokogiri', '= 1.10.10'
+  spec.add_runtime_dependency 'nokogiri', '= 1.13.10'
   spec.add_runtime_dependency 'oauth2', '~> 1.0'
+  spec.add_runtime_dependency 'psych', '~> 3.0'
   spec.add_runtime_dependency 'rack', '~> 2.0'
   spec.add_runtime_dependency 'rails-html-sanitizer', '= 1.4.3'
   spec.add_runtime_dependency 'rest-client', '= 2.1.0'
@@ -54,13 +54,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'thor', '~> 1.0'
   spec.add_runtime_dependency 'webrick', '~> 1.0'
 
-  spec.add_development_dependency 'bundler', '~> 1.17'
-  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'sorbet', '~> 0.5'
-  spec.add_development_dependency 'stub_server', '~> 0.4'
+  spec.add_development_dependency 'stub_server', '~> 0.6'
   spec.add_development_dependency 'timecop', '~> 0.9'
-  spec.add_development_dependency 'vcr', '~> 3.0'
+  spec.add_development_dependency 'vcr', '~> 6.0'
   spec.add_development_dependency 'webmock', '~> 3.0'
   spec.post_install_message = <<~POST_INSTALL_MESSAGE
 

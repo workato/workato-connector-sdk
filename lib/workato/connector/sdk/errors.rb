@@ -4,7 +4,13 @@
 module Workato
   module Connector
     module Sdk
-      InvalidDefinitionError = Class.new(StandardError)
+      Error = Class.new(StandardError)
+
+      DetectOnUnauthorizedRequestError = Class.new(Error)
+
+      RuntimeError = Class.new(Error)
+
+      InvalidDefinitionError = Class.new(Error)
 
       class UnexpectedMethodDefinitionError < InvalidDefinitionError
         attr_reader :name
@@ -28,8 +34,6 @@ module Workato
 
       InvalidSchemaError = Class.new(InvalidDefinitionError)
 
-      CustomRequestError = Class.new(StandardError)
-
       InvalidMultiAuthDefinition = Class.new(InvalidDefinitionError)
 
       class UnresolvedMultiAuthOptionError < InvalidMultiAuthDefinition
@@ -41,9 +45,7 @@ module Workato
         end
       end
 
-      RuntimeError = Class.new(StandardError)
-
-      class UnresolvedObjectDefinitionError < StandardError
+      class UnresolvedObjectDefinitionError < InvalidDefinitionError
         attr_reader :name
 
         def initialize(name)
@@ -52,7 +54,7 @@ module Workato
         end
       end
 
-      class CircleReferenceObjectDefinitionError < StandardError
+      class CircleReferenceObjectDefinitionError < InvalidDefinitionError
         attr_reader :name
 
         def initialize(name, backtrace = [])
@@ -62,7 +64,11 @@ module Workato
         end
       end
 
-      class RequestError < StandardError
+      RequestError = Class.new(RuntimeError)
+
+      RequestTimeoutError = Class.new(RequestError)
+
+      class RequestFailedError < RequestError
         attr_reader :method
         attr_reader :code
         attr_reader :response
@@ -81,7 +87,7 @@ module Workato
         end
       end
 
-      class MissingRequiredInput < StandardError
+      class MissingRequiredInput < RuntimeError
         def initialize(label, toggle_label)
           message = if toggle_label && label != toggle_label
                       "Either '#{label}' or '#{toggle_label}' must be present"
@@ -92,9 +98,9 @@ module Workato
         end
       end
 
-      RequestTLSCertificateFormatError = Class.new(StandardError)
+      RequestTLSCertificateFormatError = Class.new(RequestError)
 
-      RequestPayloadFormatError = Class.new(StandardError)
+      RequestPayloadFormatError = Class.new(RequestError)
 
       JSONRequestFormatError = Class.new(RequestPayloadFormatError)
 
@@ -109,6 +115,17 @@ module Workato
       MultipartFormRequestFormatError = Class.new(RequestPayloadFormatError)
 
       RAWResponseFormatError = Class.new(RequestPayloadFormatError)
+
+      class UndefinedStdLibMethodError < RuntimeError
+        attr_reader :name
+        attr_reader :package
+
+        def initialize(name, package)
+          @name = name
+          @package = package
+          super("Undefined method '#{name}' for \"#{package}\" namespace")
+        end
+      end
     end
   end
 end

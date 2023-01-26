@@ -1,7 +1,6 @@
 # typed: false
 # frozen_string_literal: true
 
-require 'rest-client'
 require 'net/http'
 
 module Workato

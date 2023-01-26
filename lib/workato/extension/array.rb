@@ -1,6 +1,8 @@
 # typed: false
 # frozen_string_literal: true
 
+require 'delegate'
+
 module Workato
   module Extension
     module Array

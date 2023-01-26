@@ -1,6 +1,8 @@
 # typed: true
 # frozen_string_literal: true
 
+require_relative '../extension/metadata_fix_wrap_kw_args'
+
 module Workato
   module Testing
     class VCREncryptedCassetteSerializer < ActiveSupport::EncryptedFile

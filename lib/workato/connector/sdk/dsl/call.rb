@@ -6,7 +6,7 @@ module Workato
     module Sdk
       module Dsl
         module Call
-          def call(method, *args)
+          ruby2_keywords def call(method, *args)
             method_proc = @_methods[method]
 
             raise UndefinedMethodError, method unless method_proc

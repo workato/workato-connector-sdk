@@ -62,8 +62,14 @@ RSpec.describe 'parallel_requests', :vcr do
   context 'when JSON::ParserError error' do
     subject(:output) { connector.actions.test_action_with_json_parse_error.execute }
 
-    it 'raises error' do
-      expect { subject }.to raise_error(Workato::Connector::Sdk::JSONResponseFormatError)
+    it 'makes requests' do
+      is_expected.to include(
+        'result' => [
+          false,
+          [{ 'a' => 'A' }, nil],
+          [nil, /unexpected token at 'a'/]
+        ]
+      )
     end
   end
 

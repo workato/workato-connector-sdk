@@ -1783,8 +1783,6 @@ class Bundler::Fetcher
 end
 
 class Bundler::GemHelper
-  include ::Rake::DSL
-  include ::Rake::FileUtilsExt
   include ::FileUtils
   include ::FileUtils::StreamUtils_
   def allowed_push_host(); end
@@ -3896,8 +3894,6 @@ class File
 
   def self.probe_stat_in(dir); end
 end
-
-FileList = Rake::FileList
 
 module FileUtils
   include ::FileUtils::StreamUtils_
@@ -8702,79 +8698,6 @@ module Rack
   def self.version(); end
 end
 
-module Rake
-  EARLY = ::T.let(nil, ::T.untyped)
-  EMPTY_TASK_ARGS = ::T.let(nil, ::T.untyped)
-  LATE = ::T.let(nil, ::T.untyped)
-  VERSION = ::T.let(nil, ::T.untyped)
-end
-
-class Rake::Application
-  DEFAULT_RAKEFILES = ::T.let(nil, ::T.untyped)
-end
-
-module Rake::Backtrace
-  SUPPRESSED_PATHS = ::T.let(nil, ::T.untyped)
-  SUPPRESSED_PATHS_RE = ::T.let(nil, ::T.untyped)
-  SUPPRESS_PATTERN = ::T.let(nil, ::T.untyped)
-  SYS_KEYS = ::T.let(nil, ::T.untyped)
-  SYS_PATHS = ::T.let(nil, ::T.untyped)
-end
-
-module Rake::DSL
-  include ::FileUtils::StreamUtils_
-end
-
-class Rake::FileList
-  ARRAY_METHODS = ::T.let(nil, ::T.untyped)
-  DEFAULT_IGNORE_PATTERNS = ::T.let(nil, ::T.untyped)
-  DEFAULT_IGNORE_PROCS = ::T.let(nil, ::T.untyped)
-  DELEGATING_METHODS = ::T.let(nil, ::T.untyped)
-  GLOB_PATTERN = ::T.let(nil, ::T.untyped)
-  MUST_DEFINE = ::T.let(nil, ::T.untyped)
-  MUST_NOT_DEFINE = ::T.let(nil, ::T.untyped)
-  SPECIAL_RETURN = ::T.let(nil, ::T.untyped)
-end
-
-module Rake::FileUtilsExt
-  include ::FileUtils::StreamUtils_
-  DEFAULT = ::T.let(nil, ::T.untyped)
-end
-
-module Rake::FileUtilsExt
-  extend ::FileUtils::StreamUtils_
-end
-
-class Rake::InvocationChain
-  EMPTY = ::T.let(nil, ::T.untyped)
-end
-
-class Rake::LinkedList
-  EMPTY = ::T.let(nil, ::T.untyped)
-end
-
-class Rake::Promise
-  NOT_SET = ::T.let(nil, ::T.untyped)
-end
-
-class Rake::Scope
-  EMPTY = ::T.let(nil, ::T.untyped)
-end
-
-module Rake::Version
-  BUILD = ::T.let(nil, ::T.untyped)
-  MAJOR = ::T.let(nil, ::T.untyped)
-  MINOR = ::T.let(nil, ::T.untyped)
-  NUMBERS = ::T.let(nil, ::T.untyped)
-  OTHER = ::T.let(nil, ::T.untyped)
-end
-
-module Rake
-  extend ::FileUtils::StreamUtils_
-end
-
-RakeFileUtils = Rake::FileUtilsExt
-
 class Random
   def self.raw_seed(arg); end
 end
@@ -10185,8 +10108,6 @@ class Thor::Options
 end
 
 module Thor::RakeCompat
-  include ::Rake::DSL
-  include ::Rake::FileUtilsExt
   include ::FileUtils
   include ::FileUtils::StreamUtils_
 end

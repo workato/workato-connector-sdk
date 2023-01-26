@@ -35,8 +35,8 @@ module Workato
         @api_base_url = ENVIRONMENTS.fetch(options[:environment]) do
           options[:environment].presence || Workato::Connector::Sdk::WORKATO_BASE_URL
         end
-        @api_email = options[:api_email] || ENV[Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV]
-        @api_token = options[:api_token] || ENV[Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV]
+        @api_email = options[:api_email] || ENV.fetch(Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV, nil)
+        @api_token = options[:api_token] || ENV.fetch(Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV, nil)
         @folder_id = options[:folder]
       end
 

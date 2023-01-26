@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 module Workato::Connector::Sdk
-  RSpec.describe Dsl::Csv do
+  RSpec.describe Dsl::CsvPackage do
+    subject(:package) { described_class.new }
+
     describe '.parse' do
-      subject(:parse) { described_class.parse(csv, headers: true) }
+      subject(:parse) { package.parse(csv, headers: true) }
 
       let(:csv) do
         <<~CSV
@@ -16,7 +18,7 @@ module Workato::Connector::Sdk
       it { is_expected.to eq([{ 'color' => 'red', 'size' => '1' }, { 'color' => 'green', 'size' => '2' }]) }
 
       context 'when no headers' do
-        subject(:parse) { described_class.parse(csv) }
+        subject(:parse) { package.parse(csv) }
 
         it { expect { parse }.to raise_error(/missing keyword: :?headers/) }
       end
@@ -48,7 +50,7 @@ module Workato::Connector::Sdk
       end
 
       context 'when argument is invalid' do
-        subject(:parse) { described_class.parse(csv, headers: true, quote_char: 'foo') }
+        subject(:parse) { package.parse(csv, headers: true, quote_char: 'foo') }
 
         it 'fails with error' do
           expect { parse }.to raise_error(/:quote_char has to be( nil or)? a single character String/)
@@ -67,9 +69,15 @@ module Workato::Connector::Sdk
       end
 
       context 'when skip first line' do
-        subject(:parse) { described_class.parse(csv, headers: %w[COLOR SIZE], skip_first_line: true) }
+        subject(:parse) { package.parse(csv, headers: %w[COLOR SIZE], skip_first_line: true) }
 
         it { is_expected.to eq([{ 'COLOR' => 'red', 'SIZE' => '1' }, { 'COLOR' => 'green', 'SIZE' => '2' }]) }
+      end
+    end
+
+    describe 'when undefined method' do
+      it 'raises user-friendly error' do
+        expect { package.foo }.to raise_error("Undefined method 'foo' for \"workato.csv\" namespace")
       end
     end
   end

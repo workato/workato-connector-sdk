@@ -26,7 +26,7 @@ module Workato
             end
 
             def integer_conversion(value)
-              value.try(:is_number?) && value.to_i || value
+              (value.try(:is_number?) && value.to_i) || value
             end
 
             def boolean_conversion(value)
@@ -34,7 +34,7 @@ module Workato
             end
 
             def float_conversion(value)
-              value.try(:is_number?) && value.to_f || value
+              (value.try(:is_number?) && value.to_f) || value
             end
 
             def item_array_wrap(items)

@@ -1,8 +1,11 @@
-# typed: false
+# typed: true
 # frozen_string_literal: true
 
 require 'thor'
+require 'active_support/json'
 require_relative './multi_auth_selected_fallback'
+
+Method.prepend(T::CompatibilityPatches::MethodExtensions)
 
 module Workato
   module CLI
@@ -21,7 +24,7 @@ module Workato
         load_from_default_files
         inspect_params(params)
         output = with_progress { execute_path }
-        show_output(output)
+        show_output(output.as_json)
         output
       end
 
@@ -65,8 +68,12 @@ module Workato
           oauth2_code: options[:oauth2_code],
           redirect_url: options[:redirect_url],
           refresh_token: options[:refresh_token],
+          from: options[:from].to_i,
+          frame_size: options[:frame_size]&.to_i || Workato::Connector::Sdk::Stream::DEFAULT_FRAME_SIZE,
           recipe_id: Workato::Connector::Sdk::Operation.recipe_id!
-        }
+        }.tap do |h|
+          h[:to] = h[:from] + h[:frame_size] - 1
+        end
       end
 
       def connector
@@ -94,9 +101,10 @@ module Workato
           end
         end
 
-        Workato::Connector::Sdk::Connection.on_settings_update = lambda do |message, &refresher|
+        Workato::Connector::Sdk::Connection.on_settings_update = lambda do |message, _settings_before, refresher|
           new_settings = refresher.call
           break unless new_settings
+          break new_settings if @settings == new_settings
 
           with_user_interaction do
             loop do
@@ -105,6 +113,7 @@ module Workato
               break new_settings if %w[n no].include?(answer)
               next unless %w[y yes].include?(answer)
 
+              @settings.merge!(new_settings)
               settings_store.update(new_settings)
               break new_settings
             end
@@ -135,11 +144,11 @@ module Workato
       end
 
       def execute_path
-        connector.invoke(path, params)
+        InvokePath.new(path: path, connector: connector, params: params).call
       rescue Workato::Connector::Sdk::InvalidMultiAuthDefinition => e
-        raise "#{e.message}. Please ensure:\n"\
+        raise "#{e.message}. Please ensure:\n" \
               "- 'selected' block is defined and returns value from 'options' list\n" \
-              "- settings file contains value expected by 'selected' block\n\n"\
+              "- settings file contains value expected by 'selected' block\n\n" \
               'See more: https://docs.workato.com/developing-connectors/sdk/guides/authentication/multi_auth.html'
       rescue Exception => e # rubocop:disable Lint/RescueException
         raise DebugExceptionError, e if options[:debug]
@@ -149,9 +158,7 @@ module Workato
 
       def show_output(output)
         if options[:output].present?
-          File.open(options[:output], 'w') do |f|
-            f.write(JSON.dump(output))
-          end
+          File.write(options[:output], JSON.dump(output))
         elsif options[:output].nil?
           say('OUTPUT') if verbose?
           jj output
@@ -214,6 +221,65 @@ module Workato
         alias puts log
         alias print log
       end
+
+      class InvokePath
+        extend T::Sig
+
+        sig do
+          params(
+            path: String,
+            connector: Workato::Connector::Sdk::Connector,
+            params: T::Hash[Symbol, T.untyped]
+          ).void
+        end
+        def initialize(path:, connector:, params:)
+          @path = T.let(path, String)
+          @connector = T.let(connector, Workato::Connector::Sdk::Connector)
+          @params = T.let(params, T::Hash[Symbol, T.untyped])
+        end
+
+        sig { returns(T.untyped) }
+        def call
+          invoke_path
+        end
+
+        private
+
+        sig { returns(String) }
+        attr_reader :path
+
+        sig { returns(Workato::Connector::Sdk::Connector) }
+        attr_reader :connector
+
+        sig { returns(T::Hash[Symbol, T.untyped]) }
+        attr_reader :params
+
+        sig { returns(T.untyped) }
+        def invoke_path
+          methods = path.split('.')
+          method = methods.pop
+          raise ArgumentError, 'path is not found' unless method
+
+          object = methods.inject(connector) { |obj, m| obj.public_send(m) }
+          output = invoke_method(object, method)
+          if output.respond_to?(:invoke)
+            invoke_method(output, :invoke)
+          else
+            output
+          end
+        end
+
+        sig { params(object: T.untyped, method: T.any(Symbol, String)).returns(T.untyped) }
+        def invoke_method(object, method)
+          parameters = object.method(method).parameters.reject { |p| p[0] == :block }.map(&:second)
+          args = params.values_at(*parameters)
+          if parameters.last == :args
+            args = args.take(args.length - 1) + Array.wrap(args.last).flatten(1)
+          end
+          object.public_send(method, *args)
+        end
+      end
+      private_constant :InvokePath
     end
   end
 end

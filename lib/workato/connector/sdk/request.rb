@@ -7,6 +7,7 @@ require 'json'
 require 'gyoku'
 require 'net/http'
 require 'net/http/digest_auth'
+require 'active_support/json'
 
 require 'workato/utilities/encoding'
 require 'workato/utilities/xml'
@@ -37,18 +38,20 @@ module Workato
           @callstack_before_request = Array.wrap(Kernel.caller)
         end
 
-        def method_missing(*args, &block)
-          execute!.send(*args, &block)
+        def method_missing(...)
+          execute!.send(...)
         end
 
         def execute!
           __getobj__ || __setobj__(response)
+        rescue RestClient::Exceptions::Timeout => e
+          Kernel.raise RequestTimeoutError, e
         rescue RestClient::Exception => e
           if after_error_response_matches?(e)
             return apply_after_error_response(e)
           end
 
-          Kernel.raise RequestError.new(
+          Kernel.raise RequestFailedError.new(
             response: e.response,
             message: e.message,
             method: current_verb,
@@ -250,8 +253,8 @@ module Workato
           ::Kernel.puts(*args)
         end
 
-        def try(*args, &block)
-          execute!.try(*args, &block)
+        def try(...)
+          execute!.try(...)
         end
 
         private
@@ -275,9 +278,9 @@ module Workato
               request = RestClientRequest.new(rest_request_params)
               response = execute_request(request)
             end
-            detect_error!(response.body)
+            detect_auth_error!(response.body)
             parsed_response = @parse_response.call(response)
-            detect_error!(parsed_response)
+            detect_auth_error!(parsed_response)
             apply_after_response(response.code, parsed_response, response.headers)
           end
         end
@@ -322,7 +325,7 @@ module Workato
 
         def build_url
           uri = if @base_uri
-                  URI.parse(@base_uri).merge(@uri)
+                  merge_uris(@base_uri, @uri)
                 else
                   URI.parse(@uri)
                 end
@@ -347,9 +350,13 @@ module Workato
           uri.to_s
         end
 
+        def merge_uris(uri1, uri2)
+          (uri1.is_a?(::String) ? URI.parse(uri1) : uri1).merge(uri2)
+        end
+
         def build_headers
           headers = @headers
-          if @content_type_header.present? && headers.keys.none? { |key| /^content[\-_]type$/i =~ key }
+          if @content_type_header.present? && headers.keys.none? { |key| /^content[-_]type$/i =~ key }
             headers[:content_type] = @content_type_header
           end
           if @accept_header && headers.keys.none? { |key| /^accept$/i =~ key }
@@ -358,13 +365,13 @@ module Workato
           headers.compact
         end
 
-        def detect_error!(response)
+        def detect_auth_error!(response)
           return unless authorized?
 
           error_patterns = connection.authorization.detect_on
           return unless error_patterns.any? { |pattern| pattern === response rescue false }
 
-          Kernel.raise(CustomRequestError, response.to_s)
+          Kernel.raise(DetectOnUnauthorizedRequestError, response.to_s)
         end
 
         def after_error_response_matches?(exception)
@@ -399,8 +406,8 @@ module Workato
           within_action_context(code, parsed_response, encoded_headers, &@after_response)
         end
 
-        def within_action_context(*args, &block)
-          (@action || self).instance_exec(*args, &block)
+        def within_action_context(...)
+          (@action || self).instance_exec(...)
         end
 
         sig { returns(T::Boolean) }
@@ -418,14 +425,14 @@ module Workato
           begin
             settings = connection.settings
             if connection.authorization.oauth2?
-              instance_exec(settings, settings[:access_token], @auth_type, &apply)
+              apply_oauth2(settings, settings[:access_token], @auth_type, &apply)
             else
-              instance_exec(settings, @auth_type, &apply)
+              apply_custom_auth(settings, @auth_type, &apply)
             end
             yield
-          rescue RestClient::Exception, CustomRequestError => e
+          rescue RestClient::Exception, DetectOnUnauthorizedRequestError => e
             Kernel.raise e unless first
-            Kernel.raise e unless refresh_authorization!(e.try(:http_code), e.try(:http_body), e.message)
+            Kernel.raise e unless refresh_authorization!(settings, e.try(:http_code), e.try(:http_body), e.message)
 
             first = false
             retry
@@ -434,16 +441,49 @@ module Workato
 
         sig do
           params(
+            settings: HashWithIndifferentAccess,
+            access_token: T.untyped,
+            auth_type: T.untyped,
+            apply_proc: T.proc.params(
+              settings: HashWithIndifferentAccess,
+              access_token: T.untyped,
+              auth_type: T.untyped
+            ).void
+          ).void
+        end
+        def apply_oauth2(settings, access_token, auth_type, &apply_proc)
+          instance_exec(settings, access_token, auth_type, &apply_proc)
+        end
+
+        sig do
+          params(
+            settings: HashWithIndifferentAccess,
+            auth_type: T.untyped,
+            apply_proc: T.proc.params(
+              settings: HashWithIndifferentAccess,
+              auth_type: T.untyped
+            ).void
+          ).void
+        end
+        def apply_custom_auth(settings, auth_type, &apply_proc)
+          instance_exec(settings, auth_type, &apply_proc)
+        end
+
+        sig do
+          params(
+            settings_before: HashWithIndifferentAccess,
             http_code: T.nilable(Integer),
             http_body: T.nilable(String),
             exception: T.nilable(String)
           ).returns(T::Boolean)
         end
-        def refresh_authorization!(http_code, http_body, exception)
+        def refresh_authorization!(settings_before, http_code, http_body, exception)
           return false unless connection.authorization.refresh?(http_code, http_body, exception)
 
-          connection.update_settings!("Refresh token triggered on response \"#{exception}\"") do
-            connection.authorization.refresh!(connection.settings)
+          connection.update_settings!("Refresh token triggered on response \"#{exception}\"", settings_before) do
+            next connection.settings unless connection.settings == settings_before
+
+            connection.authorization.refresh!(settings_before)
           end
         end
 
@@ -454,11 +494,9 @@ module Workato
 
         def lambda_with_error_wrap(error_type, &block)
           Kernel.lambda do |payload|
-            begin
-              block.call(payload)
-            rescue StandardError => e
-              Kernel.raise error_type.new(e)
-            end
+            block.call(payload)
+          rescue StandardError => e
+            Kernel.raise error_type.new(e)
           end
         end
 

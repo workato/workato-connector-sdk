@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Workato::Connector::Sdk
-  RSpec.describe Dsl::WorkatoCodeLib do
+  RSpec.describe Dsl::Global do
     let(:subject_class) do
       Class.new do
-        include Dsl::WorkatoCodeLib
+        include Dsl::Global
       end
     end
 

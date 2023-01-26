@@ -34,14 +34,14 @@ module Workato
       method_option :connector, type: :string, aliases: '-c', desc: 'Path to connector source code',
                                 lazy_default: Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH
       method_option :settings, type: :string, aliases: '-s',
-                               desc: 'Path to plain or encrypted file with connection configs, '\
+                               desc: 'Path to plain or encrypted file with connection configs, ' \
                                      'passwords, tokens, secrets etc',
                                lazy_default: Workato::Connector::Sdk::DEFAULT_ENCRYPTED_SETTINGS_PATH
       method_option :connection, type: :string, aliases: '-n',
                                  desc: 'Connection name if settings file contains multiple settings'
       method_option :key, type: :string, aliases: '-k',
                           lazy_default: Workato::Connector::Sdk::DEFAULT_MASTER_KEY_PATH,
-                          desc: "Path to file with encrypt/decrypt key.\n"\
+                          desc: "Path to file with encrypt/decrypt key.\n" \
                                 "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
       method_option :input, type: :string, aliases: '-i', desc: 'Path to file with input JSON'
       method_option :closure, type: :string, desc: 'Path to file with next poll closure JSON'
@@ -61,6 +61,8 @@ module Workato
       method_option :oauth2_code, type: :string, desc: 'OAuth2 code exchange to tokens pair'
       method_option :redirect_url, type: :string, desc: 'OAuth2 callback url'
       method_option :refresh_token, type: :string, desc: 'OAuth2 refresh token'
+      method_option :from, type: :numeric, desc: 'Stream byte offset to read from'
+      method_option :frame_size, type: :numeric, desc: 'Stream chunk read size in bytes. Should be positive'
 
       method_option :debug, type: :boolean
 
@@ -75,7 +77,7 @@ module Workato
 
       method_option :key, type: :string, aliases: '-k',
                           lazy_default: Workato::Connector::Sdk::DEFAULT_MASTER_KEY_PATH,
-                          desc: "Path to file with encrypt/decrypt key.\n"\
+                          desc: "Path to file with encrypt/decrypt key.\n" \
                                 "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
 
       def edit(path)
@@ -127,19 +129,19 @@ module Workato
                     lazy_default: Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH
       method_option :api_email,
                     type: :string,
-                    desc: "Email for accessing Workato API.\n"\
-                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} "\
+                    desc: "Email for accessing Workato API.\n" \
+                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} " \
                           'environment variable.'
       method_option :api_token,
                     type: :string,
                     desc: "Token for accessing Workato API.\n" \
-                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} "\
+                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV} " \
                           'environment variable.'
       method_option :environment,
                     type: :string,
-                    desc: "Data center specific URL to push connector code.\n"\
-                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_BASE_URL_ENV} "\
-                          "environment variable.\n"\
+                    desc: "Data center specific URL to push connector code.\n" \
+                          "If present overrides value from #{Workato::Connector::Sdk::WORKATO_BASE_URL_ENV} " \
+                          "environment variable.\n" \
                           "Examples: 'https://app.workato.com', 'https://app.eu.workato.com'"
       method_option :folder,
                     type: :string,
@@ -171,7 +173,7 @@ module Workato
                     type: :string,
                     aliases: '-k',
                     lazy_default: Workato::Connector::Sdk::DEFAULT_MASTER_KEY_PATH,
-                    desc: "Path to file with encrypt/decrypt key.\n"\
+                    desc: "Path to file with encrypt/decrypt key.\n" \
                           "NOTE: key from #{Workato::Connector::Sdk::DEFAULT_MASTER_KEY_ENV} has higher priority"
       method_option :port,
                     type: :string,
@@ -189,6 +191,11 @@ module Workato
         OAuth2Command.new(
           options: options
         ).call
+      end
+
+      desc 'version', 'Shows gem version'
+      def version
+        puts Workato::Connector::Sdk::VERSION
       end
 
       class << self

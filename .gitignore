@@ -12,3 +12,6 @@
 
 # sorbet debug errors
 /sorbet/rbi/hidden-definitions/errors.txt
+
+# local gemset
+Gemfile.lock

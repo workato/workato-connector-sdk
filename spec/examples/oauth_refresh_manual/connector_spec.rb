@@ -20,7 +20,7 @@ RSpec.describe 'oauth_refresh_manual', :vcr do
   end
 
   around(:each) do |example|
-    Workato::Connector::Sdk::Connection.on_settings_update = lambda { |_message, &refresher|
+    Workato::Connector::Sdk::Connection.on_settings_update = lambda { |_message, _settings_before, refresher|
       refresher.call.tap do |new_settings|
         expect(new_settings).to eq(
           {

@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+require 'rspec'
+require 'webmock/rspec'
+require 'timecop'
+require 'stub_server'
+
 require 'workato-connector-sdk'
 
 RSpec.configure do |config|
@@ -18,8 +23,5 @@ RSpec.configure do |config|
     Workato::Connector::Sdk::Connection.on_settings_update = nil
   end
 
-  require 'webmock/rspec'
-  require 'timecop'
-  require 'stub_server'
   require_relative './support/vcr'
 end

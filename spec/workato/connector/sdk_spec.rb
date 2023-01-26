@@ -2,7 +2,7 @@
 
 RSpec.describe Workato::Connector::Sdk do
   it 'has a version number' do
-    expect(Workato::Connector::Sdk::VERSION).not_to be nil
+    expect(Workato::Connector::Sdk::VERSION).to be_a_kind_of(String)
   end
 
   it 'executes action' do

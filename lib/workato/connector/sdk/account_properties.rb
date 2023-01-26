@@ -29,9 +29,9 @@ module Workato
         end
 
         def self.from_csv(path = './account_properties.csv')
-          props = CSV.foreach(path, headers: true, return_headers: false).map do |row|
+          props = CSV.foreach(path, headers: true, return_headers: false).to_h do |row|
             [row[0], row[1]]
-          end.to_h
+          end
           instance.load_data(props)
         end
 

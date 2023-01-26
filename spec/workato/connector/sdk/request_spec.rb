@@ -15,7 +15,7 @@ module Workato::Connector::Sdk
     end
 
     context 'with context' do
-      let(:request_context) { OpenStruct.new(name: 'Mr. Contextual', retry_on_response: []) }
+      let(:request_context) { double(name: 'Mr. Contextual', retry_on_response: []) }
       let(:request) { described_class.new(uri, action: request_context).after_response { name } }
 
       it { is_expected.to eq('Mr. Contextual') }
@@ -220,9 +220,9 @@ module Workato::Connector::Sdk
       end
       let(:expected_headers) do
         "X-Header-1: x-hEaDer-1\n" \
-        "X_header-2: x_hEaDer-2\n" \
-        "x-hEaDer-3: x-hEaDer-3\n" \
-        'x_hEaDer-4: x-hEaDer-4'
+          "X_header-2: x_hEaDer-2\n" \
+          "x-hEaDer-3: x-hEaDer-3\n" \
+          'x_hEaDer-4: x-hEaDer-4'
       end
 
       it { is_expected.to eq(expected_headers) }

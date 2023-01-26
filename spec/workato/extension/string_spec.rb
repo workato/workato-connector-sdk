@@ -51,7 +51,7 @@ module Workato::Extension
       end
 
       context 'when binary input' do
-        let(:input) { Binary.new("test\n") }
+        let(:input) { Workato::Types::Binary.new("test\n") }
 
         it 'signs a binary correctly' do
           expect(input.rsa_sha256(pem_key).base64).to eq(expected_base64)
@@ -69,7 +69,7 @@ module Workato::Extension
       it { is_expected.to eq(expected_hmac_sha256) }
 
       context 'when binary input' do
-        let(:input) { Binary.new('abc') }
+        let(:input) { Workato::Types::Binary.new('abc') }
 
         it { is_expected.to eq(expected_hmac_sha256) }
       end

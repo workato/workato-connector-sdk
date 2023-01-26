@@ -1,6 +1,31 @@
+# 1.3.0 - Streams Support & Ruby 2.7
+
+## Enhancements
+
+- Drop Ruby 2.4, 2.5, 2.6 and add Ruby 3.0 and 3.1 support. Now minimal Ruby version is 2.7.6
+- Implement streams support. Add ability to execute and test streams both consumer and producer parts. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/streams.html)
+  - Add `workato.stream.in` and `workato.stream.out` methods
+  - Allow mock streams for testing. See [examples](https://github.com/workato/workato-connector-sdk/blob/master/spec/examples/stream/connector_spec.rb)
+- Implement exponential action retry delay. Previously it was same delay interval between retries
+- Introduce concrete error types inherited from base `RuntimeError`.
+
+## Bugfixes
+
+- Fix `String#+` and `Enumerable#format_map` extensions
+- Fix schema output for `optional: false`
+- Multiple fixes for Ruby 3+
+
+## Misc
+
+- Get rid of `countries` and `currencies` gems. Replace by smaller subset of data.
+- Cleanup dev dependencies. Remove unused gems and fix versions.
+- Move `Extension::Binary` to `Types::Binary`. Keep extensions namespace for core Ruby patches.
+- Add more Sorbet definitions
+
 # 1.2.0 - Upgrade rest-client & multi-auth & SDK methods
 
 ## Enhancements
+
 - Implement `execution_context`
 - Implement `workato.csv.*` methods
   - [workato.csv.parse](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#csv-parse)
@@ -12,6 +37,7 @@
 - Improve request error backtrace
 
 ## Misc
+
 - Upgrade rest-client 2.0.2 -> 2.1.0
   - Tests could be broken. For more details see https://github.com/workato/workato-connector-sdk/releases/tag/v1.2.0 
 - Get rid of redundant `hash_with_indifferent_access` converting

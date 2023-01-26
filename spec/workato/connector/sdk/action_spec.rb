@@ -70,7 +70,7 @@ module Workato::Connector::Sdk
       end
 
       it 'executes execute block multiple times' do
-        expect(action).to receive(:sleep).with(5).once
+        expect(Kernel).to receive(:sleep).with(5).once
 
         output = action.execute(settings, input, [extended_input_schema], [extended_output_schema])
         expect(output).to eq(
@@ -89,13 +89,11 @@ module Workato::Connector::Sdk
       end
 
       it 'can be speed up in CLI' do
-        begin
-          ENV['WAIT_REINVOKE_AFTER'] = '0'
+        ENV['WAIT_REINVOKE_AFTER'] = '0'
 
-          expect { action.execute }.to change { Process.clock_gettime(Process::CLOCK_MONOTONIC) }.by_at_most(4.99)
-        ensure
-          ENV.delete('WAIT_REINVOKE_AFTER')
-        end
+        expect { action.execute }.to change { Process.clock_gettime(Process::CLOCK_MONOTONIC) }.by_at_most(4.99)
+      ensure
+        ENV.delete('WAIT_REINVOKE_AFTER')
       end
 
       context 'when infinite reinvokes' do
@@ -108,7 +106,7 @@ module Workato::Connector::Sdk
         end
 
         it 'executes execute block no more than allowed times' do
-          expect(action).to receive(:sleep).with(10).exactly(5)
+          expect(Kernel).to receive(:sleep).with(10).exactly(5)
           expect { action.execute }.to raise_error('Max number of reinvokes on SDK Gem reached. Current limit is 5')
         end
       end

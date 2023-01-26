@@ -1,6 +1,8 @@
 # typed: false
 # frozen_string_literal: true
 
+require 'rest-client'
+
 module Workato
   module Extension
     module ContentEncodingDecoder

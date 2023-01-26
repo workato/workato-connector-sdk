@@ -105,14 +105,14 @@ module Workato
 
       def ensure_oauth2_type
         unless connector.connection.authorization.oauth2?
-          raise 'Authorization type is not OAuth2. '\
-                'For multi-auth connector ensure correct auth type was used. '\
+          raise 'Authorization type is not OAuth2. ' \
+                'For multi-auth connector ensure correct auth type was used. ' \
                 "Expected: 'oauth2', got: '#{connector.connection.authorization.type}''"
         end
       rescue Workato::Connector::Sdk::InvalidMultiAuthDefinition => e
-        raise "#{e.message}. Please ensure:\n"\
+        raise "#{e.message}. Please ensure:\n" \
               "- 'selected' block is defined and returns value from 'options' list\n" \
-              "- settings file contains value expected by 'selected' block\n\n"\
+              "- settings file contains value expected by 'selected' block\n\n" \
               'See more: https://docs.workato.com/developing-connectors/sdk/guides/authentication/multi_auth.html'
       end
 

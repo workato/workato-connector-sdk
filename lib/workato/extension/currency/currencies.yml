@@ -1,0 +1,479 @@
+# based on data from currencies@0.4.2 gem
+---
+- code: AED
+  name: Dirhams
+  symbol:
+- code: AFN
+  name: Afghanis
+  symbol: "؋"
+- code: ALL
+  name: Leke
+  symbol: LEK
+- code: AMD
+  name: Drams
+  symbol:
+- code: ANG
+  name: Guilders
+  symbol: ƒ
+- code: AOA
+  name: Kwanza
+  symbol:
+- code: ARS
+  name: Pesos
+  symbol: "$"
+- code: AUD
+  name: Dollars
+  symbol: "$"
+- code: AWG
+  name: Guilders
+  symbol: ƒ
+- code: AZN
+  name: New Manats
+  symbol: ман
+- code: BAM
+  name: Convertible Marka
+  symbol: KM
+- code: BBD
+  name: Dollars
+  symbol: "$"
+- code: BDT
+  name: Taka
+  symbol:
+- code: BGN
+  name: Leva
+  symbol: лв
+- code: BHD
+  name: Dinars
+  symbol:
+- code: BIF
+  name: Francs
+  symbol:
+- code: BMD
+  name: Dollars
+  symbol: "$"
+- code: BND
+  name: Dollars
+  symbol: "$"
+- code: BOB
+  name: Bolivianos
+  symbol: "$b"
+- code: BRL
+  name: Real
+  symbol: R$
+- code: BSD
+  name: Dollars
+  symbol: "$"
+- code: BTN
+  name: Ngultrum
+  symbol:
+- code: BWP
+  name: Pulas
+  symbol: P
+- code: BYR
+  name: Rubles
+  symbol: p.
+- code: BZD
+  name: Dollars
+  symbol: BZ$
+- code: CAD
+  name: Dollars
+  symbol: "$"
+- code: CDF
+  name: Franc
+  symbol:
+- code: CHF
+  name: Switzerland Francs
+  symbol: CHF
+- code: CLP
+  name: Pesos
+  symbol: "$"
+- code: CNY
+  name: Yuan Renminbi
+  symbol: "¥"
+- code: COP
+  name: Pesos
+  symbol: "$"
+- code: CRC
+  name: Colones
+  symbol: "₡"
+- code: CUP
+  name: Pesos
+  symbol: "₱"
+- code: CVE
+  name: Escudos
+  symbol:
+- code: CZK
+  name: Koruny
+  symbol: Kč
+- code: DJF
+  name: Francs
+  symbol:
+- code: DKK
+  name: Kroner
+  symbol: kr
+- code: DOP
+  name: Pesos
+  symbol: RD$
+- code: DZD
+  name: Dinars
+  symbol:
+- code: EEK
+  name: Krooni
+  symbol: kr
+- code: EGP
+  name: Pounds
+  symbol: "£"
+- code: ETB
+  name: Ethopia Birr
+  symbol:
+- code: EUR
+  name: Euro
+  symbol: "€"
+- code: FJD
+  name: Dollar
+  symbol:
+- code: FKP
+  name: Pounds
+  symbol: "£"
+- code: GBP
+  name: Pounds
+  symbol: "£"
+- code: GEL
+  name: Lari
+  symbol:
+- code: GGP
+  name: Pounds
+  symbol: "£"
+- code: GHS
+  name: Cedis
+  symbol: "¢"
+- code: GIP
+  name: Pounds
+  symbol: "£"
+- code: GMD
+  name: Lari
+  symbol:
+- code: GNF
+  name: Francs
+  symbol:
+- code: GTQ
+  name: Quetzales
+  symbol: Q
+- code: GYD
+  name: Dollars
+  symbol:
+- code: HKD
+  name: Dollars
+  symbol: "$"
+- code: HNL
+  name: Lempiras
+  symbol: L
+- code: HRK
+  name: Kuna
+  symbol: kn
+- code: HTG
+  name: Haitian Gourde
+  symbol:
+- code: HUF
+  name: Forint
+  symbol: Ft
+- code: IDR
+  name: Indonesian Rupiahs
+  symbol: Rp
+- code: ILS
+  name: New Shekels
+  symbol: "₪"
+- code: IMP
+  name: Pounds
+  symbol: "£"
+- code: INR
+  name: Rupees
+  symbol: "₨"
+- code: IQD
+  name: Dinars
+  symbol:
+- code: IRR
+  name: Riais
+  symbol: "﷼"
+- code: ISK
+  name: Kronur
+  symbol: kr
+- code: JEP
+  name: Pounds
+  symbol: "£"
+- code: JMD
+  name: Dollars
+  symbol:
+- code: JOD
+  name: Dinars
+  symbol:
+- code: JPY
+  name: Yen
+  symbol: "¥"
+- code: KES
+  name: Shillings
+  symbol:
+- code: KGS
+  name: Soms
+  symbol: лв
+- code: KHR
+  name: Rieis
+  symbol:
+- code: KMF
+  name: Francs
+  symbol:
+- code: KPW
+  name: Won
+  symbol: "₩"
+- code: KRW
+  name: Won
+  symbol: "₩"
+- code: KWD
+  name: Dinars
+  symbol:
+- code: KYD
+  name: Dollars
+  symbol: "$"
+- code: KZT
+  name: Tenege
+  symbol: лв
+- code: LAK
+  name: Kips
+  symbol: "₭"
+- code: LBP
+  name: Pounds
+  symbol: "£"
+- code: LKR
+  name: Rupees
+  symbol: "₨"
+- code: LRD
+  name: Dollars
+  symbol: "$"
+- code: LSL
+  name: Maloti
+  symbol:
+- code: LTL
+  name: Litai
+  symbol: Lt
+- code: LVL
+  name: Lati
+  symbol: Ls
+- code: LYD
+  name: Dinars
+  symbol:
+- code: MAD
+  name: Dirhams
+  symbol:
+- code: MDL
+  name: Lei
+  symbol:
+- code: MKD
+  name: Macedonian Denar
+  symbol:
+- code: MGA
+  name: Ariary
+  symbol:
+- code: MMK
+  name: Kyat
+  symbol:
+- code: MNK
+  name: Kyats
+  symbol:
+- code: MNT
+  name: Tugriks
+  symbol: "₮"
+- code: MRO
+  name: Ouguiyas
+  symbol:
+- code: MUR
+  name: Rupees
+  symbol: "₨"
+- code: MVR
+  name: Rufiyaa
+  symbol:
+- code: MWK
+  name: Kwachas
+  symbol:
+- code: MXN
+  name: Pesos
+  symbol: "$"
+- code: MYR
+  name: Ringgits
+  symbol: RM
+- code: MZN
+  name: Meticals
+  symbol: MT
+- code: NAD
+  name: Dollars
+  symbol: "$"
+- code: NGN
+  name: Nairas
+  symbol: "₦"
+- code: NIO
+  name: Cordobas
+  symbol: C$
+- code: NOK
+  name: Kroner
+  symbol: kr
+- code: NPR
+  name: Rupees
+  symbol: "₨"
+- code: NZD
+  name: New Zealand Dollars
+  symbol: "$"
+- code: OMR
+  name: Riais
+  symbol: "﷼"
+- code: PAB
+  name: Balboa
+  symbol: B/.
+- code: PEN
+  name: Nuevos Soles
+  symbol: S/.
+- code: PGK
+  name: Kina
+  symbol:
+- code: PHP
+  name: Pesos
+  symbol: Php
+- code: PKR
+  name: Rupees
+  symbol: "₨"
+- code: PLN
+  name: Zlotych
+  symbol: zł
+- code: PYG
+  name: Guarani
+  symbol: Gs
+- code: QAR
+  name: Rials
+  symbol: "﷼"
+- code: RON
+  name: New Lei
+  symbol: lei
+- code: RSD
+  name: Dinars
+  symbol: Дин.
+- code: RUB
+  name: Rubles
+  symbol: руб
+- code: RWF
+  name: Francs
+  symbol:
+- code: SAR
+  name: Riyals
+  symbol: "﷼"
+- code: SBD
+  name: Dollars
+  symbol: "$"
+- code: SCR
+  name: Rupees
+  symbol: "₨"
+- code: SDG
+  name: Pounds
+  symbol:
+- code: SEK
+  name: Kronor
+  symbol: kr
+- code: SGD
+  name: Dollars
+  symbol: "$"
+- code: SHP
+  name: Pounds
+  symbol: "£"
+- code: SLL
+  name: Leones
+  symbol:
+- code: SOS
+  name: Shillings
+  symbol: S
+- code: SRD
+  name: Dollars
+  symbol: "$"
+- code: STD
+  name: Dobras
+  symbol:
+- code: SVC
+  name: Salvadoran Colón
+  symbol:
+- code: SYP
+  name: Pounds
+  symbol: "£"
+- code: SZL
+  name: Emalangeni
+  symbol:
+- code: THB
+  name: Baht
+  symbol: "฿"
+- code: TJS
+  name: Somoni
+  symbol:
+- code: TMM
+  name: Manat
+  symbol:
+- code: TND
+  name: Dollars
+  symbol:
+- code: TOP
+  name: Pa'anga
+  symbol:
+- code: TRY
+  name: Lira
+  symbol: TL
+- code: TTD
+  name: Dollars
+  symbol: "$"
+- code: TVD
+  name: Tuvalu Dollars
+  symbol:
+- code: TWD
+  name: New Dollars
+  symbol: NT$
+- code: TZS
+  name: Shillings
+  symbol:
+- code: UAH
+  name: Hryvnia
+  symbol: "₴"
+- code: UGX
+  name: Shillings
+  symbol:
+- code: USD
+  name: Dollars
+  symbol: "$"
+- code: UYU
+  name: Pesos
+  symbol: "$U"
+- code: UZS
+  name: Sums
+  symbol: лв
+- code: VEF
+  name: Bolivares Fuertes
+  symbol: Bs
+- code: VND
+  name: Dong
+  symbol: "₫"
+- code: XAF
+  name: Communauté Financière Africaine Francs
+  symbol:
+- code: XCD
+  name: East Caribbean Dollars
+  symbol: "$"
+- code: XOF
+  name: Communauté Financière Africaine Francs
+  symbol:
+- code: XPF
+  name: Comptoirs Français du Pacifique Francs
+  symbol:
+- code: YER
+  name: Rials
+  symbol: "﷼"
+- code: ZAR
+  name: Rand
+  symbol: R
+- code: ZMK
+  name: Kwacha
+  symbol:
+- code: ZWD
+  name: Zimbabwe Dollars
+  symbol: Z$

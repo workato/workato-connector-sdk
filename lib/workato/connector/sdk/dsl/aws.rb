@@ -16,9 +16,9 @@ module Workato
           DUMMY_AWS_IAM_EXTERNAL_ID = 'dummy-aws-iam-external-id'
           DUMMY_AWS_WORKATO_ACCOUNT_ID = 'dummy-aws-workato-account-id'
 
-          AMAZON_ROLE_CLIENT_ID = ENV['AMAZON_ROLE_CLIENT_ID']
-          AMAZON_ROLE_CLIENT_KEY = ENV['AMAZON_ROLE_CLIENT_KEY']
-          AMAZON_ROLE_CLIENT_SECRET = ENV['AMAZON_ROLE_CLIENT_SECRET']
+          AMAZON_ROLE_CLIENT_ID = ENV.fetch('AMAZON_ROLE_CLIENT_ID', nil)
+          AMAZON_ROLE_CLIENT_KEY = ENV.fetch('AMAZON_ROLE_CLIENT_KEY', nil)
+          AMAZON_ROLE_CLIENT_SECRET = ENV.fetch('AMAZON_ROLE_CLIENT_SECRET', nil)
 
           WWW_FORM_CONTENT_TYPE = 'application/x-www-form-urlencoded; charset=utf-8'
 

@@ -12,8 +12,8 @@ module Workato
       API_GENERATE_SCHEMA_PATH = '/api/sdk/generate_schema'
 
       def initialize(options:)
-        @api_email = options[:api_email] || ENV[Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV]
-        @api_token = options[:api_token] || ENV[Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV]
+        @api_email = options[:api_email] || ENV.fetch(Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV, nil)
+        @api_token = options[:api_token] || ENV.fetch(Workato::Connector::Sdk::WORKATO_API_TOKEN_ENV, nil)
         @options = options
       end
 

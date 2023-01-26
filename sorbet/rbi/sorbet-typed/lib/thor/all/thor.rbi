@@ -656,8 +656,6 @@ Thor::Options::SHORT_SQ_RE = T.let(T.unsafe(nil), Regexp)
 module Thor::RakeCompat
   include(::FileUtils::StreamUtils_)
   include(::FileUtils)
-  # include(::Rake::FileUtilsExt)
-  # include(::Rake::DSL)
 
   class << self
     def included(base); end

@@ -32,14 +32,15 @@ module Workato
 
       class Connection
         extend T::Sig
+        include MonitorMixin
 
         using BlockInvocationRefinements
 
         sig { returns(HashWithIndifferentAccess) }
         attr_reader :source
 
-        cattr_accessor :on_settings_update
-        cattr_accessor :multi_auth_selected_fallback
+        class_attribute :on_settings_update, instance_predicate: false
+        class_attribute :multi_auth_selected_fallback, instance_predicate: false
 
         sig do
           params(
@@ -49,6 +50,7 @@ module Workato
           ).void
         end
         def initialize(connection: {}, methods: {}, settings: {})
+          super()
           @methods_source = T.let(HashWithIndifferentAccess.wrap(methods), HashWithIndifferentAccess)
           @source = T.let(HashWithIndifferentAccess.wrap(connection), HashWithIndifferentAccess)
           @settings = T.let(settings, SorbetTypes::SettingsHash)
@@ -63,7 +65,9 @@ module Workato
         def settings
           # we can't freeze or memoise because some developers modify it for storing something temporary in it.
           # always return a new copy
-          @settings.with_indifferent_access
+          synchronize do
+            @settings.with_indifferent_access
+          end
         end
 
         sig { params(settings: SorbetTypes::SettingsHash).returns(SorbetTypes::SettingsHash) }
@@ -93,16 +97,17 @@ module Workato
           return unless source[:base_uri]
 
           merge_settings!(settings) if settings
-          Dsl::WithDsl.execute(self, self.settings, &source[:base_uri])
+          global_dsl_context.execute(self.settings, &source['base_uri'])
         end
 
         sig do
           params(
             message: String,
+            settings_before: SorbetTypes::SettingsHash,
             refresher: T.proc.returns(T.nilable(SorbetTypes::SettingsHash))
           ).returns(T::Boolean)
         end
-        def update_settings!(message, &refresher)
+        def update_settings!(message, settings_before, &refresher)
           updater = lambda do
             new_settings = refresher.call
             next unless new_settings
@@ -110,22 +115,29 @@ module Workato
             settings.merge(new_settings)
           end
 
-          new_settings = if on_settings_update
-                           on_settings_update.call(message, &updater)
-                         else
-                           updater.call
-                         end
-          return false unless new_settings
+          synchronize do
+            new_settings = if on_settings_update
+                             T.must(on_settings_update).call(message, settings_before, updater)
+                           else
+                             updater.call
+                           end
+            return false unless new_settings
 
-          merge_settings!(new_settings)
+            merge_settings!(new_settings)
 
-          true
+            true
+          end
         end
 
         private
 
         sig { returns(HashWithIndifferentAccess) }
         attr_reader :methods_source
+
+        sig { returns(Dsl::WithDsl) }
+        def global_dsl_context
+          Dsl::WithDsl.new(self)
+        end
 
         class Authorization
           extend T::Sig
@@ -175,7 +187,7 @@ module Workato
             client_id = source[:client_id]
 
             if client_id.is_a?(Proc)
-              Dsl::WithDsl.execute(@connection, @connection.settings, &client_id)
+              global_dsl_context.execute(@connection.settings, &client_id)
             else
               client_id
             end
@@ -187,7 +199,7 @@ module Workato
             client_secret_source = source[:client_secret]
 
             if client_secret_source.is_a?(Proc)
-              Dsl::WithDsl.execute(@connection, @connection.settings, &client_secret_source)
+              global_dsl_context.execute(@connection.settings, &client_secret_source)
             else
               client_secret_source
             end
@@ -198,7 +210,7 @@ module Workato
             @connection.merge_settings!(settings) if settings
             return unless source[:authorization_url]
 
-            Dsl::WithDsl.execute(@connection, @connection.settings, &source[:authorization_url])
+            global_dsl_context.execute(@connection.settings, &source[:authorization_url])
           end
 
           sig { params(settings: T.nilable(SorbetTypes::SettingsHash)).returns(T.nilable(String)) }
@@ -206,7 +218,7 @@ module Workato
             @connection.merge_settings!(settings) if settings
             return unless source[:token_url]
 
-            Dsl::WithDsl.execute(@connection, @connection.settings, &source[:token_url])
+            global_dsl_context.execute(@connection.settings, &source[:token_url])
           end
 
           sig do
@@ -249,7 +261,7 @@ module Workato
 
             refresh_on = self.refresh_on
             refresh_on.blank? || refresh_on.any? do |pattern|
-              pattern.is_a?(::Integer) && pattern == http_code ||
+              (pattern.is_a?(::Integer) && pattern == http_code) ||
                 pattern === exception&.to_s ||
                 pattern === http_body
             end
@@ -341,7 +353,7 @@ module Workato
           def refresh_oauth2_token_using_token_url(settings)
             if settings[:refresh_token].blank?
               raise NotImplementedError, 'refresh_token is empty. ' \
-                                       'Use workato oauth2 command to acquire access_token and refresh_token'
+                                         'Use workato oauth2 command to acquire access_token and refresh_token'
             end
 
             response = RestClient::Request.execute(
@@ -362,6 +374,11 @@ module Workato
               access_token: tokens['access_token'],
               refresh_token: tokens['refresh_token'].presence || settings[:refresh_token]
             }.with_indifferent_access
+          end
+
+          sig { returns(Dsl::WithDsl) }
+          def global_dsl_context
+            Dsl::WithDsl.new(@connection)
           end
         end
 

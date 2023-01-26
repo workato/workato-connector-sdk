@@ -123,7 +123,7 @@ module Workato
         end
 
         def encrypted_configuration
-          @encrypted_configuration ||= ActiveSupport::EncryptedConfiguration.new(
+          @encrypted_configuration ||= FixedEncryptedConfiguration.new(
             config_path: path,
             key_path: key_path || DEFAULT_MASTER_KEY_PATH,
             env_key: DEFAULT_MASTER_KEY_ENV,
@@ -133,6 +133,15 @@ module Workato
 
         def serialize(settings)
           YAML.dump(settings.to_hash)
+        end
+      end
+
+      class FixedEncryptedConfiguration < ActiveSupport::EncryptedConfiguration
+        private
+
+        def handle_missing_key
+          # Original methods incorectly passes constructor params
+          raise MissingKeyError.new(key_path: key_path, env_key: env_key) if raise_if_missing_key
         end
       end
     end

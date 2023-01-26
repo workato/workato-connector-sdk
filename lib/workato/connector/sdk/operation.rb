@@ -44,6 +44,7 @@ module Workato
         extend T::Sig
 
         include Dsl::Global
+        include Dsl::AWS
         include Dsl::HTTP
         include Dsl::Call
         include Dsl::Error
@@ -51,18 +52,24 @@ module Workato
 
         using BlockInvocationRefinements
 
+        sig { override.returns(Streams) }
+        attr_reader :streams
+
         sig do
           params(
             operation: SorbetTypes::SourceHash,
             methods: SorbetTypes::SourceHash,
             connection: Connection,
+            streams: Streams,
             object_definitions: T.nilable(ObjectDefinitions)
           ).void
         end
-        def initialize(operation: {}, methods: {}, connection: Connection.new, object_definitions: nil)
+        def initialize(operation: {}, methods: {}, connection: Connection.new, streams: ProhibitedStreams.new,
+                       object_definitions: nil)
           @operation = T.let(HashWithIndifferentAccess.wrap(operation), HashWithIndifferentAccess)
           @_methods = T.let(HashWithIndifferentAccess.wrap(methods), HashWithIndifferentAccess)
           @connection = T.let(connection, Connection)
+          @streams = T.let(streams, Streams)
           @object_definitions = T.let(object_definitions, T.nilable(ObjectDefinitions))
         end
 
@@ -262,7 +269,7 @@ module Workato
         sig { returns(HashWithIndifferentAccess) }
         attr_reader :operation
 
-        sig { returns(Connection) }
+        sig { override.returns(Connection) }
         attr_reader :connection
       end
     end

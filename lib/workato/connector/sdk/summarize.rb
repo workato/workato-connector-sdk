@@ -34,8 +34,8 @@ module Workato
         attr_reader :paths
 
         def above_summarization_limit?(candidate)
-          candidate.is_a?(::Array) && candidate.length > ARRAY_SUMMARIZATION_LIMIT ||
-            candidate.is_a?(::String) && candidate.length > STRING_SUMMARIZATION_LIMIT
+          (candidate.is_a?(::Array) && candidate.length > ARRAY_SUMMARIZATION_LIMIT) ||
+            (candidate.is_a?(::String) && candidate.length > STRING_SUMMARIZATION_LIMIT)
         end
 
         def apply_summarization_limit(summarized, steps)

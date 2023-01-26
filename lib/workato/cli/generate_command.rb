@@ -51,7 +51,7 @@ module Workato
                     default: 'comma'
       method_option :api_email,
                     type: :string,
-                    desc: 'Email for accessing Workato API or '\
+                    desc: 'Email for accessing Workato API or ' \
                           "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} environment variable"
       method_option :api_token,
                     type: :string,
@@ -125,7 +125,7 @@ module Workato
       end
 
       def sanitized_filename(name)
-        name.downcase.gsub(/[^0-9A-z.\-]/, '_')
+        name.downcase.gsub(/[^0-9A-z.-]/, '_')
       end
     end
   end

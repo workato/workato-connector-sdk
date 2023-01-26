@@ -29,11 +29,6 @@ module Workato
           @methods_source = T.let(HashWithIndifferentAccess.wrap(@source[:methods]), HashWithIndifferentAccess)
         end
 
-        sig { params(path: String, params: T::Hash[Symbol, T.untyped]).returns(T.untyped) }
-        def invoke(path, params = {})
-          InvokePath.new(path: path, connector: self, params: params).call
-        end
-
         sig { returns(T.nilable(String)) }
         def title
           @source[:title]
@@ -46,7 +41,8 @@ module Workato
             actions: source[:actions].presence || {},
             methods: methods_source,
             object_definitions: object_definitions,
-            connection: connection
+            connection: connection,
+            streams: streams
           )
         end
 
@@ -55,7 +51,8 @@ module Workato
           @methods = T.let(@methods, T.nilable(MethodsProxy))
           @methods ||= MethodsProxy.new(
             methods: methods_source,
-            connection: connection
+            connection: connection,
+            streams: streams
           )
         end
 
@@ -79,7 +76,8 @@ module Workato
             triggers: source[:triggers].presence || {},
             methods: methods_source,
             connection: connection,
-            object_definitions: object_definitions
+            object_definitions: object_definitions,
+            streams: streams
           )
         end
 
@@ -113,7 +111,33 @@ module Workato
           )
         end
 
+        sig { returns(Streams) }
+        def streams
+          @streams = T.let(@streams, T.nilable(Streams))
+          @streams ||= Streams.new(
+            streams: streams_sources,
+            methods: methods_source,
+            connection: connection
+          )
+        end
+
         private
+
+        sig { returns(HashWithIndifferentAccess) }
+        def streams_sources
+          @streams_sources = T.let(@streams_sources, T.nilable(HashWithIndifferentAccess))
+          return @streams_sources if @streams_sources
+
+          @streams_sources = HashWithIndifferentAccess.new
+          @streams_sources.merge!(source[:streams].presence || {})
+          (source[:actions] || {}).values.map do |action|
+            @streams_sources.merge!(action[:streams] || {})
+          end
+          (source[:trigger] || {}).values.map do |trigger|
+            @streams_sources.merge!(trigger[:streams] || {})
+          end
+          @streams_sources
+        end
 
         sig { returns(HashWithIndifferentAccess) }
         attr_reader :methods_source
@@ -133,18 +157,20 @@ module Workato
             actions: HashWithIndifferentAccess,
             object_definitions: ObjectDefinitions,
             methods: HashWithIndifferentAccess,
-            connection: Connection
+            connection: Connection,
+            streams: Streams
           ).void
         end
-        def initialize(actions:, object_definitions:, methods:, connection:)
+        def initialize(actions:, object_definitions:, methods:, connection:, streams:)
           @methods = methods
           @connection = connection
           @object_definitions = object_definitions
+          @streams = streams
           @actions = T.let({}, T::Hash[T.any(Symbol, String), Action])
           define_action_methods(actions)
         end
 
-        sig { params(action: T.any(Symbol, String)).returns(T.untyped) }
+        sig { params(action: T.any(Symbol, String)).returns(Action) }
         def [](action)
           public_send(action)
         end
@@ -157,6 +183,9 @@ module Workato
         sig { returns(Connection) }
         attr_reader :connection
 
+        sig { returns(Streams) }
+        attr_reader :streams
+
         sig { returns(ObjectDefinitions) }
         attr_reader :object_definitions
 
@@ -168,7 +197,8 @@ module Workato
                 action: definition,
                 object_definitions: object_definitions,
                 methods: methods,
-                connection: connection
+                connection: connection,
+                streams: streams
               )
               return @actions[action] if input_.nil?
 
@@ -184,12 +214,14 @@ module Workato
         sig do
           params(
             methods: HashWithIndifferentAccess,
-            connection: Connection
+            connection: Connection,
+            streams: Streams
           ).void
         end
-        def initialize(methods:, connection:)
+        def initialize(methods:, connection:, streams:)
           @methods = methods
           @connection = connection
+          @streams = streams
           @actions = T.let({}, T::Hash[T.any(Symbol, String), Action])
           define_action_methods
         end
@@ -202,6 +234,9 @@ module Workato
         sig { returns(Connection) }
         attr_reader :connection
 
+        sig { returns(Streams) }
+        attr_reader :streams
+
         sig { void }
         def define_action_methods
           methods.each do |method, _definition|
@@ -211,7 +246,8 @@ module Workato
                   execute: -> { T.unsafe(self).call(method, *args) }
                 },
                 methods: methods,
-                connection: connection
+                connection: connection,
+                streams: streams
               )
               T.must(@actions[method]).execute
             end
@@ -278,15 +314,22 @@ module Workato
             triggers: HashWithIndifferentAccess,
             object_definitions: ObjectDefinitions,
             methods: HashWithIndifferentAccess,
-            connection: Connection
+            connection: Connection,
+            streams: Streams
           ).void
         end
-        def initialize(triggers:, object_definitions:, methods:, connection:)
+        def initialize(triggers:, object_definitions:, methods:, connection:, streams:)
           @methods = methods
           @connection = connection
           @object_definitions = object_definitions
+          @streams = streams
           @triggers = T.let({}, T::Hash[T.any(Symbol, String), Trigger])
           define_trigger_methods(triggers)
+        end
+
+        sig { params(trigger: T.any(Symbol, String)).returns(Trigger) }
+        def [](trigger)
+          public_send(trigger)
         end
 
         private
@@ -296,6 +339,9 @@ module Workato
 
         sig { returns(Connection) }
         attr_reader :connection
+
+        sig { returns(Streams) }
+        attr_reader :streams
 
         sig { returns(ObjectDefinitions) }
         attr_reader :object_definitions
@@ -308,7 +354,8 @@ module Workato
                 trigger: definition,
                 object_definitions: object_definitions,
                 methods: methods,
-                connection: connection
+                connection: connection,
+                streams: streams
               )
 
               return @triggers[trigger] if input_.nil?
@@ -318,65 +365,6 @@ module Workato
           end
         end
       end
-
-      class InvokePath
-        extend T::Sig
-
-        sig do
-          params(
-            path: String,
-            connector: Connector,
-            params: T::Hash[Symbol, T.untyped]
-          ).void
-        end
-        def initialize(path:, connector:, params:)
-          @path = T.let(path, String)
-          @connector = T.let(connector, Connector)
-          @params = T.let(params, T::Hash[Symbol, T.untyped])
-        end
-
-        sig { returns(T.untyped) }
-        def call
-          invoke_path
-        end
-
-        private
-
-        sig { returns(String) }
-        attr_reader :path
-
-        sig { returns(Connector) }
-        attr_reader :connector
-
-        sig { returns(T::Hash[Symbol, T.untyped]) }
-        attr_reader :params
-
-        sig { returns(T.untyped) }
-        def invoke_path
-          methods = path.split('.')
-          method = methods.pop
-          raise ArgumentError, 'path is not found' unless method
-
-          object = methods.inject(connector) { |obj, m| obj.public_send(m) }
-          output = invoke_method(object, method)
-          if output.respond_to?(:invoke)
-            invoke_method(output, :invoke)
-          else
-            output
-          end
-        end
-
-        sig { params(object: T.untyped, method: T.any(Symbol, String)).returns(T.untyped) }
-        def invoke_method(object, method)
-          parameters = object.method(method).parameters.reject { |p| p[0] == :block }.map(&:second)
-          args = params.values_at(*parameters)
-          if parameters.last == :args
-            args = args.take(args.length - 1) + Array.wrap(args.last).flatten(1)
-          end
-          object.public_send(method, *args)
-        end
-      end
-      private_constant :InvokePath
     end
   end
 end

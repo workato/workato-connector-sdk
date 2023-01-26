@@ -301,5 +301,11 @@
         }
       end
     }
+  },
+
+  streams: {
+    echo_stream: lambda do |input, from, to, size|
+      [{ input: input, from: from, to: to, size: size }, true]
+    end
   }
 }

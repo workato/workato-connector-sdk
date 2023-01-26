@@ -3,6 +3,8 @@
 
 require 'active_support/encrypted_configuration'
 
+require_relative '../extension/metadata_fix_wrap_kw_args'
+
 module Workato
   module CLI
     class EditCommand
@@ -23,7 +25,7 @@ module Workato
 
         catch_editing_exceptions do
           encrypted_config.change do |tmp_path|
-            system("#{ENV['EDITOR']} #{tmp_path}")
+            system("#{ENV.fetch('EDITOR', nil)} #{tmp_path}")
           end
         end
 

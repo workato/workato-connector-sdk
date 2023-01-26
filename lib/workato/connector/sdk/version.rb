@@ -4,7 +4,7 @@
 module Workato
   module Connector
     module Sdk
-      VERSION = '1.2.0'
+      VERSION = T.let(File.read(File.expand_path('../../../../VERSION', __dir__)).strip, String)
     end
   end
 end

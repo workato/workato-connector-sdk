@@ -34,15 +34,18 @@ module Workato
             trigger: SorbetTypes::SourceHash,
             methods: SorbetTypes::SourceHash,
             connection: Connection,
-            object_definitions: T.nilable(ObjectDefinitions)
+            object_definitions: T.nilable(ObjectDefinitions),
+            streams: Streams
           ).void
         end
-        def initialize(trigger:, methods: {}, connection: Connection.new, object_definitions: nil)
+        def initialize(trigger:, methods: {}, connection: Connection.new, object_definitions: nil,
+                       streams: ProhibitedStreams.new)
           super(
             operation: trigger,
             connection: connection,
             methods: methods,
-            object_definitions: object_definitions
+            object_definitions: object_definitions,
+            streams: streams
           )
         end
 
@@ -118,7 +121,7 @@ module Workato
             headers: T::Hash[T.any(String, Symbol), T.untyped],
             params: T::Hash[T.any(String, Symbol), T.untyped],
             settings: T.nilable(SorbetTypes::SettingsHash),
-            webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash
+            webhook_subscribe_output: T.nilable(SorbetTypes::WebhookSubscribeOutputHash)
           ).returns(
             SorbetTypes::WebhookNotificationOutputHash
           )
@@ -134,8 +137,7 @@ module Workato
           webhook_subscribe_output = {}
         )
           connection.merge_settings!(settings) if settings
-          output = Dsl::WithDsl.execute(
-            connection,
+          output = global_dsl_context.execute(
             HashWithIndifferentAccess.wrap(input),
             payload,
             Array.wrap(extended_input_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
@@ -190,7 +192,7 @@ module Workato
             payload: T::Hash[T.any(String, Symbol), T.untyped],
             headers: T::Hash[T.any(String, Symbol), T.untyped],
             params: T::Hash[T.any(String, Symbol), T.untyped],
-            webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash
+            webhook_subscribe_output: T.nilable(SorbetTypes::WebhookSubscribeOutputHash)
           ).returns(
             T.any(SorbetTypes::WebhookNotificationOutputHash, SorbetTypes::PollOutputHash)
           )
@@ -231,6 +233,11 @@ module Workato
         sig { returns(T::Boolean) }
         def webhook_notification?
           trigger[:webhook_notification].present?
+        end
+
+        sig { returns(Dsl::WithDsl) }
+        def global_dsl_context
+          Dsl::WithDsl.new(connection, streams)
         end
       end
     end

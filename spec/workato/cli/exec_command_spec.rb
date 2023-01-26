@@ -25,6 +25,9 @@ module Workato::CLI
     let(:webhook_params) { {} }
     let(:webhook_subscribe_output) { {} }
     let(:webhook_url) { {} }
+    let(:from) { 0 }
+    let(:to) { Workato::Connector::Sdk::Stream::DEFAULT_FRAME_SIZE - 1 }
+    let(:frame_size) { Workato::Connector::Sdk::Stream::DEFAULT_FRAME_SIZE }
 
     shared_examples 'executes path' do
       {
@@ -286,6 +289,11 @@ module Workato::CLI
             connection: settings,
             refresh_token: options[:refresh_token]
           }.with_indifferent_access
+        end,
+
+        # streams
+        'streams.echo_stream' => lambda do
+          { input: input, from: from, to: to, size: frame_size }
         end
       }.each do |path, expected_output|
         describe path do
@@ -334,7 +342,9 @@ module Workato::CLI
           output: false,
           oauth2_code: '1234567890',
           redirect_url: 'http://localhost:3000/oauth2/callback',
-          refresh_token: 'qwerty'
+          refresh_token: 'qwerty',
+          from: from,
+          frame_size: frame_size
         }
       end
 
@@ -350,6 +360,9 @@ module Workato::CLI
       let(:webhook_params) { JSON.parse(File.read(options[:webhook_params])) }
       let(:webhook_subscribe_output) { JSON.parse(File.read(options[:webhook_subscribe_output])) }
       let(:webhook_url) { options[:webhook_url] }
+      let(:from) { 0 }
+      let(:to) { 9 }
+      let(:frame_size) { 10 }
 
       it_behaves_like 'executes path'
 

@@ -64,7 +64,8 @@ module Minitest::Assertions
 
   sig do
     params(
-      exp: T.untyped
+      exp: T.untyped,
+      block: T.nilable(T.proc.void)
     ).returns(StandardError)
   end
   def assert_raises(*exp, &block); end
