@@ -25,9 +25,11 @@ module Workato
 
           abstract!
 
+          # @api private
           sig { abstract.returns(Streams) }
           def streams; end
 
+          # @api private
           sig { abstract.returns(Connection) }
           def connection; end
 

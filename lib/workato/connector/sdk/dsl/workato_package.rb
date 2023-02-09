@@ -13,9 +13,19 @@ module Workato
       module Dsl
         class WorkatoPackage
           JWT_ALGORITHMS = %w[RS256 RS384 RS512].freeze
+          private_constant :JWT_ALGORITHMS
+
           JWT_RSA_KEY_MIN_LENGTH = 2048
+          private_constant :JWT_RSA_KEY_MIN_LENGTH
 
           VERIFY_RCA_ALGORITHMS = %w[SHA SHA1 SHA224 SHA256 SHA384 SHA512].freeze
+          private_constant :VERIFY_RCA_ALGORITHMS
+
+          RANDOM_SIZE = 32
+          private_constant :RANDOM_SIZE
+
+          ALLOWED_KEY_SIZES = [128, 192, 256].freeze
+          private_constant :ALLOWED_KEY_SIZES
 
           def initialize(streams:, connection:)
             @streams = streams
@@ -76,8 +86,6 @@ module Workato
             SecureRandom.uuid
           end
 
-          RANDOM_SIZE = 32
-
           def random_bytes(len)
             unless (len.is_a? ::Integer) && (len <= RANDOM_SIZE)
               raise "The requested length or random bytes sequence should be <= #{RANDOM_SIZE}"
@@ -85,8 +93,6 @@ module Workato
 
             Types::Binary.new(::OpenSSL::Random.random_bytes(len))
           end
-
-          ALLOWED_KEY_SIZES = [128, 192, 256].freeze
 
           def aes_cbc_encrypt(string, key, init_vector = nil)
             key_size = key.bytesize * 8

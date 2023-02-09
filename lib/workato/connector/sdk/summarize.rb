@@ -57,6 +57,8 @@ module Workato
           end
         end
       end
+
+      private_constant :Summarize
     end
   end
 end

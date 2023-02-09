@@ -16,6 +16,15 @@ module Workato
         end
       end
 
+      def binary?
+        warn <<~WARNING
+          WARNING: Ambiguous use of `String#binary?' method.
+          For correct behavior of `binary?` method use explicit Workato::Types::UnicodeString for input strings and Workato::Types::Binary for input binaries
+          See: https://www.rubydoc.info/gems/workato-connector-sdk/Workato/Types
+        WARNING
+        encoding == Encoding::ASCII_8BIT
+      end
+
       def is_int? # rubocop:disable Naming/PredicateName
         present? && (self !~ /\D/)
       end

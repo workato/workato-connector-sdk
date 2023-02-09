@@ -225,7 +225,7 @@ module Workato
         def resolve_request(request_or_result)
           case request_or_result
           when Request
-            resolve_request(request_or_result.execute!)
+            resolve_request(request_or_result.response!)
           when ::Array
             request_or_result.each_with_index.inject(request_or_result) do |acc, (item, index)|
               response_item = resolve_request(item)

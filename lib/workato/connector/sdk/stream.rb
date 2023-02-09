@@ -79,6 +79,22 @@ module Workato
           data
         end
 
+        class << self
+          extend T::Sig
+
+          sig do
+            params(
+              stream: T.any(Proxy, T::Hash[T.untyped, T.untyped], String),
+              from: T.nilable(Integer),
+              frame_size: T.nilable(Integer),
+              blk: SorbetTypes::StreamInProc
+            ).void
+          end
+          def each_chunk(stream:, from:, frame_size: nil, &blk)
+            Reader.new(stream: stream, from: from, frame_size: frame_size).each_chunk(&blk)
+          end
+        end
+
         class Reader
           extend T::Sig
 
@@ -153,6 +169,9 @@ module Workato
           end
         end
 
+        private_constant :Reader
+
+        # @api private
         class Proxy
           extend T::Sig
 
@@ -212,9 +231,9 @@ module Workato
         class Mock
           extend T::Sig
 
-          sig { params(chunks: T.untyped).void }
+          sig { params(chunks: T::Hash[T.any(Integer, String), T.untyped]).void }
           def initialize(chunks:)
-            @chunks = chunks
+            @chunks = T.let(chunks.transform_keys(&:to_i), T::Hash[Integer, T.untyped])
           end
 
           sig { params(from: Integer, frame_size: Integer, _blk: Reader::ProxyReadProc).void }

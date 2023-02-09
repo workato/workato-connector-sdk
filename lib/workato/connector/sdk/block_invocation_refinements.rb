@@ -4,7 +4,8 @@
 module Workato
   module Connector
     module Sdk
-      # match proc's arguments, even if it's a lambda.
+      # Match proc's arguments, even if it's a lambda.
+      # @api private
       module BlockInvocationRefinements
         refine Proc do
           def call(*args, &block)

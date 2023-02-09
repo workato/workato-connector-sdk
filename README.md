@@ -339,7 +339,6 @@ Options:
   [--col-sep=COL_SEP]      # Use separator for CSV converter
                            # Default: comma
                            # Possible values: comma, space, tab, colon, semicolon, pipe
-  [--api-email=API_EMAIL]  # Email for accessing Workato API or set WORKATO_API_EMAIL environment variable
   [--api-token=API_TOKEN]  # Token for accessing Workato API or set WORKATO_API_TOKEN environment variable
 ```
 
@@ -425,8 +424,6 @@ Options:
   -l, [--logo=LOGO]                # Path to connector logo: png or jpeg file
   -n, [--notes=NOTES]              # Release notes
   -c, [--connector=CONNECTOR]      # Path to connector source code
-      [--api-email=API_EMAIL]      # Email for accessing Workato API.
-                                   # If present overrides value from WORKATO_API_EMAIL environment variable.
       [--api-token=API_TOKEN]      # Token for accessing Workato API.
                                    # If present overrides value from WORKATO_API_TOKEN environment variable.
       [--environment=ENVIRONMENT]  # Data center specific URL to push connector code.
@@ -1139,7 +1136,6 @@ jobs:
       run: bundle exec rspec
     # - name: Push to DEV workspace # Use this to push to DEV. This can be enabled when a PR is merged.
     #   env: 
-    #     WORKATO_API_EMAIL: ${{ secrets.WORKATO_DEV_ENVIRONMENT_API_EMAIL}}
     #     WORKATO_API_TOKEN: ${{ secrets.WORKATO_DEV_ENVIRONMENT_API_TOKEN}} 
     #   run: workato push
 ```

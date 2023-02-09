@@ -5,6 +5,7 @@ require 'uri'
 require 'ruby-progressbar'
 require 'zip'
 require 'fileutils'
+require 'thor'
 
 module Workato
   module CLI
@@ -108,7 +109,7 @@ module Workato
         url = "#{api_base_url}#{API_IMPORT_PATH}/#{folder_id}"
         response = RestClient.post(
           url,
-          File.open(zip_file_path),
+          File.open(zip_file_path, 'rb'),
           auth_headers.merge(
             'Content-Type' => 'application/zip'
           )
@@ -185,10 +186,25 @@ module Workato
       end
 
       def auth_headers
-        {
-          'x-user-email' => api_email,
-          'x-user-token' => api_token
-        }
+        @auth_headers ||=
+          if api_email.present?
+            warn <<~WARNING
+              You are using old authorization schema with --api-email and --api-token which is less secure and deprecated.
+              We strongly recommend migrating over to API Clients for authentication to Workato APIs.
+
+              Learn more: https://docs.workato.com/developing-connectors/sdk/cli/reference/cli-commands.html#workato-push
+
+              If you use API Client token but still see this message, ensure you do not pass --api-email param nor have #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} environment variable set.
+            WARNING
+            {
+              'x-user-email' => api_email,
+              'x-user-token' => api_token
+            }
+          else
+            {
+              'Authorization' => "Bearer #{api_token}"
+            }
+          end
       end
 
       def folder_id

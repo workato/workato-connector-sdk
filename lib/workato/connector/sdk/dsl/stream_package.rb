@@ -27,13 +27,7 @@ module Workato
               stream = out(stream[:name], stream[:input] || {})
             end
 
-            Stream::Reader.new(
-              stream: stream,
-              from: from,
-              frame_size: frame_size
-            ).each_chunk do |chunk, byte_from, byte_to, eof, next_from|
-              blk.call(chunk, byte_from, byte_to, eof, next_from)
-            end
+            Stream.each_chunk(stream: stream, from: from, frame_size: frame_size, &blk)
           end
 
           sig { params(stream_name: String, input: SorbetTypes::StreamInputHash).returns(Stream::Proxy) }

@@ -33,22 +33,28 @@ RSpec.describe 'stream', :vcr do
         {
           file_size: 20.kilobytes,
           frame_size: frame_size,
-          mock_self_stream: {
-            __stream__: true,
-            name: 'global_stream',
-            input: {
-              file_size: 11.kilobytes
-            }
-          },
-          mock_simple_stream: {
-            __stream__: true,
-            chunks: {
-              0 => 'abcd',
-              4 => 'efgh',
-              8 => 'ijkl',
-              12 => 'mn'
-            }
-          },
+          # self stream mock can be used in input JSON for workato exec CLI
+          mock_self_stream: JSON.parse(
+            {
+              __stream__: true,
+              name: 'global_stream',
+              input: {
+                file_size: 11.kilobytes
+              }
+            }.to_json
+          ),
+          # simple stream mock can be used in input JSON for workato exec CLI
+          mock_simple_stream: JSON.parse(
+            {
+              __stream__: true,
+              chunks: {
+                0 => 'abcd',
+                4 => 'efgh',
+                8 => 'ijkl',
+                12 => 'mn'
+              }
+            }.to_json
+          ),
           mock_advanced_stream: {
             __stream__: true,
             name: 'mock_advanced_stream',

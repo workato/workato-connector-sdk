@@ -82,7 +82,7 @@ module Workato
 
         def read_plain_file
           all_settings = File.open(path) do |f|
-            YAML.safe_load(f.read, [::Symbol]).to_hash.with_indifferent_access
+            YAML.safe_load(f.read, permitted_classes: [::Symbol]).to_hash.with_indifferent_access
           end
 
           (name ? all_settings.fetch(name) : all_settings) || {}
@@ -144,6 +144,8 @@ module Workato
           raise MissingKeyError.new(key_path: key_path, env_key: env_key) if raise_if_missing_key
         end
       end
+
+      private_constant :FixedEncryptedConfiguration
     end
   end
 end

@@ -12,15 +12,25 @@ module Workato
       module Dsl
         module AWS
           TEMP_CREDENTIALS_REFRESH_TIMEOUT = 60 # seconds
+          private_constant :TEMP_CREDENTIALS_REFRESH_TIMEOUT
 
           DUMMY_AWS_IAM_EXTERNAL_ID = 'dummy-aws-iam-external-id'
+          private_constant :DUMMY_AWS_IAM_EXTERNAL_ID
+
           DUMMY_AWS_WORKATO_ACCOUNT_ID = 'dummy-aws-workato-account-id'
+          private_constant :DUMMY_AWS_WORKATO_ACCOUNT_ID
 
           AMAZON_ROLE_CLIENT_ID = ENV.fetch('AMAZON_ROLE_CLIENT_ID', nil)
+          private_constant :AMAZON_ROLE_CLIENT_ID
+
           AMAZON_ROLE_CLIENT_KEY = ENV.fetch('AMAZON_ROLE_CLIENT_KEY', nil)
+          private_constant :AMAZON_ROLE_CLIENT_KEY
+
           AMAZON_ROLE_CLIENT_SECRET = ENV.fetch('AMAZON_ROLE_CLIENT_SECRET', nil)
+          private_constant :AMAZON_ROLE_CLIENT_SECRET
 
           WWW_FORM_CONTENT_TYPE = 'application/x-www-form-urlencoded; charset=utf-8'
+          private_constant :WWW_FORM_CONTENT_TYPE
 
           def aws
             @aws ||= Private.new(connection: connection)

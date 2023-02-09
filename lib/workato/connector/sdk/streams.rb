@@ -56,6 +56,7 @@ module Workato
         attr_reader :connection
       end
 
+      # @api private
       class ProhibitedStreams < Streams
         extend T::Sig
 

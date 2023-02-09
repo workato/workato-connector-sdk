@@ -39,10 +39,10 @@ module Workato
         end
 
         def method_missing(...)
-          execute!.send(...)
+          response!.send(...)
         end
 
-        def execute!
+        def response!
           __getobj__ || __setobj__(response)
         rescue RestClient::Exceptions::Timeout => e
           Kernel.raise RequestTimeoutError, e
@@ -254,7 +254,7 @@ module Workato
         end
 
         def try(...)
-          execute!.try(...)
+          response!.try(...)
         end
 
         private
@@ -513,6 +513,8 @@ module Workato
           attr_reader :original_filename
         end
 
+        private_constant :Part
+
         class RestClientRequest < ::RestClient::Request
           def initialize(args)
             super
@@ -540,6 +542,7 @@ module Workato
             net
           end
         end
+
         private_constant :RestClientRequest
       end
     end

@@ -36,6 +36,7 @@ module Workato
 
         using BlockInvocationRefinements
 
+        # @api private
         sig { returns(HashWithIndifferentAccess) }
         attr_reader :source
 
@@ -56,11 +57,13 @@ module Workato
           @settings = T.let(settings, SorbetTypes::SettingsHash)
         end
 
+        # @api private
         sig { returns(SorbetTypes::SettingsHash) }
         def settings!
           @settings
         end
 
+        # @api private
         sig { returns(HashWithIndifferentAccess) }
         def settings
           # we can't freeze or memoise because some developers modify it for storing something temporary in it.
@@ -70,11 +73,13 @@ module Workato
           end
         end
 
+        # @api private
         sig { params(settings: SorbetTypes::SettingsHash).returns(SorbetTypes::SettingsHash) }
         def merge_settings!(settings)
           @settings.merge!(settings)
         end
 
+        # @api private
         sig { returns(T::Boolean) }
         def authorization?
           source[:authorization].present?
@@ -100,6 +105,7 @@ module Workato
           global_dsl_context.execute(self.settings, &source['base_uri'])
         end
 
+        # @api private
         sig do
           params(
             message: String,
@@ -267,6 +273,7 @@ module Workato
             end
           end
 
+          # @api private
           sig { params(settings: HashWithIndifferentAccess).returns(T.nilable(HashWithIndifferentAccess)) }
           def refresh!(settings)
             if oauth2?
@@ -300,6 +307,7 @@ module Workato
             end
           end
 
+          # @api private
           sig { returns(HashWithIndifferentAccess) }
           def source
             return @source unless multi?
@@ -381,8 +389,6 @@ module Workato
             Dsl::WithDsl.new(@connection)
           end
         end
-
-        private_constant :Authorization
       end
     end
   end

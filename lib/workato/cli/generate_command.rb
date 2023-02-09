@@ -50,6 +50,7 @@ module Workato
                     enum: SchemaCommand::CSV_SEPARATORS,
                     default: 'comma'
       method_option :api_email,
+                    hide: true,
                     type: :string,
                     desc: 'Email for accessing Workato API or ' \
                           "set #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} environment variable"

@@ -2,7 +2,7 @@
 
 module Workato::Connector::Sdk
   RSpec.describe Request, :vcr do
-    subject(:execute!) { request.execute! }
+    subject(:response!) { request.response! }
 
     let(:request) { described_class.new(uri) }
     let(:uri) { 'https://jsonplaceholder.typicode.com/posts' }
@@ -114,19 +114,19 @@ module Workato::Connector::Sdk
     context 'JSON' do
       let(:request) { described_class.new(uri).format_json }
 
-      it { expect(execute!.size).to eq(100) }
+      it { expect(response!.size).to eq(100) }
 
       context 'when POST' do
         let(:request) { described_class.new(uri, method: 'POST').payload(payload).format_json }
         let(:payload) { { title: 'foo', body: 'bar', userId: 1 } }
 
-        it { expect(execute!).to include('id' => 101) }
+        it { expect(response!).to include('id' => 101) }
 
         context 'when array payload' do
           let(:uri) { 'https://httpbin.org/post' }
           let(:payload) { [1, 2, 3] }
 
-          it { expect(execute!).to include('json' => [1, 2, 3]) }
+          it { expect(response!).to include('json' => [1, 2, 3]) }
         end
       end
 
@@ -134,13 +134,13 @@ module Workato::Connector::Sdk
         let(:request) { described_class.new(uri, method: 'POST').payload(payload).format_json }
         let(:payload) { { title: "\xE0" } }
 
-        it { expect { execute! }.to raise_error(JSONRequestFormatError) }
+        it { expect { response! }.to raise_error(JSONRequestFormatError) }
       end
 
       context 'when response payload format error' do
         let(:uri) { 'https://httpbin.org/html' }
 
-        it { expect { execute! }.to raise_error(JSONResponseFormatError, /unexpected token at/) }
+        it { expect { response! }.to raise_error(JSONResponseFormatError, /unexpected token at/) }
       end
     end
 
@@ -149,12 +149,12 @@ module Workato::Connector::Sdk
       let(:uri) { 'https://httpbin.org/post' }
       let(:payload) { 'custom body' }
 
-      it { expect(execute!).to include('data' => 'custom body') }
+      it { expect(response!).to include('data' => 'custom body') }
 
       context 'when object payload' do
         let(:payload) { { a: :b } }
 
-        it { expect(execute!).to include('form' => { 'a' => 'b' }) }
+        it { expect(response!).to include('form' => { 'a' => 'b' }) }
       end
     end
 

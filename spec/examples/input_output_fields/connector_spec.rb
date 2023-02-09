@@ -10,13 +10,15 @@ RSpec.describe 'input_output_fields', :vcr do
     it 'returns schema definition' do
       input_fields = connector.actions.test_action.input_fields(settings, config_fields)
 
-      expect(input_fields).to include(
-        'object_definitions' => a_hash_including(
-          'event' => HashWithIndifferentAccess
-        ),
-        'config_fields' => config_fields.with_indifferent_access,
-        'connection' => settings.with_indifferent_access,
-        'customer' => HashWithIndifferentAccess
+      expect(input_fields).to contain_exactly(
+        a_hash_including(
+          'object_definitions' => {
+            'event' => [HashWithIndifferentAccess]
+          },
+          'config_fields' => config_fields.with_indifferent_access,
+          'connection' => settings.with_indifferent_access,
+          'customer' => HashWithIndifferentAccess
+        )
       )
     end
   end
@@ -25,13 +27,15 @@ RSpec.describe 'input_output_fields', :vcr do
     it 'returns schema definition' do
       input_fields = connector.actions.test_action.output_fields(settings, config_fields)
 
-      expect(input_fields).to include(
-        'object_definitions' => a_hash_including(
-          'event' => HashWithIndifferentAccess
-        ),
-        'config_fields' => config_fields.with_indifferent_access,
-        'connection' => settings.with_indifferent_access,
-        'customer' => HashWithIndifferentAccess
+      expect(input_fields).to contain_exactly(
+        a_hash_including(
+          'object_definitions' => {
+            'event' => [HashWithIndifferentAccess]
+          },
+          'config_fields' => config_fields.with_indifferent_access,
+          'connection' => settings.with_indifferent_access,
+          'customer' => HashWithIndifferentAccess
+        )
       )
     end
   end
@@ -40,8 +44,8 @@ RSpec.describe 'input_output_fields', :vcr do
     it 'returns schema definition' do
       event = connector.object_definitions.event.fields(settings, config_fields)
 
-      expect(event).to be_kind_of(HashWithIndifferentAccess)
-      expect(event).to include(name: 'type', type: 'event')
+      expect(event).to be_kind_of(Array)
+      expect(event).to contain_exactly(name: 'type', type: 'event')
     end
 
     context 'when static' do

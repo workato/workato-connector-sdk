@@ -8,6 +8,7 @@ require 'active_support/all'
 require 'active_support/json'
 
 require_relative '../types/binary'
+require_relative '../types/unicode_string'
 
 require_relative '../extension/array'
 require_relative '../extension/case_sensitive_headers'

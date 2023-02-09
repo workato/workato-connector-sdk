@@ -1,0 +1,8 @@
+--title "Workato Connector SDK Ruby"
+--main README.md
+--no-private
+--plugin sorbet
+--exclude lib/workato/cli/
+--exclude lib/workato/utilities/
+--exclude lib/workato/web/
+--exclude lib/workato/extension/

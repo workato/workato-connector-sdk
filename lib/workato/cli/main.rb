@@ -128,6 +128,7 @@ module Workato
                     desc: 'Path to connector source code',
                     lazy_default: Workato::Connector::Sdk::DEFAULT_CONNECTOR_PATH
       method_option :api_email,
+                    hide: true,
                     type: :string,
                     desc: "Email for accessing Workato API.\n" \
                           "If present overrides value from #{Workato::Connector::Sdk::WORKATO_API_EMAIL_ENV} " \

@@ -5,6 +5,7 @@ module Workato
   module Testing
     class VCRMultipartBodyMatcher
       MULTIPART_HEADER_MATCHER = %r{^multipart/form-data; boundary=(.+)$}.freeze
+      private_constant :MULTIPART_HEADER_MATCHER
 
       class << self
         def call(request1, request2)

@@ -38,6 +38,8 @@ module Workato
               T.unsafe(self).recipe_id.reverse
             end
           end
+
+          private_constant :ClassMethods
         end
       end
     end

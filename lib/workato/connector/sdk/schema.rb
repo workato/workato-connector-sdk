@@ -101,7 +101,7 @@ module Workato
             return Type::Time.from_date_time(value)
           when ::Date
             return value.to_date
-          when ::Numeric, ::TrueClass, ::FalseClass, Workato::Types::Binary, Type::UnicodeString,
+          when ::Numeric, ::TrueClass, ::FalseClass, Workato::Types::Binary, Workato::Types::UnicodeString,
             ::Array, ::Hash, Stream::Proxy
             return value
           when Extension::Array::ArrayWhere
@@ -111,7 +111,7 @@ module Workato
               return Workato::Types::Binary.new(value)
             end
 
-            return Type::UnicodeString.new(value)
+            return Workato::Types::UnicodeString.new(value)
           else
             if value.respond_to?(:to_time)
               return Type::Time.from_time(value.to_time)
@@ -126,6 +126,8 @@ module Workato
           raise ArgumentError, "Unsupported data type: #{value.class}"
         end
       end
+
+      private_constant :Schema
 
       class Fields < ::Array
         def initialize(fields)
@@ -232,4 +234,3 @@ require_relative './schema/field/object'
 require_relative './schema/field/string'
 
 require_relative './schema/type/time'
-require_relative './schema/type/unicode_string'

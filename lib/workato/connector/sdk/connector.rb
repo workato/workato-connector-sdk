@@ -13,6 +13,7 @@ module Workato
       class Connector
         extend T::Sig
 
+        # @api private
         sig { returns(HashWithIndifferentAccess) }
         attr_reader :source
 
@@ -208,6 +209,8 @@ module Workato
         end
       end
 
+      private_constant :ActionsProxy
+
       class MethodsProxy
         extend T::Sig
 
@@ -254,6 +257,8 @@ module Workato
           end
         end
       end
+
+      private_constant :MethodsProxy
 
       class PickListsProxy
         extend T::Sig
@@ -305,6 +310,8 @@ module Workato
           end
         end
       end
+
+      private_constant :PickListsProxy
 
       class TriggersProxy
         extend T::Sig
@@ -365,6 +372,8 @@ module Workato
           end
         end
       end
+
+      private_constant :TriggersProxy
     end
   end
 end

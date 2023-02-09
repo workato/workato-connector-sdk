@@ -1,3 +1,19 @@
+# 1.3.1 - New API tokens & Bugfixes
+
+## Enhancements
+
+- Support new API Client tokens in [workato push](https://docs.workato.com/developing-connectors/sdk/cli/reference/cli-commands.html#workato-push)
+  and [workato generate schema](https://docs.workato.com/developing-connectors/sdk/cli/reference/cli-commands.html#workato-push)
+
+## Bugfixes
+
+- Fix simple stream mock in CLI. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/cli/guides/cli/upload-streaming-actions.html#upload-file-sample-connector-upload-file-to-url)
+
+## Misc 
+
+- Cleanup public dev docs on [RubyDoc.info](https://rubydoc.info/gems/workato-connector-sdk) 
+- Add more Sorbet definitions
+
 # 1.3.0 - Streams Support & Ruby 2.7
 
 ## Enhancements

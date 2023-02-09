@@ -13,7 +13,7 @@ module Workato
 
         def self.from_yaml(path = DEFAULT_ACCOUNT_PROPERTIES_PATH)
           File.open(path) do |f|
-            instance.load_data(YAML.safe_load(ERB.new(f.read).result, [::Symbol]).to_hash)
+            instance.load_data(YAML.safe_load(ERB.new(f.read).result, permitted_classes: [::Symbol]).to_hash)
           end
         end
 

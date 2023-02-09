@@ -8,8 +8,13 @@ module Workato
         # https://docs.workato.com/developing-connectors/sdk/sdk-reference/http.html#http-methods
         module HTTP
           PARALLEL_SUCCESS_INDEX = 0
+          private_constant :PARALLEL_SUCCESS_INDEX
+
           PARALLEL_RESULTS_INDEX = 1
+          private_constant :PARALLEL_RESULTS_INDEX
+
           PARALLEL_ERRORS_INDEX = 2
+          private_constant :PARALLEL_ERRORS_INDEX
 
           def get(url, params = {})
             http_request(url, method: 'GET').params(params).response_format_json
@@ -52,7 +57,7 @@ module Workato
               response = nil
               exception = nil
               begin
-                response = request.execute!
+                response = request.response!
               rescue StandardError => e
                 exception = e.to_s
               end
