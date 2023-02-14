@@ -112,17 +112,17 @@
 
       input_fields: lambda do |_object_definitions, _connection, _config_fields|
         [
-          { name: :input, type: :boolean }
+          { name: :input, type: :number, optional: true }
         ]
       end,
 
       output_fields: lambda do |_object_definitions, _connection, _config_fields|
         [
-          { name: :input, type: :object },
-          { name: :connection, type: :object },
-          { name: :input_schema, type: :object },
-          { name: :output_schema, type: :object },
-          { name: :continue, type: :object }
+          { name: :input, type: :object, optional: true },
+          { name: :connection, type: :object, optional: true },
+          { name: :input_schema, type: :object, optional: true },
+          { name: :output_schema, type: :object, optional: true },
+          { name: :continue, type: :object, optional: true }
         ]
       end
     },
@@ -198,20 +198,20 @@
 
       input_fields: lambda do |_object_definitions, _connection, _config_fields|
         [
-          { name: :input, type: :boolean }
+          { name: :input, type: :number, optional: true  }
         ]
       end,
 
       output_fields: lambda do |_object_definitions, _connection, _config_fields|
         [
-          { name: :input, type: :object },
-          { name: :payload, type: :object },
-          { name: :extended_input_schema, type: :object },
-          { name: :extended_output_schema, type: :object },
-          { name: :headers, type: :object },
-          { name: :params, type: :object },
-          { name: :connection, type: :object },
-          { name: :webhook_subscribe_output, type: :object }
+          { name: :input, type: :object, optional: true  },
+          { name: :payload, type: :object, optional: true },
+          { name: :extended_input_schema, type: :object, optional: true },
+          { name: :extended_output_schema, type: :object, optional: true },
+          { name: :headers, type: :object, optional: true },
+          { name: :params, type: :object, optional: true },
+          { name: :connection, type: :object, optional: true },
+          { name: :webhook_subscribe_output, type: :object, optional: true }
         ]
       end
     },
@@ -231,15 +231,15 @@
 
       input_fields: lambda do |_object_definitions, _connection, _config_fields|
         [
-          { name: :input, type: :boolean }
+          { name: :input, type: :number, optional: true }
         ]
       end,
 
       output_fields: lambda do |_object_definitions, _connection, _config_fields|
         [
-          { name: :connection, type: :object },
-          { name: :input, type: :object },
-          { name: :closure, type: :object }
+          { name: :connection, type: :object, optional: true },
+          { name: :input, type: :object, optional: true },
+          { name: :closure, type: :object, optional: true }
         ]
       end
     }

@@ -4,20 +4,21 @@ module Workato::Connector::Sdk
   RSpec.describe Schema do
     subject(:schema) { described_class.new(schema: properties) }
 
-    let(:int_field) { { name: :int_field, type: :integer, optional: false } }
-    let(:float_field) { { name: 'float_field', type: 'number' } }
-    let(:boolean_field) { { 'name' => :boolean_field, 'type' => :boolean } }
-    let(:date_field) { { name: :date_field, type: :date } }
-    let(:date_time_field) { { name: :date_time_field, type: :date_time } }
-    let(:timestamp_time_field) { { name: :timestamp_time_field, type: :timestamp } }
-    let(:string_field) { { name: :string_field } }
+    let(:int_field) { { name: :int_field, type: :integer} }
+    let(:float_field) { { name: 'float_field', type: 'number', optional: true } }
+    let(:boolean_field) { { 'name' => :boolean_field, 'type' => :boolean, optional: true } }
+    let(:date_field) { { name: :date_field, type: :date, optional: true } }
+    let(:date_time_field) { { name: :date_time_field, type: :date_time, optional: true } }
+    let(:timestamp_time_field) { { name: :timestamp_time_field, type: :timestamp, optional: true } }
+    let(:string_field) { { name: :string_field, optional: true } }
 
-    let(:array_of_int_field) { { name: :array_of_int_field, type: :array, of: :integer } }
+    let(:array_of_int_field) { { name: :array_of_int_field, type: :array, of: :integer, optional: true } }
     let(:array_of_objects_field) do
       {
         name: :array_of_objects_field, type: :array,
+        optional: true,
         properties: [
-          { name: :field1 }
+          { name: :field1, optional: true }
         ]
       }
     end
@@ -25,8 +26,9 @@ module Workato::Connector::Sdk
     let(:object_field) do
       {
         name: :object_field, type: :object,
+        optional: true,
         properties: [
-          { name: :prop1 }
+          { name: :prop1, optional: true }
         ]
       }
     end
@@ -34,6 +36,7 @@ module Workato::Connector::Sdk
     let(:with_toggle_field) do
       {
         name: :with_toggle_field, type: :integer, toggle_hint: 'toggle_hint',
+        optional: true,
         toggle_field: {
           name: :toggle_field,
           type: 'number'
@@ -46,6 +49,7 @@ module Workato::Connector::Sdk
         name: :with_overridden_attributes,
         type: :integer,
         control_type: :date_time,
+        optional: true,
         label: 'with_overridden_attributes',
         toggle_hint: 'toggle_hint',
         toggle_field: {

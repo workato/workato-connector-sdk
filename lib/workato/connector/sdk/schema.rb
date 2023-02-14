@@ -146,7 +146,7 @@ module Workato
           if (parse_output = field.delete(:convert_output) || field[:parse_output])
             field[:parse_output] = parse_output.is_a?(Proc) ? nil : parse_output
           end
-          field[:optional] = true unless field.key?(:optional)
+          field[:optional] = false unless field.key?(:optional)
           field[:label] ||= field[:name].labelize
 
           clean_values(field)
