@@ -17,7 +17,7 @@ module Workato
           map { |r| r.to_csv(options) }.join
         else
           options.delete(:multi_line)
-          super(options)
+          super(**options)
         end
       end
 

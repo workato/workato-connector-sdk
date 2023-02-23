@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'pick_lists', :vcr do
@@ -9,7 +10,7 @@ RSpec.describe 'pick_lists', :vcr do
     it 'returns result' do
       pick_list = connector.pick_lists.static
 
-      expect(pick_list).to be_kind_of(Array)
+      expect(pick_list).to be_a(Array)
       expect(pick_list).not_to be_empty
     end
 
@@ -17,7 +18,7 @@ RSpec.describe 'pick_lists', :vcr do
       it 'returns result' do
         pick_list = connector.pick_lists.with_connection
 
-        expect(pick_list).to be_kind_of(Array)
+        expect(pick_list).to be_a(Array)
         expect(pick_list).not_to be_empty
       end
     end

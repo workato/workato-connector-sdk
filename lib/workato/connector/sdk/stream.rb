@@ -212,7 +212,7 @@ module Workato
           attr_reader :input
 
           class Chunk < T::Struct
-            const :data, T.untyped
+            const :data, T.untyped # rubocop:disable Sorbet/ForbidUntypedStructProps
             const :from, Integer
             const :eof, T::Boolean
             const :next_from, T.nilable(Integer)

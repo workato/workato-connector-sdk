@@ -9,3 +9,10 @@ gemspec
 
 gem 'byebug'
 gem 'rubocop', require: false
+gem 'rubocop-rspec', require: false
+gem 'rubocop-sorbet', require: false
+
+group :test do
+  gem 'simplecov', require: false
+  gem 'simplecov-json', require: false
+end

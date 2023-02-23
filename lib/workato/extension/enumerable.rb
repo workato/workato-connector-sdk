@@ -45,8 +45,6 @@ module Enumerable
     nil
   end
 
-  private
-
   def transform_select(&block)
     map do |*items|
       result = block.call(*items)

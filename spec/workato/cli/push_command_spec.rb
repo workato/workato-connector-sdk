@@ -1,6 +1,5 @@
+# typed: false
 # frozen_string_literal: true
-
-require_relative '../../../lib/workato/cli/push_command'
 
 module Workato::CLI
   RSpec.describe PushCommand, vcr: { match_requests_on: %i[method headers_without_user_agent uri] } do
@@ -16,12 +15,12 @@ module Workato::CLI
       }
     end
 
-    before(:each) do
+    before do
       stub_const('Workato::CLI::PushCommand::AWAIT_IMPORT_SLEEP_INTERVAL', 0.1)
     end
 
     it 'uploads connector' do
-      expect { subject }.to output("Connector was successfully uploaded to https://app.workato.com\n").to_stdout
+      expect { push }.to output("Connector was successfully uploaded to https://app.workato.com\n").to_stdout
     end
 
     context 'when legacy auth params' do
@@ -46,7 +45,7 @@ module Workato::CLI
 
           If you use API Client token but still see this message, ensure you do not pass --api-email param nor have WORKATO_API_EMAIL environment variable set.
         WARNING
-        expect { subject }.to output(message).to_stdout.and(output(warning).to_stderr)
+        expect { push }.to output(message).to_stdout.and(output(warning).to_stderr)
       end
     end
   end

@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 module Workato::Extension
@@ -84,7 +85,7 @@ module Workato::Extension
 
       it { is_expected.to eq(expected_date) }
 
-      context 'custom date format' do
+      context 'when custom date format' do
         let(:input) { '12/24/2014 10:30PM' }
         let(:format) { 'MM/DD/YYYY' }
 
@@ -112,6 +113,160 @@ module Workato::Extension
 
           it { is_expected.to eq(expected_time) }
         end
+      end
+    end
+
+    describe '#from_xml' do
+      subject(:from_xml) do
+        '<?xml version="1.0" encoding="UTF-8"?> <hash id="add"><foo type="integer" id="v">1</foo></hash>'.from_xml
+      end
+
+      it 'parses' do
+        expect(from_xml).to eq(
+          { 'hash' => [{ '@id' => 'add', 'foo' => [{ '@id' => 'v', '@type' => 'integer', 'content!' => '1' }] }] }
+        )
+      end
+    end
+
+    describe '#strip_tags' do
+      subject(:strip_tags) { '<script>var a=10;</script><div>foo</div><br></div><div>'.strip_tags }
+
+      it { is_expected.to eq('foo') }
+    end
+
+    describe '#transliterate' do
+      subject(:transliterate) { 'Chloé'.transliterate }
+
+      it { is_expected.to eq('Chloe') }
+    end
+
+    describe '#quote' do
+      subject(:quote) { "Paula's Baked Goods".quote }
+
+      it { is_expected.to eq("Paula''s Baked Goods") }
+    end
+
+    describe '"SGVsbG8=".decode_base64.to_hex' do
+      subject(:formula) { 'SGVsbG8='.decode_base64.to_hex }
+
+      it { is_expected.to eq('48656c6c6f') }
+    end
+
+    describe '"hello".encode_hex.decode_hex.as_utf8' do
+      subject(:formula) { 'hello'.encode_hex.decode_hex.as_utf8 }
+
+      it { is_expected.to eq('hello') }
+    end
+
+    describe '"DABBAD00".decode_hex' do
+      subject(:formula) { 'DABBAD00'.decode_hex.to_json }
+
+      it { is_expected.to eq('0xdabbad00') }
+    end
+
+    describe '"Hello".encode_base64' do
+      subject(:formula) { 'Hello'.encode_base64 }
+
+      it { is_expected.to eq('SGVsbG8=') }
+    end
+
+    describe 'encode_urlsafe_base64' do
+      subject(:formula) { 'ab>cd?'.encode_urlsafe_base64 }
+
+      it { is_expected.to eq('YWI-Y2Q_') }
+    end
+
+    describe '"SGVsbG8=".decode_base64' do
+      subject(:formula) { 'SGVsbG8='.decode_base64.to_json }
+
+      it { is_expected.to eq('0x48656c6c6f') }
+    end
+
+    describe 'decode_urlsafe_base64' do
+      subject(:formula) { '-__-'.decode_urlsafe_base64.to_json }
+
+      it { is_expected.to eq('0xfbfffe') }
+    end
+
+    describe '"SGVsbG8=".decode_base64.as_string("utf-8")' do
+      subject(:formula) { 'SGVsbG8='.decode_base64.as_string('utf-8') }
+
+      it { is_expected.to eq('Hello') }
+    end
+
+    describe '"SGVsbG8=".decode_base64.as_utf8' do
+      subject(:formula) { 'SGVsbG8='.decode_base64.as_utf8 }
+
+      it { is_expected.to eq('Hello') }
+    end
+
+    describe '"Hello".encode_sha256' do
+      subject(:formula) { 'Hello'.encode_sha256.to_json }
+
+      it { is_expected.to eq('0x185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969') }
+    end
+
+    describe '"Hello".md5_hexdigest' do
+      subject(:formula) { 'Hello'.md5_hexdigest }
+
+      it { is_expected.to eq(Digest::MD5.hexdigest('Hello')) }
+    end
+
+    describe '#hmac_md5' do
+      subject(:hmac_md5) { 'what do ya want for nothing?'.hmac_md5('Jefe').unpack1('H*') }
+
+      it { is_expected.to eq('750c783e6ab0b503eaa86e310a5db738') }
+    end
+
+    describe '#sha1' do
+      subject(:sha1) { input.sha1.base64 }
+
+      let(:input) { 'abcdef' }
+
+      it { is_expected.to eq('H4rBDyPFtbwRZ72oS4M+XAV6d9I=') }
+
+      context 'when empty string' do
+        let(:input) { '' }
+
+        it { is_expected.to eq('2jmj7l5rSw0yVb/vlWAYkK/YBwk=') }
+      end
+
+      context 'when binary string' do
+        let(:input) { 'abcdef'.sha1 }
+
+        it { is_expected.to eq('wtJNyjjp6GIJi4W/CrNcqlKAN5c=') }
+      end
+    end
+
+    describe '#hmac_sha1' do
+      subject(:hmac_sha1) { ''.hmac_sha1('').unpack1('H*') }
+
+      it { is_expected.to eq('fbdb1d1b18aa6c08324b7d64b71fb76370690e1d') }
+    end
+
+    describe '#hmac_sha512' do
+      subject(:hmac_sha512) { ''.hmac_sha512('').unpack1('H*') }
+
+      it { is_expected.to eq('b936cee86c9f87aa5d3c6f2e84cb5a4239a5fe50480a6ec66b70ab5b1f4ac6730c6c515421b327ec1d69402e53dfb49ad7381eb067b338fd7b0cb22247225d47') } # rubocop:disable Layout/LineLength
+    end
+
+    describe 'is_number?' do
+      subject(:is_number) { string.is_number? }
+
+      let(:string) { '10.42' }
+
+      it { is_expected.to be_truthy }
+
+      context 'when empty' do
+        let(:string) { '' }
+
+        it { is_expected.to be_falsey }
+      end
+
+      context 'when text' do
+        let(:string) { 'foo' }
+
+        it { is_expected.to be_falsey }
       end
     end
   end

@@ -10,6 +10,8 @@ module Workato
 
       RuntimeError = Class.new(Error)
 
+      ArgumentError = Class.new(Error)
+
       InvalidDefinitionError = Class.new(Error)
 
       class UnexpectedMethodDefinitionError < InvalidDefinitionError

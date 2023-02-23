@@ -1,8 +1,9 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe Workato::Connector::Sdk do
   it 'has a version number' do
-    expect(Workato::Connector::Sdk::VERSION).to be_a_kind_of(String)
+    expect(Workato::Connector::Sdk::VERSION).to be_a(String)
   end
 
   it 'executes action' do

@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'custom_adapter_definition_with_backoff', :vcr do
@@ -5,7 +6,7 @@ RSpec.describe 'custom_adapter_definition_with_backoff', :vcr do
     Workato::Connector::Sdk::Connector.from_file('./spec/examples/custom_adapter_definition_with_backoff/connector.rb')
   end
 
-  before(:each) do
+  before do
     stub_const('Workato::Connector::Sdk::Action::RETRY_DELAY', 0.1)
   end
 
@@ -36,13 +37,14 @@ RSpec.describe 'custom_adapter_definition_with_backoff', :vcr do
 
     context 'when HTTR error code is default to retry' do
       it 'retries action' do
-        connector.actions.test_default_code_3_retry_get_method.execute
+        output = connector.actions.test_default_code_3_retry_get_method.execute
+        expect(output[:results]['success']).to be_truthy
       end
     end
   end
 
   context 'when retry attempts exhausted' do
-    it 'raises action after max retries ' do
+    it 'raises action after max retries' do
       expect { connector.actions.test_double_408_code_2_retry_get_method.execute }
         .to raise_error(Workato::Connector::Sdk::RequestError)
     end

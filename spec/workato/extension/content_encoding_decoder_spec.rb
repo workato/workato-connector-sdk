@@ -1,14 +1,16 @@
+# typed: false
 # frozen_string_literal: true
 
 require 'rack'
 require 'webrick'
 
 RSpec.describe 'patched RestClient to be compatible with v2.0.2' do
-  around(:each) do |example|
+  around do |example|
     TestServer.open(9123) do
       example.run
     end
   end
+
   let(:method) { :get }
   let(:url) { 'http://localhost:9123/zip' }
   let(:host) { 'localhost:9123' }

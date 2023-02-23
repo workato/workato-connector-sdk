@@ -10,13 +10,27 @@ using Workato::Extension::HashWithIndifferentAccess
 module Workato
   module Connector
     module Sdk
+      JSONParsingError = Class.new(Error)
+
       module Dsl
         class WorkatoPackage
-          JWT_ALGORITHMS = %w[RS256 RS384 RS512].freeze
-          private_constant :JWT_ALGORITHMS
+          JWT_RSA_ALGORITHMS = %w[RS256 RS384 RS512].freeze
+          private_constant :JWT_RSA_ALGORITHMS
 
           JWT_RSA_KEY_MIN_LENGTH = 2048
           private_constant :JWT_RSA_KEY_MIN_LENGTH
+
+          JWT_HMAC_ALGORITHMS = %w[HS256].freeze
+          private_constant :JWT_HMAC_ALGORITHMS
+
+          JWT_ECDSA_ALGORITHMS = %w[ES256 ES384 ES512].freeze
+          private_constant :JWT_ECDSA_ALGORITHMS
+
+          JWT_ECDSA_KEY_LENGTH_MAPPING = { 'ES256' => 256, 'ES384' => 384, 'ES512' => 521 }.freeze
+          private_constant :JWT_ECDSA_KEY_LENGTH_MAPPING
+
+          JWT_ALGORITHMS = (JWT_RSA_ALGORITHMS + JWT_HMAC_ALGORITHMS + JWT_ECDSA_ALGORITHMS).freeze
+          private_constant :JWT_ALGORITHMS
 
           VERIFY_RCA_ALGORITHMS = %w[SHA SHA1 SHA224 SHA256 SHA384 SHA512].freeze
           private_constant :VERIFY_RCA_ALGORITHMS
@@ -39,37 +53,52 @@ module Workato
           def jwt_encode(payload, key, algorithm, header_fields = {})
             algorithm = algorithm.to_s.upcase
             unless JWT_ALGORITHMS.include?(algorithm)
-              raise "Unsupported signing method. Supports only #{JWT_ALGORITHMS.join(', ')}. Got: '#{algorithm}'"
+              raise Sdk::ArgumentError,
+                    "Unsupported signing method. Supports only #{JWT_ALGORITHMS.join(', ')}. Got: '#{algorithm}'"
             end
 
-            rsa_private = OpenSSL::PKey::RSA.new(key)
-            if rsa_private.n.num_bits < JWT_RSA_KEY_MIN_LENGTH
-              raise "A RSA key of size #{JWT_RSA_KEY_MIN_LENGTH} bits or larger MUST be used with JWT."
+            if JWT_RSA_ALGORITHMS.include?(algorithm)
+              key = OpenSSL::PKey::RSA.new(key)
+              if key.n.num_bits < JWT_RSA_KEY_MIN_LENGTH
+                raise Sdk::ArgumentError,
+                      "A RSA key of size #{JWT_RSA_KEY_MIN_LENGTH} bits or larger MUST be used with JWT"
+              end
+            elsif JWT_ECDSA_ALGORITHMS.include?(algorithm)
+              key = OpenSSL::PKey::EC.new(key)
+              if key.group.order.num_bits != JWT_ECDSA_KEY_LENGTH_MAPPING[algorithm]
+                raise Sdk::ArgumentError,
+                      "An ECDSA key of size #{JWT_ECDSA_KEY_LENGTH_MAPPING[algorithm]} bits MUST be used with JWT"
+              end
             end
 
             header_fields = HashWithIndifferentAccess.wrap(header_fields).except(:typ, :alg)
-            ::JWT.encode(payload, rsa_private, algorithm, header_fields)
+            ::JWT.encode(payload, key, algorithm, header_fields)
+          rescue JWT::IncorrectAlgorithm
+            raise Sdk::ArgumentError, 'Mismatched algorithm and key'
+          rescue OpenSSL::PKey::PKeyError
+            raise Sdk::ArgumentError, 'Invalid key'
           end
 
           def verify_rsa(payload, certificate, signature, algorithm = 'SHA256')
             algorithm = algorithm.to_s.upcase
             unless VERIFY_RCA_ALGORITHMS.include?(algorithm)
-              raise "Unsupported signing method. Supports only #{VERIFY_RCA_ALGORITHMS.join(', ')}. Got: '#{algorithm}'"
+              raise Sdk::ArgumentError,
+                    "Unsupported signing method. Supports only #{VERIFY_RCA_ALGORITHMS.join(', ')}. Got: '#{algorithm}'"
             end
 
             cert = OpenSSL::X509::Certificate.new(certificate)
             digest = OpenSSL::Digest.new(algorithm)
             cert.public_key.verify(digest, signature, payload)
           rescue OpenSSL::PKey::PKeyError
-            raise 'An error occurred during signature verification. Check arguments'
+            raise Sdk::ArgumentError, 'An error occurred during signature verification. Check arguments'
           rescue OpenSSL::X509::CertificateError
-            raise 'Invalid certificate format'
+            raise Sdk::ArgumentError, 'Invalid certificate format'
           end
 
           def parse_yaml(yaml)
             ::Psych.safe_load(yaml)
-          rescue ::Psych::DisallowedClass => e
-            raise e.message
+          rescue ::Psych::Exception => e
+            raise Sdk::ArgumentError, "YAML Parsing error. #{e}"
           end
 
           def render_yaml(obj)
@@ -79,7 +108,7 @@ module Workato
           def parse_json(source)
             JSON.parse(source)
           rescue JSON::ParserError => e
-            raise JSONResponseFormatError, e
+            raise JSONParsingError, e
           end
 
           def uuid
@@ -88,7 +117,7 @@ module Workato
 
           def random_bytes(len)
             unless (len.is_a? ::Integer) && (len <= RANDOM_SIZE)
-              raise "The requested length or random bytes sequence should be <= #{RANDOM_SIZE}"
+              raise Sdk::ArgumentError, "The requested length or random bytes sequence should be <= #{RANDOM_SIZE}"
             end
 
             Types::Binary.new(::OpenSSL::Random.random_bytes(len))
@@ -97,7 +126,7 @@ module Workato
           def aes_cbc_encrypt(string, key, init_vector = nil)
             key_size = key.bytesize * 8
             unless ALLOWED_KEY_SIZES.include?(key_size)
-              raise 'Incorrect key size for AES'
+              raise Sdk::ArgumentError, 'Incorrect key size for AES'
             end
 
             cipher = ::OpenSSL::Cipher.new("AES-#{key_size}-CBC")
@@ -110,7 +139,7 @@ module Workato
           def aes_cbc_decrypt(string, key, init_vector = nil)
             key_size = key.bytesize * 8
             unless ALLOWED_KEY_SIZES.include?(key_size)
-              raise 'Incorrect key size for AES'
+              raise Sdk::ArgumentError, 'Incorrect key size for AES'
             end
 
             cipher = ::OpenSSL::Cipher.new("AES-#{key_size}-CBC")

@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'random', :vcr do
@@ -102,11 +103,11 @@ RSpec.describe 'random', :vcr do
   describe 'methods' do
     describe 'positive_integer?' do
       [1, '1', '1000'].each do |n|
-        it { expect(connector.methods.positive_integer?(n)).to be_truthy }
+        it { expect(connector.methods.positive_integer?(n)).to be_truthy } # rubocop:disable RSpec/PredicateMatcher
       end
 
       [-1, '-1', '0', 'abc', '', nil].each do |n|
-        it { expect(connector.methods.positive_integer?(n)).to be_falsey }
+        it { expect(connector.methods.positive_integer?(n)).to be_falsey } # rubocop:disable RSpec/PredicateMatcher
       end
     end
   end

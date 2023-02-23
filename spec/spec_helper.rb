@@ -1,4 +1,8 @@
+# typed: false
 # frozen_string_literal: true
+
+# Keep this at the very top of the file
+require_relative './support/simplecov'
 
 require 'bundler/setup'
 require 'rspec'
@@ -7,6 +11,7 @@ require 'timecop'
 require 'stub_server'
 
 require 'workato-connector-sdk'
+require 'workato/cli/main'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -19,7 +24,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before(:all) do
+  config.before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     Workato::Connector::Sdk::Connection.on_settings_update = nil
   end
 

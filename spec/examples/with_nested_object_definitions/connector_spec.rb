@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'with nested object definitions', :vcr do
@@ -40,7 +41,7 @@ RSpec.describe 'with nested object definitions', :vcr do
       subject(:compound_type) { connector.object_definitions.compound_type.fields(settings, config_fields) }
 
       it 'returns schema definition' do
-        expect(compound_type).to be_kind_of(Array)
+        expect(compound_type).to be_a(Array)
         expect(compound_type).to match_array(compound_type_definition)
       end
     end

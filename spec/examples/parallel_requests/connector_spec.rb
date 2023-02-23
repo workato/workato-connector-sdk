@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'parallel_requests', :vcr do
@@ -5,6 +6,15 @@ RSpec.describe 'parallel_requests', :vcr do
 
   let(:connector) do
     Workato::Connector::Sdk::Connector.from_file('./spec/examples/parallel_requests/connector.rb')
+  end
+  let(:input) { { urls: urls } }
+  let(:urls) do
+    [
+      'http://localhost/a',
+      'http://localhost/b',
+      'http://localhost/unauthorized',
+      'http://localhost/d?token=abcd'
+    ]
   end
 
   before do
@@ -18,18 +28,8 @@ RSpec.describe 'parallel_requests', :vcr do
     stub_request(:get, 'http://localhost/d?token=abcd').to_return(body: 'd', status: 200)
   end
 
-  let(:input) { { urls: urls } }
-  let(:urls) do
-    [
-      'http://localhost/a',
-      'http://localhost/b',
-      'http://localhost/unauthorized',
-      'http://localhost/d?token=abcd'
-    ]
-  end
-
   it 'makes requests' do
-    is_expected.to eq(
+    expect(output).to eq(
       'result' => [
         true,
         %w[a b c d],
@@ -49,7 +49,7 @@ RSpec.describe 'parallel_requests', :vcr do
     end
 
     it 'makes requests' do
-      is_expected.to eq(
+      expect(output).to eq(
         'result' => [
           false,
           ['a', nil, 'c', 'd'],
@@ -63,7 +63,7 @@ RSpec.describe 'parallel_requests', :vcr do
     subject(:output) { connector.actions.test_action_with_json_parse_error.execute }
 
     it 'makes requests' do
-      is_expected.to include(
+      expect(output).to include(
         'result' => [
           false,
           [{ 'a' => 'A' }, nil],
@@ -77,7 +77,7 @@ RSpec.describe 'parallel_requests', :vcr do
     subject(:output) { connector.actions.test_action_with_error.execute }
 
     it 'makes requests' do
-      is_expected.to eq(
+      expect(output).to eq(
         'result' => [
           false,
           [{ 'a' => 'A' }, nil, 'b'],

@@ -45,8 +45,7 @@ module Workato
       end
 
       def strip_tags
-        @html_full_sanitizer ||= Rails::Html::Sanitizer.full_sanitizer.new
-        @html_full_sanitizer.sanitize(self)
+        Rails::Html::Sanitizer.full_sanitizer.new.sanitize(self)
       end
 
       def to_time(form = :local, format: nil)

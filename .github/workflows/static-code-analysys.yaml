@@ -14,18 +14,17 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7.6'
+          ruby-version: '2.7.7'
           bundler-cache: true
 
       - name: Run Rubocop
         uses: reviewdog/action-rubocop@v1
         with:
-          rubocop_version: gemfile
-          rubocop_extensions: ''
+          rubocop_extensions: 'rubocop-rspec rubocop-sorbet'
           github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
+          reporter: github-check
           fail_on_error: true
-          filter_mode: diff_context
+          filter_mode: nofilter
 
       - name: Run Sorbet
         run: bundle exec srb tc

@@ -1,8 +1,9 @@
+# typed: false
 # frozen_string_literal: true
 
 module Workato::Connector::Sdk
   RSpec.describe Trigger do
-    around(:each) do |example|
+    around do |example|
       Timecop.freeze { example.run }
     end
 

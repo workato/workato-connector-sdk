@@ -1,19 +1,20 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'custom_ssl' do
   let(:connector) { Workato::Connector::Sdk::Connector.from_file('./spec/examples/custom_ssl/connector.rb') }
 
   describe 'server TLS certificates' do
-    around(:each) do |example|
+    subject(:output) { connector.actions.posts.execute(settings) }
+
+    around do |example|
       start_https_localhost(example)
     end
-
-    subject(:output) { connector.actions.posts.execute(settings) }
 
     let(:settings) { {} }
 
     describe 'client not disabling TLS server certificate verification' do
-      it 'should not trust server certificate without proper chain' do
+      it 'does not trust server certificate without proper chain' do
         expect { output }.to raise_error(/certificate verify failed/)
       end
     end
@@ -28,7 +29,7 @@ RSpec.describe 'custom_ssl' do
       end
 
       context 'when connect to servers not included in custom CA' do
-        before(:each) do
+        before do
           allow_any_instance_of(OpenSSL::X509::Store).to receive(:set_default_paths) do |instance|
             instance.add_file('spec/fixtures/pki/root_servers_ca/ca_cert.pem')
           end
@@ -54,7 +55,9 @@ RSpec.describe 'custom_ssl' do
   end
 
   describe 'client TLS certificates' do
-    around(:each) do |example|
+    subject(:output) { connector.actions.posts.execute(settings) }
+
+    around do |example|
       start_https_localhost(
         example,
         webrick: {
@@ -72,8 +75,6 @@ RSpec.describe 'custom_ssl' do
         }
       )
     end
-
-    subject(:output) { connector.actions.posts.execute(settings) }
 
     let(:settings) do
       {

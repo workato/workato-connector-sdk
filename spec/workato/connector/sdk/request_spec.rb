@@ -1,8 +1,9 @@
+# typed: false
 # frozen_string_literal: true
 
 module Workato::Connector::Sdk
   RSpec.describe Request, :vcr do
-    subject(:response!) { request.response! }
+    subject(:response) { request.response! }
 
     let(:request) { described_class.new(uri) }
     let(:uri) { 'https://jsonplaceholder.typicode.com/posts' }
@@ -15,7 +16,7 @@ module Workato::Connector::Sdk
     end
 
     context 'with context' do
-      let(:request_context) { double(name: 'Mr. Contextual', retry_on_response: []) }
+      let(:request_context) { double(name: 'Mr. Contextual', retry_on_response: []) } # rubocop:disable RSpec/VerifiedDoubles
       let(:request) { described_class.new(uri, action: request_context).after_response { name } }
 
       it { is_expected.to eq('Mr. Contextual') }
@@ -107,26 +108,26 @@ module Workato::Connector::Sdk
           described_class.new(uri, action: action).after_error_response(500, 404) { error('Ooops') }
         end
 
-        it { expect { subject }.to raise_error('Ooops') }
+        it { expect { response }.to raise_error('Ooops') }
       end
     end
 
-    context 'JSON' do
+    context 'with JSON' do
       let(:request) { described_class.new(uri).format_json }
 
-      it { expect(response!.size).to eq(100) }
+      it { expect(response.size).to eq(100) }
 
       context 'when POST' do
         let(:request) { described_class.new(uri, method: 'POST').payload(payload).format_json }
         let(:payload) { { title: 'foo', body: 'bar', userId: 1 } }
 
-        it { expect(response!).to include('id' => 101) }
+        it { expect(response).to include('id' => 101) }
 
         context 'when array payload' do
           let(:uri) { 'https://httpbin.org/post' }
           let(:payload) { [1, 2, 3] }
 
-          it { expect(response!).to include('json' => [1, 2, 3]) }
+          it { expect(response).to include('json' => [1, 2, 3]) }
         end
       end
 
@@ -134,31 +135,31 @@ module Workato::Connector::Sdk
         let(:request) { described_class.new(uri, method: 'POST').payload(payload).format_json }
         let(:payload) { { title: "\xE0" } }
 
-        it { expect { response! }.to raise_error(JSONRequestFormatError) }
+        it { expect { response }.to raise_error(JSONRequestFormatError) }
       end
 
       context 'when response payload format error' do
         let(:uri) { 'https://httpbin.org/html' }
 
-        it { expect { response! }.to raise_error(JSONResponseFormatError, /unexpected token at/) }
+        it { expect { response }.to raise_error(JSONResponseFormatError, /unexpected token at/) }
       end
     end
 
-    context 'RAW' do
+    context 'with RAW' do
       let(:request) { described_class.new(uri, method: 'POST').format_json.request_body(payload) }
       let(:uri) { 'https://httpbin.org/post' }
       let(:payload) { 'custom body' }
 
-      it { expect(response!).to include('data' => 'custom body') }
+      it { expect(response).to include('data' => 'custom body') }
 
       context 'when object payload' do
         let(:payload) { { a: :b } }
 
-        it { expect(response!).to include('form' => { 'a' => 'b' }) }
+        it { expect(response).to include('form' => { 'a' => 'b' }) }
       end
     end
 
-    context 'XML' do
+    context 'with XML' do
       let(:request) { described_class.new(uri).format_xml('Response') }
       let(:uri) { 'https://reqbin.com/echo/get/xml' }
       let(:expected_response) do
@@ -183,7 +184,7 @@ module Workato::Connector::Sdk
       end
     end
 
-    context 'application/x-www-form-urlencoded' do
+    context 'with application/x-www-form-urlencoded' do
       let(:request) do
         described_class
           .new(uri, method: 'POST')
@@ -230,6 +231,7 @@ module Workato::Connector::Sdk
 
     context 'with digest_auth' do
       # rubocop:disable Lint/ConstantDefinitionInBlock
+      # rubocop:disable RSpec/LeakyConstantDeclaration
       module MockDigestMD5
         def hexdigest(str)
           if str == "1456185600:#{$$}:42" # rubocop:disable Style/SpecialGlobalVars
@@ -240,24 +242,25 @@ module Workato::Connector::Sdk
         end
       end
       # rubocop:enable Lint/ConstantDefinitionInBlock
+      # rubocop:enable RSpec/LeakyConstantDeclaration
 
       ::Digest::MD5.extend(MockDigestMD5)
 
       let(:request) { described_class.new(uri).user('user').password('password').digest_auth.format_json }
       let(:uri) { 'http://httpbin.org/digest-auth/auth/user/password' }
 
-      around(:each) do |example|
+      around do |example|
         ::Timecop.freeze('2016-02-23T00:00:00Z'.to_time) { example.run }
       end
 
-      before(:each) do
+      before do
         allow(SecureRandom).to receive(:random_number).and_return(42)
       end
 
       it { is_expected.to include('authenticated' => true) }
     end
 
-    context 'authorizations' do
+    context 'with authorizations' do
       let(:uri) { 'http://httpbin.org/basic-auth/user/password' }
       let(:request) { described_class.new(uri, connection: connection).format_json }
       let(:connection) { Connection.new(connection: { authorization: authorization }, settings: settings) }
@@ -300,8 +303,8 @@ module Workato::Connector::Sdk
           it 'does not trigger refresh token' do
             allow(connection).to receive(:update_settings!).and_call_original
 
-            expect { subject }.to raise_error(SocketError, 'bad connect')
-            expect(connection).to_not have_received(:update_settings!)
+            expect { response }.to raise_error(SocketError, 'bad connect')
+            expect(connection).not_to have_received(:update_settings!)
           end
         end
       end
@@ -335,8 +338,8 @@ module Workato::Connector::Sdk
           it 'does not trigger refresh token' do
             allow(connection).to receive(:update_settings!).and_call_original
 
-            expect { subject }.to raise_error(SocketError, 'bad connect')
-            expect(connection).to_not have_received(:update_settings!)
+            expect { response }.to raise_error(SocketError, 'bad connect')
+            expect(connection).not_to have_received(:update_settings!)
           end
         end
       end
@@ -354,13 +357,13 @@ module Workato::Connector::Sdk
         it 'does not trigger refresh token' do
           allow(connection).to receive(:update_settings!).and_call_original
 
-          expect { subject }.to raise_error(RequestError, '401 Unauthorized')
-          expect(connection).to_not have_received(:update_settings!)
+          expect { response }.to raise_error(RequestError, '401 Unauthorized')
+          expect(connection).not_to have_received(:update_settings!)
         end
       end
     end
 
-    context 'multipart/form-data', vcr: { match_requests_on: %i[uri multipart_body] } do
+    context 'with multipart/form-data', vcr: { match_requests_on: %i[uri multipart_body] } do
       let(:request) do
         described_class
           .new(uri, method: 'POST')
@@ -374,7 +377,7 @@ module Workato::Connector::Sdk
       it { is_expected.to include('files' => { 'file_part' => 'lorem ipsum' }) }
     end
 
-    context 'with tls_client_cert' do
+    context 'with tls_client_cert' do # rubocop:disable RSpec/EmptyExampleGroup
       # see spec/examples/custom_ssl/connector_spec.rb
     end
   end

@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'raise_error' do
@@ -19,7 +20,7 @@ RSpec.describe 'raise_error' do
   end
 
   context 'when error in after_response' do
-    before(:each) do
+    before do
       stub_request(:get, 'http://localhost/test_for_raise_in_after_response')
         .to_return(body: 'foobar', status: 200)
     end
@@ -30,8 +31,8 @@ RSpec.describe 'raise_error' do
 
         sdk_code_backtrace = Array.wrap(err.backtrace).select { |s| s.start_with?(connector_file_path) }
         expect(sdk_code_backtrace).to contain_exactly(
-          "./spec/examples/raise_error/connector.rb:25:in `block in from_file'",
-          "./spec/examples/raise_error/connector.rb:26:in `block (2 levels) in from_file'"
+          "./spec/examples/raise_error/connector.rb:26:in `block in from_file'",
+          "./spec/examples/raise_error/connector.rb:27:in `block (2 levels) in from_file'"
         )
       end
     end

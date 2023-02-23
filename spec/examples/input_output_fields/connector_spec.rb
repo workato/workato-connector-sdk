@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'input_output_fields', :vcr do
@@ -44,7 +45,7 @@ RSpec.describe 'input_output_fields', :vcr do
     it 'returns schema definition' do
       event = connector.object_definitions.event.fields(settings, config_fields)
 
-      expect(event).to be_kind_of(Array)
+      expect(event).to be_a(Array)
       expect(event).to contain_exactly(name: 'type', type: 'event')
     end
 

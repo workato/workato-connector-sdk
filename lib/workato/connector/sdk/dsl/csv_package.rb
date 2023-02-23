@@ -6,7 +6,7 @@ require 'csv'
 module Workato
   module Connector
     module Sdk
-      CsvError = Class.new(Sdk::RuntimeError)
+      CsvError = Class.new(Sdk::Error)
 
       CsvFormatError = Class.new(CsvError)
 
@@ -89,7 +89,7 @@ module Workato
           rescue CSV::MalformedCSVError => e
             raise CsvFormatError, e
           rescue ArgumentError => e
-            raise Sdk::RuntimeError, e.message
+            raise Sdk::ArgumentError, e.message
           end
 
           sig do
@@ -112,7 +112,7 @@ module Workato
 
             ::CSV.generate(str || String.new, **options, &blk)
           rescue ArgumentError => e
-            raise Sdk::RuntimeError, e.message
+            raise Sdk::ArgumentError, e.message
           end
 
           private

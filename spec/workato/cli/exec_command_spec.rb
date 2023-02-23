@@ -1,6 +1,5 @@
+# typed: false
 # frozen_string_literal: true
-
-require_relative '../../../lib/workato/cli/exec_command'
 
 module Workato::CLI
   RSpec.describe ExecCommand do

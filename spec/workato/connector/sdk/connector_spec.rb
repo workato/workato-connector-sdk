@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 module Workato::Connector::Sdk
@@ -5,9 +6,9 @@ module Workato::Connector::Sdk
     subject(:connector) { described_class.new(connector_code) }
 
     it 'provides accessors for actions' do
-      expect(connector.actions.test_action).to be_kind_of(Action)
-      expect(connector.actions[:test_action]).to be_kind_of(Action)
-      expect(connector.actions['test_action']).to be_kind_of(Action)
+      expect(connector.actions.test_action).to be_a(Action)
+      expect(connector.actions[:test_action]).to be_a(Action)
+      expect(connector.actions['test_action']).to be_a(Action)
     end
 
     it 'executes action' do
@@ -33,7 +34,7 @@ module Workato::Connector::Sdk
     context 'when read from connector file' do
       subject(:connector) { described_class.from_file('./spec/fixtures/connectors/hello_world.rb') }
 
-      it { is_expected.to be_kind_of(described_class) }
+      it { is_expected.to be_a(described_class) }
     end
 
     describe '#test' do

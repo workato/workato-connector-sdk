@@ -1,3 +1,4 @@
+# typed: false
 # frozen_string_literal: true
 
 RSpec.describe 'stream', :vcr do
@@ -9,18 +10,18 @@ RSpec.describe 'stream', :vcr do
 
   describe 'streams' do
     describe 'global_stream' do
-      subject(:global_stream) { connector.streams.global_stream }
+      subject(:output) { connector.streams.global_stream }
 
       it 'reads stream chunk' do
-        is_expected.to contain_exactly(be_kind_of(String), false)
+        expect(output).to contain_exactly(be_a(String), false)
       end
     end
 
     describe 'global_stream!' do
-      subject(:global_stream) { connector.streams.global_stream! }
+      subject(:output) { connector.streams.global_stream! }
 
       it 'reads stream till eof' do
-        is_expected.to be_kind_of(String)
+        expect(output).to be_a(String)
       end
     end
   end
@@ -145,6 +146,7 @@ RSpec.describe 'stream', :vcr do
 
   describe 'methods.with_stream_in_out' do
     subject(:action) { connector.methods.with_stream_in_out(input) }
+
     let(:input) { { file_size: 11.kilobytes } }
 
     it { is_expected.to eq(['A' * 15.kilobytes, 3]) }

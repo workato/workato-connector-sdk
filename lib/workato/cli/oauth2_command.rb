@@ -1,6 +1,7 @@
 # typed: false
 # frozen_string_literal: true
 
+require 'thor'
 require 'securerandom'
 require 'workato/web/app'
 require_relative './multi_auth_selected_fallback'
@@ -70,7 +71,7 @@ module Workato
       end
 
       def require_gems
-        require 'oauth2'
+        require 'rest-client'
         require 'launchy'
         require 'rack'
       end
@@ -79,7 +80,7 @@ module Workato
         @thread = Thread.start do
           Rack::Handler::WEBrick.run(
             Workato::Web::App.new,
-            {
+            **{
               Port: port,
               BindAddress: options[:ip] || DEFAULT_ADDRESS,
               SSLEnable: https,
@@ -107,23 +108,13 @@ module Workato
         unless connector.connection.authorization.oauth2?
           raise 'Authorization type is not OAuth2. ' \
                 'For multi-auth connector ensure correct auth type was used. ' \
-                "Expected: 'oauth2', got: '#{connector.connection.authorization.type}''"
+                "Expected: 'oauth2', got: '#{connector.connection.authorization.type}'"
         end
       rescue Workato::Connector::Sdk::InvalidMultiAuthDefinition => e
         raise "#{e.message}. Please ensure:\n" \
               "- 'selected' block is defined and returns value from 'options' list\n" \
               "- settings file contains value expected by 'selected' block\n\n" \
               'See more: https://docs.workato.com/developing-connectors/sdk/guides/authentication/multi_auth.html'
-      end
-
-      def client
-        @client ||= OAuth2::Client.new(
-          connector.connection.authorization.client_id,
-          connector.connection.authorization.client_secret,
-          site: connector.connection.base_uri,
-          token_url: connector.connection.authorization.token_url,
-          redirect_uri: redirect_url
-        )
       end
 
       def authorize_url
@@ -193,7 +184,15 @@ module Workato
           extra_settings ||= {}
           extra_settings.merge(tokens)
         else
-          client.auth_code.get_token(code).to_hash
+          response = RestClient.post(
+            connector.connection.authorization.token_url,
+            code: code,
+            grant_type: :authorization_code,
+            client_id: connector.connection.authorization.client_id,
+            client_secret: connector.connection.authorization.client_secret,
+            redirect_uri: redirect_url
+          )
+          JSON.parse(response.body).to_hash
         end
       end
 

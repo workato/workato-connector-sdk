@@ -1,5 +1,9 @@
 inherit_from: ./.rubocop_todo.yml
 
+require:
+  - rubocop-sorbet
+  - rubocop-rspec
+
 AllCops:
   TargetRubyVersion: 2.7.6
   NewCops: enable
@@ -63,3 +67,46 @@ Style/RescueModifier:
 
 Style/AccessorGrouping:
   EnforcedStyle: separated
+
+Sorbet/FalseSigil:
+  Exclude:
+    - spec/fixtures/connectors/workbot3000.rb
+
+RSpec/NamedSubject:
+  EnforcedStyle: named_only
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+# False positive massive alerts
+RSpec/RepeatedExample:
+  Exclude:
+    - 'spec/workato/extension/object_spec.rb'
+
+RSpec/BeforeAfterAll:
+  Exclude:
+    - 'spec/examples/lookup_table/connector_spec.rb'
+    - 'spec/workato/connector/sdk/account_properties_spec.rb'
+    - 'spec/workato/connector/sdk/lookup_tables_spec.rb'
+    - 'spec/workato/connector/sdk/workato_schemas_spec.rb'
+
+RSpec/ExpectInHook:
+  Exclude:
+    - 'spec/examples/authorized_connection/connector_spec.rb'
+    - 'spec/examples/oauth_refresh_automatic/connector_spec.rb'
+    - 'spec/examples/oauth_refresh_manual/connector_spec.rb'

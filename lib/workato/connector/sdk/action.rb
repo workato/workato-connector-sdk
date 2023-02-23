@@ -117,7 +117,7 @@ module Workato
           retry_on_response.each { |m| m.is_a?(::Integer) ? @retry_codes << m : @retry_matchers << m }
           @retry_codes = RETRY_DEFAULT_CODES if @retry_codes.empty?
           @retry_methods = (retry_on_request.presence || RETRY_DEFAULT_METHODS).map(&:to_s).map(&:downcase)
-          @retries_left = [[(max_retries.is_a?(::Integer) && max_retries) || MAX_RETRIES, MAX_RETRIES].min, 0].max
+          @retries_left = ((max_retries.is_a?(::Integer) && max_retries) || MAX_RETRIES).clamp(0, MAX_RETRIES)
         end
 
         sig { params(exception: RequestFailedError).returns(T::Boolean) }

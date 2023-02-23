@@ -1,4 +1,13 @@
-# 1.3.1 - New API tokens & Bugfixes
+# 1.3.2 - More JWT algorithms & Cleanup
+
+## Enhancements
+
+- Add more JWT algorithms to `workato.jwt_encode` [Workato Docs](https://docs.workato.com/formulas/other-formulas.html#jwt-encode)
+
+## Misc
+
+- Improve test coverage
+- Get rid of `oauth2` dependency
 
 ## Enhancements
 
