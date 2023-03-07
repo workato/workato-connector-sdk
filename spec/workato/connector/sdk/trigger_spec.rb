@@ -167,6 +167,25 @@ module Workato::Connector::Sdk
           subscribed: true
         }.with_indifferent_access)
       end
+
+      context 'with expires_at' do
+        let(:trigger_definition) do
+          {
+            webhook_subscribe: lambda do
+              [{ subscribed: true }, 1.minute.from_now]
+            end
+          }
+        end
+
+        it 'returns result' do
+          output = trigger.webhook_subscribe
+
+          expect(output).to contain_exactly(
+            { subscribed: true }.with_indifferent_access,
+            a_kind_of(ActiveSupport::TimeWithZone)
+          )
+        end
+      end
     end
 
     describe 'webhook_unsubscribe' do

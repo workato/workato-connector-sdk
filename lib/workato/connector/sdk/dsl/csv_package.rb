@@ -65,6 +65,13 @@ module Workato
           end
           def parse(str, headers:, col_sep: nil, row_sep: nil, quote_char: nil, skip_blanks: nil,
                     skip_first_line: false)
+            if headers.is_a?(FalseClass)
+              raise Sdk::ArgumentError,
+                    'Headers are required. ' \
+                    'Pass headers: true to implicitly use the first line or array/string for explicit headers'
+
+            end
+
             if str.bytesize > MAX_FILE_SIZE_FOR_PARSE
               raise CsvFileTooBigError.new(str.bytesize, MAX_FILE_SIZE_FOR_PARSE)
             end
@@ -88,7 +95,7 @@ module Workato
             end.to_a
           rescue CSV::MalformedCSVError => e
             raise CsvFormatError, e
-          rescue ArgumentError => e
+          rescue ::ArgumentError => e
             raise Sdk::ArgumentError, e.message
           end
 
@@ -111,7 +118,7 @@ module Workato
             options[:write_headers] = options[:headers].present?
 
             ::CSV.generate(str || String.new, **options, &blk)
-          rescue ArgumentError => e
+          rescue ::ArgumentError => e
             raise Sdk::ArgumentError, e.message
           end
 

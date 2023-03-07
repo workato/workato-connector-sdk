@@ -9,7 +9,14 @@ module Workato
   module Connector
     module Sdk
       module SorbetTypes
-        WebhookSubscribeOutputHash = T.type_alias { T::Hash[T.any(String, Symbol), T.untyped] }
+        WebhookSubscribeClosureHash = T.type_alias { T::Hash[T.any(String, Symbol), T.untyped] }
+
+        WebhookSubscribeOutput = T.type_alias do
+          T.any(
+            WebhookSubscribeClosureHash,
+            [WebhookSubscribeClosureHash, T.nilable(T.any(Time, ActiveSupport::TimeWithZone))]
+          )
+        end
 
         WebhookNotificationPayload = T.type_alias { T.untyped }
 
@@ -121,7 +128,7 @@ module Workato
             headers: T::Hash[T.any(String, Symbol), T.untyped],
             params: T::Hash[T.any(String, Symbol), T.untyped],
             settings: T.nilable(SorbetTypes::SettingsHash),
-            webhook_subscribe_output: T.nilable(SorbetTypes::WebhookSubscribeOutputHash)
+            webhook_subscribe_output: T.nilable(SorbetTypes::WebhookSubscribeClosureHash)
           ).returns(
             SorbetTypes::WebhookNotificationOutputHash
           )
@@ -161,9 +168,7 @@ module Workato
             settings: T.nilable(SorbetTypes::SettingsHash),
             input: SorbetTypes::OperationInputHash,
             recipe_id: String
-          ).returns(
-            SorbetTypes::WebhookSubscribeOutputHash
-          )
+          ).returns(SorbetTypes::WebhookSubscribeOutput)
         end
         def webhook_subscribe(webhook_url = '', settings = nil, input = {}, recipe_id = recipe_id!)
           webhook_subscribe_proc = trigger[:webhook_subscribe]
@@ -178,7 +183,7 @@ module Workato
           end
         end
 
-        sig { params(webhook_subscribe_output: SorbetTypes::WebhookSubscribeOutputHash).returns(T.untyped) }
+        sig { params(webhook_subscribe_output: SorbetTypes::WebhookSubscribeClosureHash).returns(T.untyped) }
         def webhook_unsubscribe(webhook_subscribe_output = {})
           webhook_unsubscribe_proc = trigger[:webhook_unsubscribe]
           execute(nil, webhook_subscribe_output) do |_connection, input|
@@ -192,7 +197,7 @@ module Workato
             payload: T::Hash[T.any(String, Symbol), T.untyped],
             headers: T::Hash[T.any(String, Symbol), T.untyped],
             params: T::Hash[T.any(String, Symbol), T.untyped],
-            webhook_subscribe_output: T.nilable(SorbetTypes::WebhookSubscribeOutputHash)
+            webhook_subscribe_output: T.nilable(SorbetTypes::WebhookSubscribeClosureHash)
           ).returns(
             T.any(SorbetTypes::WebhookNotificationOutputHash, SorbetTypes::PollOutputHash)
           )

@@ -3,6 +3,7 @@
 
 require 'jwt'
 require_relative './csv_package'
+require_relative './net_package'
 require_relative './stream_package'
 
 using Workato::Extension::HashWithIndifferentAccess
@@ -20,7 +21,7 @@ module Workato
           JWT_RSA_KEY_MIN_LENGTH = 2048
           private_constant :JWT_RSA_KEY_MIN_LENGTH
 
-          JWT_HMAC_ALGORITHMS = %w[HS256].freeze
+          JWT_HMAC_ALGORITHMS = %w[HS256 HS384 HS512].freeze
           private_constant :JWT_HMAC_ALGORITHMS
 
           JWT_ECDSA_ALGORITHMS = %w[ES256 ES384 ES512].freeze
@@ -73,6 +74,29 @@ module Workato
 
             header_fields = HashWithIndifferentAccess.wrap(header_fields).except(:typ, :alg)
             ::JWT.encode(payload, key, algorithm, header_fields)
+          rescue JWT::IncorrectAlgorithm
+            raise Sdk::ArgumentError, 'Mismatched algorithm and key'
+          rescue OpenSSL::PKey::PKeyError
+            raise Sdk::ArgumentError, 'Invalid key'
+          end
+
+          def jwt_decode(jwt, key, algorithm)
+            algorithm = algorithm.to_s.upcase
+
+            unless JWT_ALGORITHMS.include?(algorithm)
+              raise Sdk::ArgumentError,
+                    'Unsupported verification algorithm. ' \
+                    "Supports only #{JWT_ALGORITHMS.join(', ')}. Got: '#{algorithm}'"
+            end
+
+            if JWT_RSA_ALGORITHMS.include?(algorithm)
+              key = OpenSSL::PKey::RSA.new(key)
+            elsif JWT_ECDSA_ALGORITHMS.include?(algorithm)
+              key = OpenSSL::PKey::EC.new(key)
+            end
+
+            payload, header = ::JWT.decode(jwt, key, true, { algorithm: algorithm })
+            { payload: payload, header: header }.with_indifferent_access
           rescue JWT::IncorrectAlgorithm
             raise Sdk::ArgumentError, 'Mismatched algorithm and key'
           rescue OpenSSL::PKey::PKeyError
@@ -155,6 +179,10 @@ module Workato
 
           def csv
             @csv ||= CsvPackage.new
+          end
+
+          def net
+            @net ||= NetPackage.new
           end
 
           def stream

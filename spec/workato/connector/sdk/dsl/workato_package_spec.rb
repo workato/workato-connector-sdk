@@ -8,8 +8,7 @@ module Workato::Connector::Sdk
     let(:streams) { ProhibitedStreams.new }
     let(:connection) { Connection.new }
 
-    describe '#jwt_encode' do
-      let(:algorithm) { 'RS256' }
+    shared_context 'with JWT' do
       let(:pem_key) do
         <<~PEM
           -----BEGIN RSA PRIVATE KEY-----
@@ -71,26 +70,6 @@ module Workato::Connector::Sdk
         }
       end
 
-      let(:short_rsa_pem_key) do
-        <<~PEM
-          -----BEGIN RSA PRIVATE KEY-----
-          MIICXQIBAAKBgQC2Mwqc9L0kjZ9MD09mpTIOw+xDrASEXNNyuaFdjkXDFAUGd3JM
-          Cr1RnKq+Wiwuw7eAE6zrYXGdRdmmg8aGP8diaXUXXrpZl3PNly5NTEen6OmoD8JH
-          Dh62V/hHMPiwl1oF43uiZTXsTANzWMN56mvOl3Kc8oZyX6bYvfhMwGN+bQIDAQAB
-          AoGAYgjeugtZxlRJlURbpdBXOeijtNnW6F2GDKHjOJK36LpZ5dvZbR8ONN6GZLvi
-          MBtxHgH4NgKNfmE6NkWLSWsB3YJbwr/NX8Hs3kAGSpiySYnsZTHHv9TzqnmqZOFs
-          pCnQh/pwXKktBeL3OAMkDlEZebNukOGKyGcQ8nMwJLoVaOECQQDhoogmy4LFgo8S
-          qEjD79v7ggMeUSfpfCTQARgf6lH2hzre7L/IOtdciLCNW5HI3QhgNBARBU8eHXIY
-          LZzUgTLJAkEAzrgW9Pfhde9p2g+fF6iAWEEM+ym/K+1tgYM6OAmAWKvPTR+86rD3
-          eb2LGj8AiYTDufQze9WVVii6AppnP/U8hQJBAJ+mI9XnW2Eq7tbRsaLJvYooxNIX
-          tDjVeSqgC5TRdCsOJg6Dz3L6h1VW9i0e5HkORBXl4JRagE+boBYReA04WVkCQQCZ
-          4rrcQ8doNwDSnvxs7TgV+t8B/jLdLZNubVUisBgGamgY3r6Q64pe6zYpJKtutBHM
-          VTkaP4Y7LHhERdME7rfNAkAYPQ6buUdrqAjWRHn63x5fBx9/U6zZV7jfRV0KRIF5
-          C2FcQ2ndl7Pz6llayCM7I0PsuernD3Wh883BunXUbYLq
-          -----END RSA PRIVATE KEY-----
-        PEM
-      end
-
       let(:invalid_rsa_pem_key) do
         <<~PEM
           -----BEGIN RSA PUBLIC KEY-----
@@ -99,23 +78,6 @@ module Workato::Connector::Sdk
           C2FcQ2ndl7Pz6llayCM7I0PsuernD3Wh883BunXUbYLq
           -----END RSA PUBLIC KEY-----
         PEM
-      end
-
-      let(:short_ecdsa_pem_key) do
-        <<~PEM
-          -----BEGIN EC PRIVATE KEY-----
-          MD4CAQEEDjNJycrdEMSvcHlo/9VToAcGBSuBBAAGoSADHgAEn4+G/ofQhn/RPB+Z
-          kUdjnrOfT8keQfiMetl3gw==
-          -----END EC PRIVATE KEY-----
-        PEM
-      end
-
-      let(:ecdsa_key_length_mapping) do
-        {
-          'ES256' => 256,
-          'ES384' => 384,
-          'ES512' => 521
-        }
       end
 
       let(:mismatched_ecdsa_pem_key_mapping) do
@@ -154,6 +116,53 @@ module Workato::Connector::Sdk
           name: 'John Doe',
           admin: true,
           iat: 1_516_239_022
+        }
+      end
+
+      let(:header) do
+        { typ: 'JWT' }
+      end
+    end
+
+    describe '#jwt_encode' do
+      include_context 'with JWT'
+
+      let(:algorithm) { 'RS256' }
+
+      let(:short_rsa_pem_key) do
+        <<~PEM
+          -----BEGIN RSA PRIVATE KEY-----
+          MIICXQIBAAKBgQC2Mwqc9L0kjZ9MD09mpTIOw+xDrASEXNNyuaFdjkXDFAUGd3JM
+          Cr1RnKq+Wiwuw7eAE6zrYXGdRdmmg8aGP8diaXUXXrpZl3PNly5NTEen6OmoD8JH
+          Dh62V/hHMPiwl1oF43uiZTXsTANzWMN56mvOl3Kc8oZyX6bYvfhMwGN+bQIDAQAB
+          AoGAYgjeugtZxlRJlURbpdBXOeijtNnW6F2GDKHjOJK36LpZ5dvZbR8ONN6GZLvi
+          MBtxHgH4NgKNfmE6NkWLSWsB3YJbwr/NX8Hs3kAGSpiySYnsZTHHv9TzqnmqZOFs
+          pCnQh/pwXKktBeL3OAMkDlEZebNukOGKyGcQ8nMwJLoVaOECQQDhoogmy4LFgo8S
+          qEjD79v7ggMeUSfpfCTQARgf6lH2hzre7L/IOtdciLCNW5HI3QhgNBARBU8eHXIY
+          LZzUgTLJAkEAzrgW9Pfhde9p2g+fF6iAWEEM+ym/K+1tgYM6OAmAWKvPTR+86rD3
+          eb2LGj8AiYTDufQze9WVVii6AppnP/U8hQJBAJ+mI9XnW2Eq7tbRsaLJvYooxNIX
+          tDjVeSqgC5TRdCsOJg6Dz3L6h1VW9i0e5HkORBXl4JRagE+boBYReA04WVkCQQCZ
+          4rrcQ8doNwDSnvxs7TgV+t8B/jLdLZNubVUisBgGamgY3r6Q64pe6zYpJKtutBHM
+          VTkaP4Y7LHhERdME7rfNAkAYPQ6buUdrqAjWRHn63x5fBx9/U6zZV7jfRV0KRIF5
+          C2FcQ2ndl7Pz6llayCM7I0PsuernD3Wh883BunXUbYLq
+          -----END RSA PRIVATE KEY-----
+        PEM
+      end
+
+      let(:short_ecdsa_pem_key) do
+        <<~PEM
+          -----BEGIN EC PRIVATE KEY-----
+          MD4CAQEEDjNJycrdEMSvcHlo/9VToAcGBSuBBAAGoSADHgAEn4+G/ofQhn/RPB+Z
+          kUdjnrOfT8keQfiMetl3gw==
+          -----END EC PRIVATE KEY-----
+        PEM
+      end
+
+      let(:ecdsa_key_length_mapping) do
+        {
+          'ES256' => 256,
+          'ES384' => 384,
+          'ES512' => 521
         }
       end
 
@@ -196,18 +205,19 @@ module Workato::Connector::Sdk
           end
         end
 
-        context 'when HS256' do
-          let(:hmac_secret) { 'my$ecretK3y' }
-          let(:algorithm) { 'HS256' }
+        %w[HS256 HS384 HS512].each do |algorithm|
+          context "when #{algorithm}" do
+            let(:hmac_secret) { 'my$ecretK3y' }
 
-          it 'is not empty' do
-            expect(package.jwt_encode(payload, hmac_secret, algorithm)).not_to be_empty
-          end
+            it 'is not empty' do
+              expect(package.jwt_encode(payload, hmac_secret, algorithm)).not_to be_empty
+            end
 
-          it 'is able to decode' do
-            token = package.jwt_encode(payload, hmac_secret, algorithm)
-            decoded_token = ::JWT.decode(token, hmac_secret, true, { algorithm: algorithm })
-            expect(decoded_token).to include(payload.with_indifferent_access)
+            it 'is able to decode' do
+              token = package.jwt_encode(payload, hmac_secret, algorithm)
+              decoded_token = ::JWT.decode(token, hmac_secret, true, { algorithm: algorithm })
+              expect(decoded_token).to include(payload.with_indifferent_access)
+            end
           end
         end
 
@@ -254,7 +264,8 @@ module Workato::Connector::Sdk
         it 'raises error' do
           expect { package.jwt_encode(payload, pem_key, algorithm) }.to raise_error(
             ArgumentError,
-            "Unsupported signing method. Supports only RS256, RS384, RS512, HS256, ES256, ES384, ES512. Got: 'HS512256'"
+            'Unsupported signing method. ' \
+            "Supports only RS256, RS384, RS512, HS256, HS384, HS512, ES256, ES384, ES512. Got: 'HS512256'"
           )
         end
       end
@@ -305,6 +316,108 @@ module Workato::Connector::Sdk
       it "is alias for jwt_encode( ..., 'RS256')" do
         expect(package).to receive(:jwt_encode).with({ a: 1 }, 'b', 'RS256', { c: :d }) # rubocop:disable RSpec/SubjectStub, RSpec/MessageSpies
         package.jwt_encode_rs256({ a: 1 }, 'b', { c: :d })
+      end
+    end
+
+    describe '#jwt_decode' do
+      include_context 'with JWT'
+
+      context 'when supported algorithms' do
+        %w[RS256 RS384 RS512].each do |algorithm|
+          context "when #{algorithm}" do
+            let(:key) { OpenSSL::PKey::RSA.new(pem_key) }
+            let(:token) { ::JWT.encode(payload, key, algorithm) }
+
+            it 'is not empty' do
+              expect(package.jwt_decode(token, pem_key, algorithm)).not_to be_empty
+            end
+
+            it 'decodes token' do
+              decoded_token = package.jwt_decode(token, pem_key, algorithm)
+              expect(decoded_token).to eq({
+                payload: payload,
+                header: header.merge(alg: algorithm)
+              }.with_indifferent_access)
+            end
+
+            it 'raises an error when decoding with an invalid RSA key' do
+              expect { package.jwt_decode(token, invalid_rsa_pem_key, algorithm) }.to raise_error(
+                ArgumentError, 'Invalid key'
+              )
+            end
+          end
+        end
+
+        %w[HS256 HS384 HS512].each do |algorithm|
+          context "when #{algorithm}" do
+            let(:hmac_secret) { 'my$ecretK3y' }
+            let(:token) { ::JWT.encode(payload, hmac_secret, algorithm) }
+
+            it 'is not empty' do
+              expect(package.jwt_decode(token, hmac_secret, algorithm)).not_to be_empty
+            end
+
+            it 'decodes token' do
+              decoded_token = package.jwt_decode(token, hmac_secret, algorithm)
+              expect(decoded_token).to eq({
+                payload: payload,
+                header: header.merge(alg: algorithm)
+              }.with_indifferent_access)
+            end
+          end
+        end
+
+        %w[ES256 ES384 ES512].each do |algorithm|
+          context "when #{algorithm}" do
+            let(:key) { OpenSSL::PKey::EC.new(ecdsa_pem_key_mapping[algorithm]) }
+            let(:token) { ::JWT.encode(payload, key, algorithm) }
+
+            it 'is not empty' do
+              expect(package.jwt_decode(token, ecdsa_pem_key_mapping[algorithm], algorithm)).not_to be_empty
+            end
+
+            it 'decodes token' do
+              decoded_token = package.jwt_decode(token, ecdsa_pem_key_mapping[algorithm], algorithm)
+              expect(decoded_token).to eq({
+                payload: payload,
+                header: header.merge(alg: algorithm)
+              }.with_indifferent_access)
+            end
+
+            it 'raises an error when decoding with an invalid ECDSA key' do
+              expect { package.jwt_decode(token, invalid_ecdsa_pem_key, algorithm) }.to raise_error(
+                ArgumentError, 'Invalid key'
+              )
+            end
+          end
+        end
+
+        %w[ES256 ES384].each do |algorithm|
+          context 'when ECDSA using mismatched curves' do
+            let(:mismatched_key) { mismatched_ecdsa_pem_key_mapping[algorithm] }
+
+            it 'raises an error when encoding with mismatched algorithm and key' do
+              key = OpenSSL::PKey::EC.new(ecdsa_pem_key_mapping[algorithm])
+              token = ::JWT.encode(payload, key, algorithm)
+              expect { package.jwt_decode(token, mismatched_key, algorithm) }.to raise_error(
+                ArgumentError, 'Mismatched algorithm and key'
+              )
+            end
+          end
+        end
+      end
+
+      context 'when unsupported algorithm' do
+        let(:algorithm) { 'HS512256' }
+
+        it 'raises error' do
+          token = ::JWT.encode(payload, pem_key, 'HS256')
+          expect { package.jwt_decode(token, pem_key, algorithm) }.to raise_error(
+            ArgumentError,
+            'Unsupported verification algorithm. ' \
+            "Supports only RS256, RS384, RS512, HS256, HS384, HS512, ES256, ES384, ES512. Got: 'HS512256'"
+          )
+        end
       end
     end
 

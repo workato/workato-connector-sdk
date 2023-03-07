@@ -89,7 +89,7 @@ module Workato::Connector::Sdk
         end
       end
 
-      it { is_expected.to match_array([200, a_kind_of(String), a_kind_of(Hash)]) }
+      it { is_expected.to contain_exactly(200, a_kind_of(String), a_kind_of(Hash)) }
     end
 
     context 'with after_error_response' do
@@ -101,7 +101,7 @@ module Workato::Connector::Sdk
       end
       let(:uri) { 'https://reqbin.com/mushrooms' }
 
-      it { is_expected.to match_array([404, a_kind_of(String), a_kind_of(Hash)]) }
+      it { is_expected.to contain_exactly(404, a_kind_of(String), a_kind_of(Hash)) }
 
       context 'when error raised inside handler' do
         let(:request) do

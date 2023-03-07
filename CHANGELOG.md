@@ -1,8 +1,26 @@
+# 1.3.3 - DNS & JWT methods
+
+## Enhancements
+
+- Implement `workato.jwt_decode` method [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#jwt-decode)
+- Implement `workato.net.lookup` method, which makes DNS lookup [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#net-lookup)
+- Add HS384 and HS512 to list of supported JWT algorithms for `workato.jwt_encode` [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#jwt-encode)
+
+## Bugfixes
+
+- Allow expires at as second return value of `webhook_subscribe` [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/triggers.html#webhook-subscribe)
+- Fix `Request#format_xml` for implicit params
+
+## Misc
+
+- Prepare `nokogiri` for upgrade to 1.14
+- Prepare `rails-html-sanitizer` for upgrade to 1.4.4
+
 # 1.3.2 - More JWT algorithms & Cleanup
 
 ## Enhancements
 
-- Add more JWT algorithms to `workato.jwt_encode` [Workato Docs](https://docs.workato.com/formulas/other-formulas.html#jwt-encode)
+- Add more JWT algorithms to `workato.jwt_encode` [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#jwt-encode)
 
 ## Misc
 

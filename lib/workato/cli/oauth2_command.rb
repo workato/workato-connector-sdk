@@ -101,6 +101,7 @@ module Workato
         return unless @thread
 
         Rack::Handler::WEBrick.shutdown
+        @thread.join
         @thread.exit
       end
 

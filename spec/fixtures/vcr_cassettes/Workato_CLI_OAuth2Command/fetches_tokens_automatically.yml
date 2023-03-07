@@ -5,7 +5,7 @@ http_interactions:
     uri: https://www.example.com/oauth2/token
     body:
       encoding: UTF-8
-      string: code=C-bIt&grant_type=authorization_code&client_id=zXkWHvok&client_secret=KlXvpJqyFEmymODgJa6kHKUATpSUS2BA07LHsi22ynKn29lqAi970EYkBNjPtkDh&redirect_uri=http%3A%2F%2Flocalhost%3A45555%2Foauth%2Fcallback
+      string: code=C-bIt&grant_type=authorization_code&client_id=zXkWHvok&client_secret=KlXvpJqyFEmymODgJa6kHKUATpSUS2BA07LHsi22ynKn29lqAi970EYkBNjPtkDh&redirect_uri=http%3A%2F%2Flocalhost%3A<%= port %>%2Foauth%2Fcallback
     headers:
       Accept:
       - "*/*"

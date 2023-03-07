@@ -5,19 +5,30 @@ require 'launchy'
 require_relative '../../../lib/workato/cli/oauth2_command'
 
 module Workato::CLI
-  RSpec.describe OAuth2Command, vcr: true do
+  RSpec.describe OAuth2Command, vcr: { erb: { port: rand(20_000..30_000) } } do
     subject(:oauth2) { described_class.new(options: options).call }
 
+    let(:port) { VCR.current_cassette.erb[:port] }
     let(:options) do
       {
         connector: 'spec/examples/oauth_refresh_automatic/connector.rb',
         settings: 'spec/examples/oauth_refresh_automatic/settings.yaml',
+        port: port,
         verbose: true
       }
     end
 
     let(:fake_callback) do
-      Thread.new { RestClient.get('http://localhost:45555/oauth/callback?code=C-bIt&state=d234a25cecbb7a4e') }
+      retried = false
+      Thread.new do
+        RestClient.get("http://localhost:#{port}/oauth/callback?code=C-bIt&state=d234a25cecbb7a4e")
+      rescue Errno::ECONNRESET
+        raise if retried
+
+        sleep(0.5) # wait WEBrick
+        retried = true
+        retry
+      end
     end
 
     before do
@@ -41,9 +52,9 @@ module Workato::CLI
       stdout = <<~STDOUT
         Local server is running. Allow following redirect_url in your OAuth2 provider:
 
-        http://localhost:45555/oauth/callback
+        http://localhost:#{port}/oauth/callback
 
-             success  Open https://www.example.com/oauth2/authorize?client_id=zXkWHvok&redirect_uri=http%3A%2F%2Flocalhost%3A45555%2Foauth%2Fcallback&state=d234a25cecbb7a4e in browser
+             success  Open https://www.example.com/oauth2/authorize?client_id=zXkWHvok&redirect_uri=http%3A%2F%2Flocalhost%3A#{port}%2Foauth%2Fcallback&state=d234a25cecbb7a4e in browser
              success  Receive OAuth2 code=C-bIt
              success  Receive OAuth2 tokens
         {
@@ -60,11 +71,13 @@ module Workato::CLI
       stderr = <<~STDERR
         [2023-02-13 20:49:26] INFO  WEBrick #{WEBrick::VERSION}
         [2023-02-13 20:49:26] INFO  ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
-        [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start: pid=#{Process.pid} port=45555
+        [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start: pid=#{Process.pid} port=#{port}
         127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e HTTP/1.1" 200 61
         - -> /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e
         127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /code HTTP/1.1" 200 5
         - -> /code
+        [2023-02-13 20:49:26] INFO  going to shutdown ...
+        [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start done.
       STDERR
       Timecop.freeze('2023-02-13 20:49:26'.to_time) do
         expect { oauth2 }.to output(stdout).to_stdout.and(output(stderr).to_stderr)
@@ -76,6 +89,7 @@ module Workato::CLI
         {
           connector: 'spec/examples/oauth_refresh_manual/connector.rb',
           settings: 'spec/examples/oauth_refresh_automatic/settings.yaml',
+          port: port,
           verbose: true
         }
       end
@@ -92,9 +106,9 @@ module Workato::CLI
         stdout = <<~STDOUT
           Local server is running. Allow following redirect_url in your OAuth2 provider:
 
-          http://localhost:45555/oauth/callback
+          http://localhost:#{port}/oauth/callback
 
-               success  Open https://www.example.com/oauth2/authorize?client_id=zXkWHvok&redirect_uri=http%3A%2F%2Flocalhost%3A45555%2Foauth%2Fcallback&response_type=code&state=d234a25cecbb7a4e in browser
+               success  Open https://www.example.com/oauth2/authorize?client_id=zXkWHvok&redirect_uri=http%3A%2F%2Flocalhost%3A#{port}%2Foauth%2Fcallback&response_type=code&state=d234a25cecbb7a4e in browser
                success  Receive OAuth2 code=C-bIt
                success  Receive OAuth2 tokens
           {
@@ -107,11 +121,13 @@ module Workato::CLI
         stderr = <<~STDERR
           [2023-02-13 20:49:26] INFO  WEBrick #{WEBrick::VERSION}
           [2023-02-13 20:49:26] INFO  ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
-          [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start: pid=#{Process.pid} port=45555
+          [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start: pid=#{Process.pid} port=#{port}
           127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e HTTP/1.1" 200 61
           - -> /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e
           127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /code HTTP/1.1" 200 5
           - -> /code
+          [2023-02-13 20:49:26] INFO  going to shutdown ...
+          [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start done.
         STDERR
         Timecop.freeze('2023-02-13 20:49:26'.to_time) do
           expect { oauth2 }.to output(stdout).to_stdout.and(output(stderr).to_stderr)
