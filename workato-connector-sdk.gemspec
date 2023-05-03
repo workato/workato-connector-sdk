@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.7.6'
 
-  spec.add_runtime_dependency 'activesupport', '~> 5.2'
+  spec.add_runtime_dependency 'activesupport', '>= 5.2', '< 6.1'
   spec.add_runtime_dependency 'aws-sigv4', '= 1.2.4'
   spec.add_runtime_dependency 'bundler', '~> 2.0'
   spec.add_runtime_dependency 'charlock_holmes', '= 0.7.7'
