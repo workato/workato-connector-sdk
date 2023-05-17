@@ -72,7 +72,10 @@ module Workato
               end
             end
 
-            header_fields = HashWithIndifferentAccess.wrap(header_fields).except(:typ, :alg)
+            header_fields = HashWithIndifferentAccess.wrap(header_fields)
+                                                     .except(:typ, :alg)
+                                                     .reverse_merge(typ: 'JWT', alg: algorithm)
+
             ::JWT.encode(payload, key, algorithm, header_fields)
           rescue JWT::IncorrectAlgorithm
             raise Sdk::ArgumentError, 'Mismatched algorithm and key'

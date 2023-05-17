@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'em-http-request', '~> 1.0'
   spec.add_runtime_dependency 'gyoku', '= 1.3.1'
   spec.add_runtime_dependency 'i18n', '= 0.9.5'
-  spec.add_runtime_dependency 'jwt', '= 1.5.6'
+  spec.add_runtime_dependency 'jwt', '>= 1.5.6', '< 3.0'
   spec.add_runtime_dependency 'launchy', '~> 2.0'
   spec.add_runtime_dependency 'net-http-digest_auth', '= 1.4.0'
   spec.add_runtime_dependency 'nokogiri', '>= 1.13.10', '< 1.15'
@@ -53,12 +53,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'thor', '~> 1.0'
   spec.add_runtime_dependency 'webrick', '~> 1.0'
 
-  spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'sorbet', '~> 0.5'
-  spec.add_development_dependency 'stub_server', '~> 0.6'
-  spec.add_development_dependency 'timecop', '~> 0.9'
-  spec.add_development_dependency 'vcr', '~> 6.0'
-  spec.add_development_dependency 'webmock', '~> 3.0'
   spec.post_install_message = <<~POST_INSTALL_MESSAGE
 
     If you updated from workato-connector-sdk prior 1.2.0 your tests could be broken.

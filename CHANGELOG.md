@@ -1,3 +1,13 @@
+# 1.3.4 - Bump `jwt` dependency
+
+## Bugfixes
+
+- Fix `blank` method. It used to return `nil`, while now returns empty string as it should
+
+## Misc
+
+- Prepare `jwt` for upgrade to 2.+
+
 # 1.3.3 - DNS & JWT methods
 
 ## Enhancements

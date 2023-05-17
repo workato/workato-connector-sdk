@@ -326,7 +326,7 @@ module Workato::Connector::Sdk
         %w[RS256 RS384 RS512].each do |algorithm|
           context "when #{algorithm}" do
             let(:key) { OpenSSL::PKey::RSA.new(pem_key) }
-            let(:token) { ::JWT.encode(payload, key, algorithm) }
+            let(:token) { ::JWT.encode(payload, key, algorithm, typ: 'JWT') }
 
             it 'is not empty' do
               expect(package.jwt_decode(token, pem_key, algorithm)).not_to be_empty
@@ -351,7 +351,7 @@ module Workato::Connector::Sdk
         %w[HS256 HS384 HS512].each do |algorithm|
           context "when #{algorithm}" do
             let(:hmac_secret) { 'my$ecretK3y' }
-            let(:token) { ::JWT.encode(payload, hmac_secret, algorithm) }
+            let(:token) { ::JWT.encode(payload, hmac_secret, algorithm, typ: 'JWT') }
 
             it 'is not empty' do
               expect(package.jwt_decode(token, hmac_secret, algorithm)).not_to be_empty
@@ -370,7 +370,7 @@ module Workato::Connector::Sdk
         %w[ES256 ES384 ES512].each do |algorithm|
           context "when #{algorithm}" do
             let(:key) { OpenSSL::PKey::EC.new(ecdsa_pem_key_mapping[algorithm]) }
-            let(:token) { ::JWT.encode(payload, key, algorithm) }
+            let(:token) { ::JWT.encode(payload, key, algorithm, typ: 'JWT') }
 
             it 'is not empty' do
               expect(package.jwt_decode(token, ecdsa_pem_key_mapping[algorithm], algorithm)).not_to be_empty
@@ -398,7 +398,7 @@ module Workato::Connector::Sdk
 
             it 'raises an error when encoding with mismatched algorithm and key' do
               key = OpenSSL::PKey::EC.new(ecdsa_pem_key_mapping[algorithm])
-              token = ::JWT.encode(payload, key, algorithm)
+              token = ::JWT.encode(payload, key, algorithm, typ: 'JWT')
               expect { package.jwt_decode(token, mismatched_key, algorithm) }.to raise_error(
                 ArgumentError, 'Mismatched algorithm and key'
               )
@@ -411,7 +411,7 @@ module Workato::Connector::Sdk
         let(:algorithm) { 'HS512256' }
 
         it 'raises error' do
-          token = ::JWT.encode(payload, pem_key, 'HS256')
+          token = ::JWT.encode(payload, pem_key, 'HS256', typ: 'JWT')
           expect { package.jwt_decode(token, pem_key, algorithm) }.to raise_error(
             ArgumentError,
             'Unsupported verification algorithm. ' \
@@ -489,15 +489,15 @@ module Workato::Connector::Sdk
     describe '#pbkdf2' do
       let(:password) { 'password' }
       let(:salt) { 'salt' }
-      let(:p1_base64) { 'boi+i61+rp2eEKoGEiQDTw==' }
-      let(:p2_base64) { 'YVVWHTpGS+i08UVoEBx+DQ==' }
+      let(:p_base64) { 'boi+i61+rp2eEKoGEiQDTw==' }
+      let(:p_base64_two) { 'YVVWHTpGS+i08UVoEBx+DQ==' }
 
       it 'generates key' do
         p = package.pbkdf2_hmac_sha1(password, salt)
-        expect(p.base64).to eq(p1_base64)
+        expect(p.base64).to eq(p_base64)
         expect(p.bytesize).to eq(16)
         p_2k_iterations = package.pbkdf2_hmac_sha1(password, salt, 2000)
-        expect(p_2k_iterations.base64).to eq(p2_base64)
+        expect(p_2k_iterations.base64).to eq(p_base64_two)
         p_8bytes = package.pbkdf2_hmac_sha1(password, salt, 1000, 8)
         expect(p_8bytes.bytesize).to eq(8)
       end
@@ -508,7 +508,6 @@ module Workato::Connector::Sdk
       let(:password) { 'passworddrowssap' }
       let(:encrypted_base64) { 'RFAoE6vXAuZ4oSFWykFAeg==' }
       let(:encrypted_base64_two) { 'YkNa+r8NozAAsCeI4CFGJg==' }
-      let(:iv12) { 'init_vector0' }
       let(:iv16) { 'init_vector00000' }
       let(:auth_data) { 'additional' }
 

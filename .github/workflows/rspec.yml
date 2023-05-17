@@ -6,6 +6,9 @@ jobs:
   rspec:
 
     runs-on: ubuntu-latest
+    env:
+      BUNDLE_WITH: test
+      BUNDLE_WITHOUT: development
     strategy:
       fail-fast: false
       matrix:

@@ -79,7 +79,9 @@ module Workato
             end
           end
 
-          def blank; end
+          def blank
+            ''
+          end
 
           def clear; end
 
