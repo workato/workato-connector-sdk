@@ -1,9 +1,9 @@
 # typed: strict
 # frozen_string_literal: true
 
-require_relative './dsl'
-require_relative './block_invocation_refinements'
-require_relative './schema'
+require_relative 'dsl'
+require_relative 'block_invocation_refinements'
+require_relative 'schema'
 
 using Workato::Extension::HashWithIndifferentAccess
 

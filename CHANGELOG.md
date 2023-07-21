@@ -1,3 +1,9 @@
+# 1.3.5 - Fix Request#payload
+
+## Bugfixes
+
+- Fix `post` like HTTP methods for String payload [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/http.html#http-verb-methods)
+
 # 1.3.4 - Bump `jwt` dependency
 
 ## Bugfixes
@@ -18,7 +24,7 @@
 
 ## Bugfixes
 
-- Allow expires at as second return value of `webhook_subscribe` [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/triggers.html#webhook-subscribe)
+- Allow expires at as second return value of `webhook-subscribe` [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/triggers.html#webhook-subscribe)
 - Fix `Request#format_xml` for implicit params
 
 ## Misc

@@ -3,14 +3,14 @@
 
 require 'thor'
 require 'workato/connector/sdk'
-require_relative './exec_command'
-require_relative './edit_command'
-require_relative './schema_command'
-require_relative './generate_command'
-require_relative './push_command'
-require_relative './oauth2_command'
-require_relative './generators/connector_generator'
-require_relative './generators/master_key_generator'
+require_relative 'exec_command'
+require_relative 'edit_command'
+require_relative 'schema_command'
+require_relative 'generate_command'
+require_relative 'push_command'
+require_relative 'oauth2_command'
+require_relative 'generators/connector_generator'
+require_relative 'generators/master_key_generator'
 
 module Workato
   module CLI

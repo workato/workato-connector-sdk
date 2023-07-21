@@ -1,19 +1,19 @@
 # typed: true
 # frozen_string_literal: true
 
-require_relative './block_invocation_refinements'
+require_relative 'block_invocation_refinements'
 
-require_relative './dsl/http'
-require_relative './dsl/call'
-require_relative './dsl/reinvoke_after'
-require_relative './dsl/error'
-require_relative './dsl/account_property'
-require_relative './dsl/lookup_table'
-require_relative './dsl/workato_package'
-require_relative './dsl/workato_schema'
-require_relative './dsl/time'
-require_relative './dsl/aws'
-require_relative './dsl/execution_context'
+require_relative 'dsl/http'
+require_relative 'dsl/call'
+require_relative 'dsl/reinvoke_after'
+require_relative 'dsl/error'
+require_relative 'dsl/account_property'
+require_relative 'dsl/lookup_table'
+require_relative 'dsl/workato_package'
+require_relative 'dsl/workato_schema'
+require_relative 'dsl/time'
+require_relative 'dsl/aws'
+require_relative 'dsl/execution_context'
 
 module Workato
   module Connector

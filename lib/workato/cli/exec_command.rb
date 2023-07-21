@@ -3,7 +3,7 @@
 
 require 'thor'
 require 'active_support/json'
-require_relative './multi_auth_selected_fallback'
+require_relative 'multi_auth_selected_fallback'
 
 Method.prepend(T::CompatibilityPatches::MethodExtensions)
 
