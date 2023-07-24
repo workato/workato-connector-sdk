@@ -27,7 +27,7 @@ require_relative '../extension/string'
 require_relative '../extension/symbol'
 require_relative '../extension/time'
 
-require_relative './sdk/core'
+require_relative 'sdk/core'
 
 begin
   tz = ENV.fetch('TZ', nil)

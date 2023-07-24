@@ -1,7 +1,7 @@
 # typed: true
 # frozen_string_literal: true
 
-require_relative './convertors'
+require_relative 'convertors'
 
 module Workato
   module Connector

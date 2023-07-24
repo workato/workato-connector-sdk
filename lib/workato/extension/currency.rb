@@ -1,8 +1,8 @@
 # typed: false
 # frozen_string_literal: true
 
-require_relative './currency/currencies'
-require_relative './currency/countries'
+require_relative 'currency/currencies'
+require_relative 'currency/countries'
 
 module Workato
   module Extension

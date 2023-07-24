@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Keep this at the very top of the file
-require_relative './support/simplecov'
+require_relative 'support/simplecov'
 
 require 'bundler/setup'
 require 'rspec'
@@ -28,5 +28,5 @@ RSpec.configure do |config|
     Workato::Connector::Sdk::Connection.on_settings_update = nil
   end
 
-  require_relative './support/vcr'
+  require_relative 'support/vcr'
 end

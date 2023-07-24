@@ -129,6 +129,20 @@ module Workato::Connector::Sdk
 
           it { expect(response).to include('json' => [1, 2, 3]) }
         end
+
+        context 'when string payload' do
+          let(:uri) { 'https://httpbin.org/post' }
+          let(:payload) { 'foo=bar' }
+
+          it { expect(response).to include('data' => '"foo=bar"') }
+        end
+
+        context 'when nil' do
+          let(:request) { described_class.new(uri, method: 'POST').payload('foo=bar').payload(nil).format_json }
+          let(:uri) { 'https://httpbin.org/post' }
+
+          it { expect(response).to include('data' => '"foo=bar"') }
+        end
       end
 
       context 'when request payload format error' do

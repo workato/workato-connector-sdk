@@ -225,12 +225,12 @@ module Workato
   end
 end
 
-require_relative './schema/field/array'
-require_relative './schema/field/date'
-require_relative './schema/field/date_time'
-require_relative './schema/field/integer'
-require_relative './schema/field/number'
-require_relative './schema/field/object'
-require_relative './schema/field/string'
+require_relative 'schema/field/array'
+require_relative 'schema/field/date'
+require_relative 'schema/field/date_time'
+require_relative 'schema/field/integer'
+require_relative 'schema/field/number'
+require_relative 'schema/field/object'
+require_relative 'schema/field/string'
 
-require_relative './schema/type/time'
+require_relative 'schema/type/time'

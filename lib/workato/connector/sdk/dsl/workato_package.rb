@@ -2,9 +2,9 @@
 # frozen_string_literal: true
 
 require 'jwt'
-require_relative './csv_package'
-require_relative './net_package'
-require_relative './stream_package'
+require_relative 'csv_package'
+require_relative 'net_package'
+require_relative 'stream_package'
 
 using Workato::Extension::HashWithIndifferentAccess
 

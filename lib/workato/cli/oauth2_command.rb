@@ -4,7 +4,7 @@
 require 'thor'
 require 'securerandom'
 require 'workato/web/app'
-require_relative './multi_auth_selected_fallback'
+require_relative 'multi_auth_selected_fallback'
 
 module Workato
   module CLI

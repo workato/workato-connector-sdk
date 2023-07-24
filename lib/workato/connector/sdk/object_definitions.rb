@@ -1,7 +1,7 @@
 # typed: strict
 # frozen_string_literal: true
 
-require_relative './block_invocation_refinements'
+require_relative 'block_invocation_refinements'
 
 module Workato
   module Connector

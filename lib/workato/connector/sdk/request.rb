@@ -11,7 +11,7 @@ require 'active_support/json'
 
 require 'workato/utilities/encoding'
 require 'workato/utilities/xml'
-require_relative './block_invocation_refinements'
+require_relative 'block_invocation_refinements'
 
 using Workato::Extension::HashWithIndifferentAccess
 
@@ -86,15 +86,11 @@ module Workato
         end
 
         def payload(payload = nil)
-          case payload
-          when Array
-            @payload ||= []
-            @payload += payload
-          when NilClass
-            # no-op
+          if defined?(@payload) || payload.is_a?(Hash)
+            @payload ||= HashWithIndifferentAccess.new
+            @payload.merge!(payload) if payload
           else
-            @payload ||= {}.with_indifferent_access
-            @payload.merge!(payload)
+            @payload = payload
           end
           yield(@payload) if Kernel.block_given?
           self
@@ -376,7 +372,7 @@ module Workato
         end
 
         def after_error_response_matches?(exception)
-          return if @after_error_response_matches.blank?
+          return false if @after_error_response_matches.blank?
 
           @after_error_response_matches.find do |match|
             case match
