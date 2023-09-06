@@ -14,7 +14,7 @@ module Workato
             ancestors.shift while ancestors.count > node.depth + 1
             case node.node_type
             when Nokogiri::XML::Reader::TYPE_ELEMENT
-              element = HashWithIndifferentAccess.new
+              element = ActiveSupport::HashWithIndifferentAccess.new
               node.attributes&.each do |name, value|
                 element["@#{strip_namespaces ? name[/(?:^xmlns:)?[^:]+$/] : name}"] = value
               end

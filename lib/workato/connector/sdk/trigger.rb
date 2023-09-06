@@ -3,8 +3,6 @@
 
 require 'securerandom'
 
-using Workato::Extension::HashWithIndifferentAccess
-
 module Workato
   module Connector
     module Sdk
@@ -145,14 +143,14 @@ module Workato
         )
           connection.merge_settings!(settings) if settings
           output = global_dsl_context.execute(
-            HashWithIndifferentAccess.wrap(input),
+            Utilities::HashWithIndifferentAccess.wrap(input),
             payload,
-            Array.wrap(extended_input_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
-            Array.wrap(extended_output_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
-            HashWithIndifferentAccess.wrap(headers),
-            HashWithIndifferentAccess.wrap(params),
+            Array.wrap(extended_input_schema).map { |i| Utilities::HashWithIndifferentAccess.wrap(i) },
+            Array.wrap(extended_output_schema).map { |i| Utilities::HashWithIndifferentAccess.wrap(i) },
+            Utilities::HashWithIndifferentAccess.wrap(headers),
+            Utilities::HashWithIndifferentAccess.wrap(params),
             connection.settings,
-            HashWithIndifferentAccess.wrap(webhook_subscribe_output),
+            Utilities::HashWithIndifferentAccess.wrap(webhook_subscribe_output),
             &trigger[:webhook_notification]
           )
           if output.is_a?(::Array)

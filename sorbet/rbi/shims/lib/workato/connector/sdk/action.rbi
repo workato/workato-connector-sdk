@@ -5,7 +5,7 @@ module Workato
   module Connector
     module Sdk
       class Action
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         def operation; end
       end
     end

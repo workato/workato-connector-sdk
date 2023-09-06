@@ -1,3 +1,9 @@
+# 1.3.6 - Fix Request#detect_auth_error!
+
+## Bugfixes
+
+- Fix incompatibility of `connection.authorization.detect_on` [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/connection/authorization.html#detect-on)
+
 # 1.3.5 - Fix Request#payload
 
 ## Bugfixes

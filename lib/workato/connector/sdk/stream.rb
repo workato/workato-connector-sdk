@@ -1,8 +1,6 @@
 # typed: strict
 # frozen_string_literal: true
 
-using Workato::Extension::HashWithIndifferentAccess
-
 module Workato
   module Connector
     module Sdk
@@ -152,7 +150,7 @@ module Workato
             when Proc
               Proxy.new(
                 name: hash[:name],
-                input: HashWithIndifferentAccess.wrap(hash[:input] || {}),
+                input: Utilities::HashWithIndifferentAccess.wrap(hash[:input] || {}),
                 stream: Stream.new(
                   stream: hash[:chunks],
                   connection: Connection.new(

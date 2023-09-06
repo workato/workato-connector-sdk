@@ -5,8 +5,6 @@ require_relative 'dsl'
 require_relative 'block_invocation_refinements'
 require_relative 'schema'
 
-using Workato::Extension::HashWithIndifferentAccess
-
 module Workato
   module Connector
     module Sdk
@@ -15,11 +13,11 @@ module Workato
 
         OperationExecuteProc = T.type_alias do
           T.proc.params(
-            arg0: HashWithIndifferentAccess,
-            arg1: HashWithIndifferentAccess,
-            arg2: T.any(Schema, T::Array[HashWithIndifferentAccess]),
-            arg3: T.any(Schema, T::Array[HashWithIndifferentAccess]),
-            arg4: HashWithIndifferentAccess
+            arg0: ActiveSupport::HashWithIndifferentAccess,
+            arg1: ActiveSupport::HashWithIndifferentAccess,
+            arg2: T.any(Schema, T::Array[ActiveSupport::HashWithIndifferentAccess]),
+            arg3: T.any(Schema, T::Array[ActiveSupport::HashWithIndifferentAccess]),
+            arg4: ActiveSupport::HashWithIndifferentAccess
           ).returns(
             T.untyped
           )
@@ -31,9 +29,9 @@ module Workato
 
         OperationSchemaProc = T.type_alias do
           T.proc.params(
-            arg0: HashWithIndifferentAccess,
-            arg1: HashWithIndifferentAccess,
-            arg2: HashWithIndifferentAccess
+            arg0: ActiveSupport::HashWithIndifferentAccess,
+            arg1: ActiveSupport::HashWithIndifferentAccess,
+            arg2: ActiveSupport::HashWithIndifferentAccess
           ).returns(
             T.nilable(T.any(SorbetTypes::OperationSchema, T::Hash[T.any(Symbol, String), T.untyped]))
           )
@@ -66,8 +64,14 @@ module Workato
         end
         def initialize(operation: {}, methods: {}, connection: Connection.new, streams: ProhibitedStreams.new,
                        object_definitions: nil)
-          @operation = T.let(HashWithIndifferentAccess.wrap(operation), HashWithIndifferentAccess)
-          @_methods = T.let(HashWithIndifferentAccess.wrap(methods), HashWithIndifferentAccess)
+          @operation = T.let(
+            Utilities::HashWithIndifferentAccess.wrap(operation),
+            ActiveSupport::HashWithIndifferentAccess
+          )
+          @_methods = T.let(
+            Utilities::HashWithIndifferentAccess.wrap(methods),
+            ActiveSupport::HashWithIndifferentAccess
+          )
           @connection = T.let(connection, Connection)
           @streams = T.let(streams, Streams)
           @object_definitions = T.let(object_definitions, T.nilable(ObjectDefinitions))
@@ -90,10 +94,10 @@ module Workato
           connection.merge_settings!(settings) if settings
           request_or_result = T.unsafe(self).instance_exec(
             connection.settings,
-            HashWithIndifferentAccess.wrap(input),
-            Array.wrap(extended_input_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
-            Array.wrap(extended_output_schema).map { |i| HashWithIndifferentAccess.wrap(i) },
-            HashWithIndifferentAccess.wrap(continue),
+            Utilities::HashWithIndifferentAccess.wrap(input),
+            Array.wrap(extended_input_schema).map { |i| Utilities::HashWithIndifferentAccess.wrap(i) },
+            Array.wrap(extended_output_schema).map { |i| Utilities::HashWithIndifferentAccess.wrap(i) },
+            Utilities::HashWithIndifferentAccess.wrap(continue),
             &block
           )
           result = resolve_request(request_or_result)
@@ -105,7 +109,7 @@ module Workato
             settings: T.nilable(SorbetTypes::SettingsHash),
             config_fields: SorbetTypes::OperationInputHash
           ).returns(
-            HashWithIndifferentAccess
+            ActiveSupport::HashWithIndifferentAccess
           )
         end
         def extended_schema(settings = nil, config_fields = {})
@@ -200,7 +204,7 @@ module Workato
 
         sig do
           params(
-            object_definitions_hash: HashWithIndifferentAccess,
+            object_definitions_hash: ActiveSupport::HashWithIndifferentAccess,
             settings: T.nilable(SorbetTypes::SettingsHash),
             config_fields: SorbetTypes::OperationInputHash,
             schema_proc: T.nilable(SorbetTypes::OperationSchemaProc)
@@ -253,7 +257,7 @@ module Workato
         def try_convert_to_hash_with_indifferent_access(value)
           case value
           when ::Hash
-            HashWithIndifferentAccess.wrap(value)
+            Utilities::HashWithIndifferentAccess.wrap(value)
           when ::Array
             value.map! { |i| try_convert_to_hash_with_indifferent_access(i) }
           else
@@ -266,7 +270,7 @@ module Workato
           T.must(@object_definitions)
         end
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :operation
 
         sig { override.returns(Connection) }

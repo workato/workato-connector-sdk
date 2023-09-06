@@ -7,7 +7,7 @@ module Workato
   module Connector
     module Sdk
       module SorbetTypes
-        ObjectDefinitionOutput = T.type_alias { T::Array[HashWithIndifferentAccess] }
+        ObjectDefinitionOutput = T.type_alias { T::Array[ActiveSupport::HashWithIndifferentAccess] }
       end
 
       class ObjectDefinitions
@@ -34,7 +34,7 @@ module Workato
           params(
             settings: T.nilable(SorbetTypes::SettingsHash),
             config_fields: SorbetTypes::OperationInputHash
-          ).returns(HashWithIndifferentAccess)
+          ).returns(ActiveSupport::HashWithIndifferentAccess)
         end
         def lazy(settings = nil, config_fields = {})
           DupHashWithIndifferentAccess.new do |object_definitions, name|
@@ -99,7 +99,7 @@ module Workato
 
         private_constant :ObjectDefinition
 
-        class DupHashWithIndifferentAccess < HashWithIndifferentAccess
+        class DupHashWithIndifferentAccess < ActiveSupport::HashWithIndifferentAccess
           extend T::Sig
           extend T::Generic
 

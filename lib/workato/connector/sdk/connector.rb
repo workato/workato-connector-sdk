@@ -1,20 +1,20 @@
 # typed: strict
 # frozen_string_literal: true
 
-using Workato::Extension::HashWithIndifferentAccess
-
 module Workato
   module Connector
     module Sdk
       module SorbetTypes
-        SourceHash = T.type_alias { T.any(HashWithIndifferentAccess, T::Hash[T.any(Symbol, String), T.untyped]) }
+        SourceHash = T.type_alias do
+          T.any(ActiveSupport::HashWithIndifferentAccess, T::Hash[T.any(Symbol, String), T.untyped])
+        end
       end
 
       class Connector
         extend T::Sig
 
         # @api private
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :source
 
         sig { params(path_to_source_code: String, settings: SorbetTypes::SettingsHash).returns(Connector) }
@@ -24,10 +24,22 @@ module Workato
 
         sig { params(definition: SorbetTypes::SourceHash, settings: SorbetTypes::SettingsHash).void }
         def initialize(definition, settings = {})
-          @source = T.let(HashWithIndifferentAccess.wrap(definition), HashWithIndifferentAccess)
-          @settings = T.let(HashWithIndifferentAccess.wrap(settings), HashWithIndifferentAccess)
-          @connection_source = T.let(HashWithIndifferentAccess.wrap(@source[:connection]), HashWithIndifferentAccess)
-          @methods_source = T.let(HashWithIndifferentAccess.wrap(@source[:methods]), HashWithIndifferentAccess)
+          @source = T.let(
+            Utilities::HashWithIndifferentAccess.wrap(definition),
+            ActiveSupport::HashWithIndifferentAccess
+          )
+          @settings = T.let(
+            Utilities::HashWithIndifferentAccess.wrap(settings),
+            ActiveSupport::HashWithIndifferentAccess
+          )
+          @connection_source = T.let(
+            Utilities::HashWithIndifferentAccess.wrap(@source[:connection]),
+            ActiveSupport::HashWithIndifferentAccess
+          )
+          @methods_source = T.let(
+            Utilities::HashWithIndifferentAccess.wrap(@source[:methods]),
+            ActiveSupport::HashWithIndifferentAccess
+          )
         end
 
         sig { returns(T.nilable(String)) }
@@ -37,23 +49,27 @@ module Workato
 
         sig { returns(ActionsProxy) }
         def actions
-          @actions = T.let(@actions, T.nilable(ActionsProxy))
-          @actions ||= ActionsProxy.new(
-            actions: source[:actions].presence || {},
-            methods: methods_source,
-            object_definitions: object_definitions,
-            connection: connection,
-            streams: streams
+          @actions ||= T.let(
+            ActionsProxy.new(
+              actions: source[:actions].presence || {},
+              methods: methods_source,
+              object_definitions: object_definitions,
+              connection: connection,
+              streams: streams
+            ),
+            T.nilable(ActionsProxy)
           )
         end
 
         sig { returns(MethodsProxy) }
         def methods
-          @methods = T.let(@methods, T.nilable(MethodsProxy))
-          @methods ||= MethodsProxy.new(
-            methods: methods_source,
-            connection: connection,
-            streams: streams
+          @methods ||= T.let(
+            MethodsProxy.new(
+              methods: methods_source,
+              connection: connection,
+              streams: streams
+            ),
+            T.nilable(MethodsProxy)
           )
         end
 
@@ -72,64 +88,74 @@ module Workato
 
         sig { returns(TriggersProxy) }
         def triggers
-          @triggers = T.let(@triggers, T.nilable(TriggersProxy))
-          @triggers ||= TriggersProxy.new(
-            triggers: source[:triggers].presence || {},
-            methods: methods_source,
-            connection: connection,
-            object_definitions: object_definitions,
-            streams: streams
+          @triggers ||= T.let(
+            TriggersProxy.new(
+              triggers: source[:triggers].presence || {},
+              methods: methods_source,
+              connection: connection,
+              object_definitions: object_definitions,
+              streams: streams
+            ),
+            T.nilable(TriggersProxy)
           )
         end
 
         sig { returns(ObjectDefinitions) }
         def object_definitions
-          @object_definitions = T.let(@object_definitions, T.nilable(ObjectDefinitions))
-          @object_definitions ||= ObjectDefinitions.new(
-            object_definitions: source[:object_definitions].presence || {},
-            methods: methods_source,
-            connection: connection
+          @object_definitions ||= T.let(
+            ObjectDefinitions.new(
+              object_definitions: source[:object_definitions].presence || {},
+              methods: methods_source,
+              connection: connection
+            ),
+            T.nilable(ObjectDefinitions)
           )
         end
 
         sig { returns(PickListsProxy) }
         def pick_lists
-          @pick_lists = T.let(@pick_lists, T.nilable(PickListsProxy))
-          @pick_lists ||= PickListsProxy.new(
-            pick_lists: source[:pick_lists].presence || {},
-            methods: methods_source,
-            connection: connection
+          @pick_lists ||= T.let(
+            PickListsProxy.new(
+              pick_lists: source[:pick_lists].presence || {},
+              methods: methods_source,
+              connection: connection
+            ),
+            T.nilable(PickListsProxy)
           )
         end
 
         sig { returns(Connection) }
         def connection
-          @connection = T.let(@connection, T.nilable(Connection))
-          @connection ||= Connection.new(
-            methods: methods_source,
-            connection: connection_source,
-            settings: settings
+          @connection ||= T.let(
+            Connection.new(
+              methods: methods_source,
+              connection: connection_source,
+              settings: settings
+            ),
+            T.nilable(Connection)
           )
         end
 
         sig { returns(Streams) }
         def streams
-          @streams = T.let(@streams, T.nilable(Streams))
-          @streams ||= Streams.new(
-            streams: streams_sources,
-            methods: methods_source,
-            connection: connection
+          @streams ||= T.let(
+            Streams.new(
+              streams: streams_sources,
+              methods: methods_source,
+              connection: connection
+            ),
+            T.nilable(Streams)
           )
         end
 
         private
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         def streams_sources
-          @streams_sources = T.let(@streams_sources, T.nilable(HashWithIndifferentAccess))
+          @streams_sources = T.let(@streams_sources, T.nilable(ActiveSupport::HashWithIndifferentAccess))
           return @streams_sources if @streams_sources
 
-          @streams_sources = HashWithIndifferentAccess.new
+          @streams_sources = ActiveSupport::HashWithIndifferentAccess.new
           @streams_sources.merge!(source[:streams].presence || {})
           (source[:actions] || {}).values.map do |action|
             @streams_sources.merge!(action[:streams] || {})
@@ -140,10 +166,10 @@ module Workato
           @streams_sources
         end
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :methods_source
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :connection_source
 
         sig { returns(SorbetTypes::SettingsHash) }
@@ -155,9 +181,9 @@ module Workato
 
         sig do
           params(
-            actions: HashWithIndifferentAccess,
+            actions: ActiveSupport::HashWithIndifferentAccess,
             object_definitions: ObjectDefinitions,
-            methods: HashWithIndifferentAccess,
+            methods: ActiveSupport::HashWithIndifferentAccess,
             connection: Connection,
             streams: Streams
           ).void
@@ -178,7 +204,7 @@ module Workato
 
         private
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :methods
 
         sig { returns(Connection) }
@@ -190,7 +216,7 @@ module Workato
         sig { returns(ObjectDefinitions) }
         attr_reader :object_definitions
 
-        sig { params(actions_source: HashWithIndifferentAccess).void }
+        sig { params(actions_source: ActiveSupport::HashWithIndifferentAccess).void }
         def define_action_methods(actions_source)
           actions_source.each do |action, definition|
             define_singleton_method(action) do |input_ = nil|
@@ -216,7 +242,7 @@ module Workato
 
         sig do
           params(
-            methods: HashWithIndifferentAccess,
+            methods: ActiveSupport::HashWithIndifferentAccess,
             connection: Connection,
             streams: Streams
           ).void
@@ -231,7 +257,7 @@ module Workato
 
         private
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :methods
 
         sig { returns(Connection) }
@@ -265,8 +291,8 @@ module Workato
 
         sig do
           params(
-            pick_lists: HashWithIndifferentAccess,
-            methods: HashWithIndifferentAccess,
+            pick_lists: ActiveSupport::HashWithIndifferentAccess,
+            methods: ActiveSupport::HashWithIndifferentAccess,
             connection: Connection
           ).void
         end
@@ -279,13 +305,13 @@ module Workato
 
         private
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :methods
 
         sig { returns(Connection) }
         attr_reader :connection
 
-        sig { params(pick_lists_source: HashWithIndifferentAccess).void }
+        sig { params(pick_lists_source: ActiveSupport::HashWithIndifferentAccess).void }
         def define_action_methods(pick_lists_source)
           pick_lists_source.each do |pick_list, pick_list_proc|
             define_singleton_method(pick_list) do |settings = nil, args = {}|
@@ -318,9 +344,9 @@ module Workato
 
         sig do
           params(
-            triggers: HashWithIndifferentAccess,
+            triggers: ActiveSupport::HashWithIndifferentAccess,
             object_definitions: ObjectDefinitions,
-            methods: HashWithIndifferentAccess,
+            methods: ActiveSupport::HashWithIndifferentAccess,
             connection: Connection,
             streams: Streams
           ).void
@@ -341,7 +367,7 @@ module Workato
 
         private
 
-        sig { returns(HashWithIndifferentAccess) }
+        sig { returns(ActiveSupport::HashWithIndifferentAccess) }
         attr_reader :methods
 
         sig { returns(Connection) }
@@ -353,7 +379,7 @@ module Workato
         sig { returns(ObjectDefinitions) }
         attr_reader :object_definitions
 
-        sig { params(triggers_source: HashWithIndifferentAccess).void }
+        sig { params(triggers_source: ActiveSupport::HashWithIndifferentAccess).void }
         def define_trigger_methods(triggers_source)
           triggers_source.each do |trigger, definition|
             define_singleton_method(trigger) do |input_ = nil, payload = {}, headers = {}, params = {}|

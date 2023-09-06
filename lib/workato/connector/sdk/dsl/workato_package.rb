@@ -6,8 +6,6 @@ require_relative 'csv_package'
 require_relative 'net_package'
 require_relative 'stream_package'
 
-using Workato::Extension::HashWithIndifferentAccess
-
 module Workato
   module Connector
     module Sdk
@@ -72,9 +70,9 @@ module Workato
               end
             end
 
-            header_fields = HashWithIndifferentAccess.wrap(header_fields)
-                                                     .except(:typ, :alg)
-                                                     .reverse_merge(typ: 'JWT', alg: algorithm)
+            header_fields = Utilities::HashWithIndifferentAccess.wrap(header_fields)
+                                                                .except(:typ, :alg)
+                                                                .reverse_merge(typ: 'JWT', alg: algorithm)
 
             ::JWT.encode(payload, key, algorithm, header_fields)
           rescue JWT::IncorrectAlgorithm

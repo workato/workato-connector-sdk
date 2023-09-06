@@ -42,7 +42,7 @@ module Workato
   end
 end
 
-require_relative '../../extension/hash_with_indifferent_access'
+require 'workato/utilities/hash_with_indifferent_access'
 
 require_relative 'errors'
 require_relative 'account_properties'

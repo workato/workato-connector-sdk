@@ -4,8 +4,6 @@
 require 'aws-sigv4'
 require 'workato/utilities/xml'
 
-using Workato::Extension::HashWithIndifferentAccess
-
 module Workato
   module Connector
     module Sdk
@@ -68,7 +66,7 @@ module Workato
                 method: method,
                 path: path,
                 params: params,
-                headers: HashWithIndifferentAccess.wrap(headers),
+                headers: Utilities::HashWithIndifferentAccess.wrap(headers),
                 payload: payload
               )
 

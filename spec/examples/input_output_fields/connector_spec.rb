@@ -14,11 +14,11 @@ RSpec.describe 'input_output_fields', :vcr do
       expect(input_fields).to contain_exactly(
         a_hash_including(
           'object_definitions' => {
-            'event' => [HashWithIndifferentAccess]
+            'event' => [ActiveSupport::HashWithIndifferentAccess]
           },
           'config_fields' => config_fields.with_indifferent_access,
           'connection' => settings.with_indifferent_access,
-          'customer' => HashWithIndifferentAccess
+          'customer' => ActiveSupport::HashWithIndifferentAccess
         )
       )
     end
@@ -31,11 +31,11 @@ RSpec.describe 'input_output_fields', :vcr do
       expect(input_fields).to contain_exactly(
         a_hash_including(
           'object_definitions' => {
-            'event' => [HashWithIndifferentAccess]
+            'event' => [ActiveSupport::HashWithIndifferentAccess]
           },
           'config_fields' => config_fields.with_indifferent_access,
           'connection' => settings.with_indifferent_access,
-          'customer' => HashWithIndifferentAccess
+          'customer' => ActiveSupport::HashWithIndifferentAccess
         )
       )
     end

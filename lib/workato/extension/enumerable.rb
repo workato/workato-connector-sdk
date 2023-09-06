@@ -18,7 +18,7 @@ module Enumerable
     end
 
     map do |val|
-      format % (Array.wrap(val).map { |v| v.is_a?(HashWithIndifferentAccess) ? v.symbolize_keys : v })
+      format % (Array.wrap(val).map { |v| v.is_a?(ActiveSupport::HashWithIndifferentAccess) ? v.symbolize_keys : v })
     end
   end
 

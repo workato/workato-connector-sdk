@@ -9,8 +9,8 @@ module Workato
           T.proc.params(
             message: String,
             settings_before: SorbetTypes::SettingsHash,
-            updater: T.proc.returns(T.nilable(HashWithIndifferentAccess))
-          ).returns(T.nilable(HashWithIndifferentAccess))
+            updater: T.proc.returns(T.nilable(ActiveSupport::HashWithIndifferentAccess))
+          ).returns(T.nilable(ActiveSupport::HashWithIndifferentAccess))
         end
       end
 

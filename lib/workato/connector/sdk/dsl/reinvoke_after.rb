@@ -74,8 +74,7 @@ module Workato
 
           sig { returns(Integer) }
           def reinvoke_limit
-            @reinvoke_limit = T.let(@reinvoke_limit, T.nilable(Integer))
-            @reinvoke_limit ||= (ENV['MAX_REINVOKES'].presence || MAX_REINVOKES).to_i
+            @reinvoke_limit ||= T.let((ENV['MAX_REINVOKES'].presence || MAX_REINVOKES).to_i, T.nilable(Integer))
           end
         end
       end

@@ -13,8 +13,6 @@ require 'workato/utilities/encoding'
 require 'workato/utilities/xml'
 require_relative 'block_invocation_refinements'
 
-using Workato::Extension::HashWithIndifferentAccess
-
 module Workato
   module Connector
     module Sdk
@@ -77,7 +75,7 @@ module Workato
 
         def params(params)
           if params.is_a?(Hash)
-            @params ||= HashWithIndifferentAccess.new
+            @params ||= ActiveSupport::HashWithIndifferentAccess.new
             @params.merge!(params)
           else
             @params = params
@@ -87,7 +85,7 @@ module Workato
 
         def payload(payload = nil)
           if defined?(@payload) || payload.is_a?(Hash)
-            @payload ||= HashWithIndifferentAccess.new
+            @payload ||= ActiveSupport::HashWithIndifferentAccess.new
             @payload.merge!(payload) if payload
           else
             @payload = payload
@@ -363,7 +361,7 @@ module Workato
         end
 
         def detect_auth_error!(response)
-          return unless authorized?
+          return unless authorization? && connection.authorization.reauthorizable?
 
           error_patterns = connection.authorization.detect_on
           return unless error_patterns.any? { |pattern| pattern === response rescue false }
@@ -390,14 +388,15 @@ module Workato
           within_action_context(
             exception.http_code,
             exception.http_body,
-            HashWithIndifferentAccess.wrap(exception.http_headers),
+            Utilities::HashWithIndifferentAccess.wrap(exception.http_headers),
             exception.message,
             &@after_error_response
           )
         end
 
         def apply_after_response(code, parsed_response, headers)
-          encoded_headers = (headers || {}).each_with_object(HashWithIndifferentAccess.new) do |(k, v), h|
+          headers ||= {}
+          encoded_headers = headers.each_with_object(ActiveSupport::HashWithIndifferentAccess.new) do |(k, v), h|
             h[k] = Workato::Utilities::Encoding.force_best_encoding!(v.to_s)
           end
           within_action_context(code, parsed_response, encoded_headers, &@after_response)
@@ -408,12 +407,12 @@ module Workato
         end
 
         sig { returns(T::Boolean) }
-        def authorized?
+        def authorization?
           !!@connection&.authorization?
         end
 
         def authorized
-          return yield unless authorized?
+          return yield unless authorization?
 
           apply = connection.authorization.source[:apply] || connection.authorization.source[:credentials]
           return yield unless apply
@@ -438,11 +437,11 @@ module Workato
 
         sig do
           params(
-            settings: HashWithIndifferentAccess,
+            settings: ActiveSupport::HashWithIndifferentAccess,
             access_token: T.untyped,
             auth_type: T.untyped,
             apply_proc: T.proc.params(
-              settings: HashWithIndifferentAccess,
+              settings: ActiveSupport::HashWithIndifferentAccess,
               access_token: T.untyped,
               auth_type: T.untyped
             ).void
@@ -454,10 +453,10 @@ module Workato
 
         sig do
           params(
-            settings: HashWithIndifferentAccess,
+            settings: ActiveSupport::HashWithIndifferentAccess,
             auth_type: T.untyped,
             apply_proc: T.proc.params(
-              settings: HashWithIndifferentAccess,
+              settings: ActiveSupport::HashWithIndifferentAccess,
               auth_type: T.untyped
             ).void
           ).void
@@ -468,7 +467,7 @@ module Workato
 
         sig do
           params(
-            settings_before: HashWithIndifferentAccess,
+            settings_before: ActiveSupport::HashWithIndifferentAccess,
             http_code: T.nilable(Integer),
             http_body: T.nilable(String),
             exception: T.nilable(String)

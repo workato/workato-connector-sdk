@@ -22,7 +22,10 @@ RSpec.describe Enumerable do
   end
 
   let :workato_data_list do
-    [HashWithIndifferentAccess.new(email: 'foo@bar.com'), HashWithIndifferentAccess.new(email: 'foo2@bar.com')]
+    [
+      ActiveSupport::HashWithIndifferentAccess.new(email: 'foo@bar.com'),
+      ActiveSupport::HashWithIndifferentAccess.new(email: 'foo2@bar.com')
+    ]
   end
 
   let :primitive_list do
@@ -220,7 +223,7 @@ RSpec.describe Enumerable do
       ].map(&:with_indifferent_access)
       expect(list.where(name: /(kevin)|(don)|(sofia)/i).to_a).to eq(expected_list)
 
-      # should work with HashWithIndifferentAccess objects
+      # should work with ActiveSupport::HashWithIndifferentAccess objects
       expected_list = [workato_data_list.first]
       expect(workato_data_list.where(email: 'foo@bar.com').to_a).to eq(expected_list)
     end

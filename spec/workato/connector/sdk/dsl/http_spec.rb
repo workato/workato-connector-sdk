@@ -7,10 +7,12 @@ module Workato::Connector::Sdk
     let(:execution_context) { ExecutionContext.new }
     let(:request_mock) do
       request = instance_double(Request)
-      allow(request).to receive(:payload).and_return(request)
-      allow(request).to receive(:params).and_return(request)
-      allow(request).to receive(:response_format_json).and_return(request)
-      allow(request).to receive(:format_json).and_return(request)
+      allow(request).to receive_messages(
+        payload: request,
+        params: request,
+        response_format_json: request,
+        format_json: request
+      )
       request
     end
 
