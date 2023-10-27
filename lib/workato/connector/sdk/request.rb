@@ -30,9 +30,9 @@ module Workato
           @action = action
           @headers = {}
           @case_sensitive_headers = {}
-          @render_request = ->(payload) { payload }
-          @parse_response = ->(payload) { payload }
-          @after_response = ->(_response_code, parsed_response, _response_headers) { parsed_response }
+          @render_request = DEFAULT_RENDER_REQUEST
+          @parse_response = DEFAULT_PARSE_RESPONSE
+          @after_response = DEFAULT_AFTER_RESPONSE
           @callstack_before_request = Array.wrap(Kernel.caller)
         end
 
@@ -90,7 +90,10 @@ module Workato
           else
             @payload = payload
           end
-          yield(@payload) if Kernel.block_given?
+          if Kernel.block_given?
+            @payload ||= ActiveSupport::HashWithIndifferentAccess.new
+            yield(@payload)
+          end
           self
         end
 
@@ -253,6 +256,15 @@ module Workato
         end
 
         private
+
+        DEFAULT_RENDER_REQUEST = ->(_) {}
+        private_constant :DEFAULT_RENDER_REQUEST
+
+        DEFAULT_PARSE_RESPONSE = ->(payload) { payload }
+        private_constant :DEFAULT_PARSE_RESPONSE
+
+        DEFAULT_AFTER_RESPONSE = ->(_response_code, parsed_response, _response_headers) { parsed_response }
+        private_constant :DEFAULT_AFTER_RESPONSE
 
         attr_reader :method
 

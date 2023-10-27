@@ -419,6 +419,15 @@ module Workato::Connector::Sdk
           )
         end
       end
+
+      context 'when decoding with an invalid signature' do
+        it 'raises error' do
+          token = ::JWT.encode(payload, pem_key, 'HS256', typ: 'JWT')
+          expect { package.jwt_decode(token.chop, pem_key, 'HS256') }.to raise_error(
+            ArgumentError, 'Invalid signature'
+          )
+        end
+      end
     end
 
     describe '#parse_yaml' do
@@ -506,6 +515,7 @@ module Workato::Connector::Sdk
     describe '#aes' do
       let(:text) { 'text' }
       let(:password) { 'passworddrowssap' }
+      let(:wrong_password) { 'passwordpassword' }
       let(:encrypted_base64) { 'RFAoE6vXAuZ4oSFWykFAeg==' }
       let(:encrypted_base64_two) { 'YkNa+r8NozAAsCeI4CFGJg==' }
       let(:iv16) { 'init_vector00000' }
@@ -540,6 +550,13 @@ module Workato::Connector::Sdk
       it 'encrypt/decrypts with init vector' do
         encrypted = package.aes_cbc_encrypt(text, password, iv16)
         expect(package.aes_cbc_decrypt(encrypted, password, iv16)).to eq(text)
+      end
+
+      context 'when decryption fails with OpenSSL::Cipher::CipherError' do
+        it 'wraps native error with Sdk::Error' do
+          encrypted = package.aes_cbc_encrypt(text, password)
+          expect { package.aes_cbc_decrypt(encrypted, wrong_password) }.to raise_error(ArgumentError, 'bad decrypt')
+        end
       end
     end
 

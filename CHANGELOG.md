@@ -1,3 +1,17 @@
+# 1.3.7 - Fix Request#payload & Add String methods
+
+## Enhancements
+
+- Add encode_sha512, encode_sha512_256, rsa_512 to String
+
+## Bugfixes
+
+- Fix `get` like HTTP method became a `POST` if payload added [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/http.html#http-verb-methods)
+
+## Misc
+
+- Wrap JWT::VerificationError and OpenSSL::Cipher::CipherError with Sdk::ArgumentError
+
 # 1.3.6 - Fix Request#detect_auth_error!
 
 ## Bugfixes

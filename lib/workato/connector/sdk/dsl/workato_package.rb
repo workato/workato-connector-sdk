@@ -102,6 +102,8 @@ module Workato
             raise Sdk::ArgumentError, 'Mismatched algorithm and key'
           rescue OpenSSL::PKey::PKeyError
             raise Sdk::ArgumentError, 'Invalid key'
+          rescue JWT::VerificationError
+            raise Sdk::ArgumentError, 'Invalid signature'
           end
 
           def verify_rsa(payload, certificate, signature, algorithm = 'SHA256')
@@ -172,6 +174,8 @@ module Workato
             cipher.key = key
             cipher.iv = init_vector if init_vector.present?
             Types::Binary.new(cipher.update(string) + cipher.final)
+          rescue OpenSSL::Cipher::CipherError => e
+            raise Sdk::ArgumentError, e.message
           end
 
           def pbkdf2_hmac_sha1(string, salt, iterations = 1000, key_len = 16)

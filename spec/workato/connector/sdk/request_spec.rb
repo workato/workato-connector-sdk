@@ -137,11 +137,16 @@ module Workato::Connector::Sdk
           it { expect(response).to include('data' => '"foo=bar"') }
         end
 
-        context 'when nil' do
-          let(:request) { described_class.new(uri, method: 'POST').payload('foo=bar').payload(nil).format_json }
-          let(:uri) { 'https://httpbin.org/post' }
+        context 'when nil payload' do
+          let(:request) { described_class.new('https://httpbin.org/post', method: 'POST').payload('foo=bar').payload(nil).format_json }
 
           it { expect(response).to include('data' => '"foo=bar"') }
+        end
+
+        context 'when block payload' do
+          let(:request) { described_class.new('https://httpbin.org/post', method: 'POST').payload { |h| h['foo'] = 'bar' }.format_json }
+
+          it { expect(response).to include('json' => { 'foo' => 'bar' }) }
         end
       end
 
@@ -156,6 +161,20 @@ module Workato::Connector::Sdk
         let(:uri) { 'https://httpbin.org/html' }
 
         it { expect { response }.to raise_error(JSONResponseFormatError, /unexpected token at/) }
+      end
+
+      context 'when get request with payload' do
+        context 'when block' do
+          let(:request) { described_class.new('https://httpbin.org/get').payload { |h| h['foo'] = 'bar' }.response_format_json }
+
+          it { expect(response.to_s).not_to include('foo') }
+        end
+
+        context 'when hash' do
+          let(:request) { described_class.new('https://httpbin.org/get').payload(foo: :bar).response_format_json }
+
+          it { expect(response.to_s).not_to include('foo') }
+        end
       end
     end
 

@@ -143,6 +143,15 @@ module Workato
         Types::Binary.new(::Digest::SHA256.digest(self))
       end
 
+      def encode_sha512
+        Types::Binary.new(::Digest::SHA512.digest(self))
+      end
+
+      def encode_sha512_256 # rubocop:disable Naming/VariableNumber
+        digest = ::OpenSSL::Digest.new('sha512-256', self)
+        Types::Binary.new(digest.to_s)
+      end
+
       def hmac_sha256(key)
         digest = ::OpenSSL::Digest.new('sha256')
         Types::Binary.new(::OpenSSL::HMAC.digest(digest, key, self))
@@ -157,6 +166,14 @@ module Workato
         digest = ::OpenSSL::Digest.new('sha256')
         private_key = ::OpenSSL::PKey::RSA.new(key)
         Types::Binary.new(private_key.sign(digest, self))
+      end
+
+      def rsa_sha512(key)
+        digest = ::OpenSSL::Digest.new('sha512')
+        private_key = ::OpenSSL::PKey::RSA.new(key)
+        Types::Binary.new(private_key.sign(digest, self))
+      rescue OpenSSL::PKey::RSAError => e
+        Kernel.raise(Workato::Connector::Sdk::ArgumentError, e.message)
       end
 
       def md5_hexdigest
