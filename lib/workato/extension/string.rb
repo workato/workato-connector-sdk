@@ -72,7 +72,7 @@ module Workato
       end
 
       def transliterate(replacement = '?')
-        I18n.transliterate(self, replacement)
+        I18n.transliterate(self, replacement: replacement)
       end
 
       def labelize(*acronyms)

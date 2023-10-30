@@ -1,3 +1,11 @@
+# 1.3.8 - Bump dependencies
+
+## Misc
+
+- Prepare `activesupport` for upgrade to 6.1
+- Prepare `rails-html-sanitizer` for upgrade to 1.6.0
+- Prepare `i18n` for upgrade to 1.14.1
+
 # 1.3.7 - Fix Request#payload & Add String methods
 
 ## Enhancements
