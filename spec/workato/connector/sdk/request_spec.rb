@@ -79,7 +79,27 @@ module Workato::Connector::Sdk
       let(:settings) { { host: 'jsonplaceholder.typicode.com' } }
       let(:request) { described_class.new(uri, connection: connection) }
 
-      it { is_expected.to include('userId') }
+      context 'when nil' do
+        let(:base_uri) { ->(connection) { connection['hello'] } }
+
+        it { expect { response }.to raise_error(Workato::Connector::Sdk::InvalidURIError) }
+      end
+
+      context 'when string given instead of lambda' do
+        let(:base_uri) { 'test' }
+
+        it { expect { response }.to raise_error(TypeError) }
+      end
+
+      context 'with relative uri' do
+        it { is_expected.to include('userId') }
+      end
+
+      context 'with nil relative uri' do
+        let(:uri) { nil }
+
+        it { expect { response }.to raise_error(Workato::Connector::Sdk::InvalidURIError) }
+      end
     end
 
     context 'with after_response' do

@@ -21,12 +21,14 @@ module Workato
 
         using BlockInvocationRefinements
 
+        ALLOWED_URI_TYPES = [URI::Generic, String].freeze
+        private_constant :ALLOWED_URI_TYPES
+
         def initialize(uri, method: 'GET', connection: nil, action: nil)
           super(nil)
           @uri = uri
           @method = method
           @connection = connection
-          @base_uri = connection&.base_uri(connection&.settings || {})
           @action = action
           @headers = {}
           @case_sensitive_headers = {}
@@ -273,6 +275,8 @@ module Workato
             begin
               request = RestClientRequest.new(rest_request_params)
               response = execute_request(request)
+            rescue URI::InvalidURIError => e
+              Kernel.raise(InvalidURIError, e.message)
             rescue RestClient::Unauthorized => e
               Kernel.raise e unless @digest_auth
 
@@ -331,8 +335,18 @@ module Workato
         end
 
         def build_url
-          uri = if @base_uri
-                  merge_uris(@base_uri, @uri)
+          uri = if (base_uri = @connection&.base_uri)
+                  unless valid_uri?(@uri)
+                    raise_invalid_uri_error(
+                      "Expected String or URI as request URL, got: #{@uri.class.name}"
+                    )
+                  end
+                  unless valid_uri?(base_uri)
+                    raise_invalid_uri_error(
+                      "Expected String or URI as output of base_uri lambda, got: #{base_uri.class.name}"
+                    )
+                  end
+                  merge_uris(base_uri, @uri)
                 else
                   URI.parse(@uri)
                 end
@@ -355,6 +369,14 @@ module Workato
           end
 
           uri.to_s
+        end
+
+        def valid_uri?(path)
+          ALLOWED_URI_TYPES.any? { |type| path.is_a?(type) }
+        end
+
+        def raise_invalid_uri_error(message)
+          Kernel.raise(InvalidURIError, message)
         end
 
         def merge_uris(uri1, uri2)
@@ -548,6 +570,23 @@ module Workato
             net = super(hostname, port)
             net.extra_chain_cert = ssl_extra_chain_cert if ssl_extra_chain_cert
             net
+          end
+
+          private
+
+          def parse_url_with_auth!(url)
+            # Fix Ruby 2.7 vs 3.0 incompatibility
+            # In ruby 2.7 URI.parse("http:///foo/bar").hostname returns nil
+            # In ruby 3.0 URI.parse("http:///foo/bar").hostname returns ""
+            uri = URI.parse(url)
+
+            if uri.hostname.nil? || uri.hostname.empty?
+              raise URI::InvalidURIError, "bad URI(no host provided): #{url}"
+            end
+
+            super
+          rescue ArgumentError => e
+            raise URI::InvalidURIError, "Invalid URL: #{e.message}"
           end
         end
 

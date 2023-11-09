@@ -1,3 +1,13 @@
+# 1.3.9 - Fix Request#build_url
+
+## Enhancements
+
+- Raise custom error when `connection.base_uri` returns invalid URI
+
+## Bugfixes
+
+- Fix `Request#build_url` uses stale connection settings even after connection refresh
+
 # 1.3.8 - Bump dependencies
 
 ## Misc
@@ -10,7 +20,7 @@
 
 ## Enhancements
 
-- Add encode_sha512, encode_sha512_256, rsa_512 to String
+- Add `encode_sha512`, `encode_sha512_256`, `rsa_512` to `String`
 
 ## Bugfixes
 
@@ -18,7 +28,7 @@
 
 ## Misc
 
-- Wrap JWT::VerificationError and OpenSSL::Cipher::CipherError with Sdk::ArgumentError
+- Wrap `JWT::VerificationError` and `OpenSSL::Cipher::CipherError` with `Sdk::ArgumentError`
 
 # 1.3.6 - Fix Request#detect_auth_error!
 

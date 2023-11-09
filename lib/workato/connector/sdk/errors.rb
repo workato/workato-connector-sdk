@@ -14,6 +14,8 @@ module Workato
 
       InvalidDefinitionError = Class.new(Error)
 
+      InvalidURIError = Class.new(Error)
+
       class UnexpectedMethodDefinitionError < InvalidDefinitionError
         attr_reader :name
         attr_reader :definition
