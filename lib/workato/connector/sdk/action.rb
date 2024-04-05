@@ -70,7 +70,7 @@ module Workato
               extended_input_schema,
               extended_output_schema,
               next_continue,
-              &(block || action[:execute])
+              &block || action[:execute]
             )
           end
         rescue RequestFailedError => e

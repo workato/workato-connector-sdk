@@ -35,7 +35,7 @@ module Workato
 
         sig { params(streams_source: SorbetTypes::SourceHash).void }
         def define_action_methods(streams_source)
-          streams_source.each do |stream, _stream_proc|
+          streams_source.each_key do |stream|
             define_singleton_method(stream) do |input = {}, from = 0, to = nil, frame_size = Stream::DEFAULT_FRAME_SIZE|
               to ||= from + frame_size
               self[stream].chunk(input, from, to, frame_size)

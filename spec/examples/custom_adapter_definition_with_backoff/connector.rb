@@ -66,7 +66,7 @@
           results: get(call(:get_error_code, '500'))
         }
       },
-      retry_on_response: //,  # contains error codes and error message match rules
+      retry_on_response: //, # contains error codes and error message match rules
       retry_on_request: ['GET'],
       max_retries: 3
     },

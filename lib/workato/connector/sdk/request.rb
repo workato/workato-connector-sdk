@@ -155,8 +155,8 @@ module Workato
           self
         end
 
-        def format_xml(root_element_name, namespaces = {}, strip_response_namespaces: false)
-          request_format_xml(root_element_name, namespaces)
+        def format_xml(root_element_name, namespaces = {}, strip_response_namespaces: false, **kwargs)
+          request_format_xml(root_element_name, namespaces.merge(kwargs))
             .response_format_xml(strip_response_namespaces: strip_response_namespaces)
         end
 

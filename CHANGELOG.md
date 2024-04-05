@@ -1,3 +1,14 @@
+# 1.3.10 - AES encryption & dependencies upgrade
+
+## Enhancements
+
+- Introduce aes_gcm_encrypt and aes_gcm_decrypt methods
+
+## Misc
+
+- Fix `format_xml` to work in ruby 3+
+- Relax Nokogiri requirements to resolve security vulnerability
+
 # 1.3.9 - Fix Request#build_url
 
 ## Enhancements

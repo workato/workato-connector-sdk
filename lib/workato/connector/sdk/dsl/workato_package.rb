@@ -40,6 +40,12 @@ module Workato
           ALLOWED_KEY_SIZES = [128, 192, 256].freeze
           private_constant :ALLOWED_KEY_SIZES
 
+          ALLOWED_INITIALIZATION_VECTOR_SIZE = 96
+          private_constant :ALLOWED_INITIALIZATION_VECTOR_SIZE
+
+          ALLOWED_AUTH_TAG_SIZES = [96, 104, 112, 120, 128].freeze
+          private_constant :ALLOWED_AUTH_TAG_SIZES
+
           def initialize(streams:, connection:)
             @streams = streams
             @connection = connection
@@ -163,6 +169,33 @@ module Workato
             Types::Binary.new(cipher.update(string) + cipher.final)
           end
 
+          def aes_gcm_encrypt(string, key, init_vector, auth_data = '')
+            unless string.is_a?(String) && key.is_a?(String) && init_vector.is_a?(String) && auth_data.is_a?(String)
+              raise Sdk::ArgumentError, 'All arguments must be of type String'
+            end
+
+            unless string.valid_encoding?
+              raise Sdk::ArgumentEncodingError, 'Data to be encrypted must have valid encoding'
+            end
+
+            raise Sdk::ArgumentError, 'Data to be encrypted must not be empty' if string.empty?
+
+            key_size = key.bytesize * 8
+            raise Sdk::ArgumentError, 'Incorrect key size for AES' unless ALLOWED_KEY_SIZES.include?(key_size)
+
+            init_vector_size = init_vector.bytesize * 8
+            unless init_vector_size == ALLOWED_INITIALIZATION_VECTOR_SIZE
+              raise Sdk::ArgumentError, 'Incorrect key size for Initialization Vector'
+            end
+
+            cipher = ::OpenSSL::Cipher.new("AES-#{key_size}-GCM")
+            cipher.encrypt
+            cipher.key = key
+            cipher.iv = init_vector
+            cipher.auth_data = auth_data
+            [cipher.update(string) + cipher.final, cipher.auth_tag].map { |v| Types::Binary.new(v) }
+          end
+
           def aes_cbc_decrypt(string, key, init_vector = nil)
             key_size = key.bytesize * 8
             unless ALLOWED_KEY_SIZES.include?(key_size)
@@ -176,6 +209,39 @@ module Workato
             Types::Binary.new(cipher.update(string) + cipher.final)
           rescue OpenSSL::Cipher::CipherError => e
             raise Sdk::ArgumentError, e.message
+          end
+
+          def aes_gcm_decrypt(encrypted, key, auth_tag, init_vector, auth_data = '')
+            unless encrypted.is_a?(String) &&
+                   key.is_a?(String) &&
+                   auth_tag.is_a?(String) &&
+                   init_vector.is_a?(String) &&
+                   auth_data.is_a?(String)
+              raise Sdk::ArgumentError, 'All arguments must be of type String'
+            end
+
+            unless encrypted.valid_encoding?
+              raise Sdk::ArgumentEncodingError, 'Data to be decrypted must have valid encoding'
+            end
+
+            raise Sdk::ArgumentError, 'Data to be decrypted must not be empty' if encrypted.blank?
+
+            auth_tag_size = auth_tag.bytesize * 8
+            unless ALLOWED_AUTH_TAG_SIZES.include?(auth_tag_size)
+              raise Sdk::ArgumentError, 'Incorrect authentication tag size'
+            end
+
+            key_size = key.bytesize * 8
+            raise Sdk::ArgumentError, 'Incorrect key size for AES' unless ALLOWED_KEY_SIZES.include?(key_size)
+
+            decipher = ::OpenSSL::Cipher.new("AES-#{key_size}-GCM").decrypt
+            decipher.key = key
+            decipher.iv = init_vector
+            decipher.auth_data = auth_data
+            decipher.auth_tag = auth_tag
+            Types::Binary.new(decipher.update(encrypted) + decipher.final)
+          rescue OpenSSL::Cipher::CipherError
+            raise Sdk::ArgumentError, 'Not able to decrypt, please check input values again'
           end
 
           def pbkdf2_hmac_sha1(string, salt, iterations = 1000, key_len = 16)

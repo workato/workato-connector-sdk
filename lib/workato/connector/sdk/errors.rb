@@ -12,6 +12,8 @@ module Workato
 
       ArgumentError = Class.new(Error)
 
+      ArgumentEncodingError = Class.new(ArgumentError)
+
       InvalidDefinitionError = Class.new(Error)
 
       InvalidURIError = Class.new(Error)

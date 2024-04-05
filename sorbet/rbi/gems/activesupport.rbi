@@ -1365,7 +1365,7 @@ class Process::Status
   def as_json(options = nil); end
 end
 class Exception
-  def as_json(options = nil); end
+  def as_json(*_arg0); end
 end
 class ActiveSupport::OptionMerger
   def initialize(context, options); end

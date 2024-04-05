@@ -513,49 +513,351 @@ module Workato::Connector::Sdk
     end
 
     describe '#aes' do
-      let(:text) { 'text' }
-      let(:password) { 'passworddrowssap' }
-      let(:wrong_password) { 'passwordpassword' }
-      let(:encrypted_base64) { 'RFAoE6vXAuZ4oSFWykFAeg==' }
-      let(:encrypted_base64_two) { 'YkNa+r8NozAAsCeI4CFGJg==' }
-      let(:iv16) { 'init_vector00000' }
-      let(:auth_data) { 'additional' }
+      describe 'cbc' do
+        let(:text) { 'text' }
+        let(:config) do
+          {
+            '128' => {
+              'key' => 'passworddrowssap',
+              'encrypted_base64' => 'RFAoE6vXAuZ4oSFWykFAeg=='
+            },
+            '192' => {
+              'key' => 'passworddrowssappassword',
+              'encrypted_base64' => 'Xe/l3nEPZyysQaQMpccZMA=='
+            },
+            '256' => {
+              'key' => 'passworddrowssappassworddrowssap',
+              'encrypted_base64' => 'YkNa+r8NozAAsCeI4CFGJg=='
+            }
+          }
+        end
+        let(:wrong_key) { 'passwordpassword' }
+        let(:iv16) { 'init_vector00000' }
 
-      it 'encrypts string correctly' do
-        # 128 bit key
-        encrypted = package.aes_cbc_encrypt(text, password)
-        expect(encrypted.binary?).to be(true)
-        expect(encrypted.base64).to eq(encrypted_base64)
+        %w[128 192 256].each do |key_size|
+          it "encrypts string correctly with a #{key_size} bit key" do
+            encrypted = package.aes_cbc_encrypt(text, config[key_size]['key'])
+            expect(encrypted.binary?).to be(true)
+            expect(encrypted.base64).to eq(config[key_size]['encrypted_base64'])
+          end
+
+          it "decrypts string correctly with a #{key_size} bit key" do
+            decrypted = package.aes_cbc_decrypt(
+              Base64.decode64(config[key_size]['encrypted_base64']),
+              config[key_size]['key']
+            )
+            expect(decrypted.binary?).to be(true)
+            expect(decrypted).to eq(text)
+          end
+
+          it "encrypts/decrypts with init vector for a #{key_size} bit key" do
+            encrypted = package.aes_cbc_encrypt(text, config[key_size]['key'], iv16)
+            expect(package.aes_cbc_decrypt(encrypted, config[key_size]['key'], iv16)).to eq(text)
+          end
+
+          context "when decryption fails using a #{key_size} bit key with OpenSSL::Cipher::CipherError" do
+            it 'wraps native error with Sdk::Error' do
+              encrypted = package.aes_cbc_encrypt(text, config[key_size]['key'])
+              expect { package.aes_cbc_decrypt(encrypted, wrong_key) }.to raise_error(ArgumentError, 'bad decrypt')
+            end
+          end
+        end
       end
 
-      it 'decrypts string correctly' do
-        decrypted = package.aes_cbc_decrypt(Base64.decode64(encrypted_base64), password)
-        expect(decrypted.binary?).to be(true)
-        expect(Base64.decode64(decrypted.base64)).to eq(text)
-      end
+      describe 'gcm' do
+        let(:text) { 'hello' }
+        let(:config) do
+          {
+            '128' => {
+              'key' => 'passworddrowssap',
+              'encrypted_base64' => 'ewsY7IQ=',
+              'auth_tag_base64' => 'VSVj6+P2/jIeX9E03u0hXw==',
+              'auth_tag_base64_with_auth_data' => 'cH79nW9d3r7JD3Qk+xpbxw=='
+            },
+            '192' => {
+              'key' => 'passworddrowssappassword',
+              'encrypted_base64' => 'MqAcViQ=',
+              'auth_tag_base64' => 'EVooZSKeocqe1t0Z0AojAQ==',
+              'auth_tag_base64_with_auth_data' => 'gSN40R9qJz+k/Eg5FkJ2Pg=='
+            },
+            '256' => {
+              'key' => 'passworddrowssappassworddrowssap',
+              'encrypted_base64' => 'txM3utA=',
+              'auth_tag_base64' => '5WT/3EpeI2PT7o6gJ3eJyQ==',
+              'auth_tag_base64_with_auth_data' => 'psqItTOMiGi3KpE5QtEMWA=='
+            }
+          }
+        end
+        let(:string_with_only_whitespaces) { '  ' }
+        let(:config_string_with_only_whitespaces) do
+          {
+            '128' => {
+              'key' => 'passworddrowssap',
+              'encrypted_base64' => 'M04=',
+              'auth_tag_base64' => 'ml2n9vMrJUKopQojVnWVHQ==',
+              'auth_tag_base64_with_auth_data' => 'vwY5gH+ABc5/9a8zc4LvhQ=='
+            },
+            '192' => {
+              'key' => 'passworddrowssappassword',
+              'encrypted_base64' => 'euU=',
+              'auth_tag_base64' => 'SgjAP5n32vfObDKnEbKW1Q==',
+              'auth_tag_base64_with_auth_data' => '2nGQi6QDXAL0RqeH1/rD6g=='
+            },
+            '256' => {
+              'key' => 'passworddrowssappassworddrowssap',
+              'encrypted_base64' => '/1Y=',
+              'auth_tag_base64' => 'BoMqmsxK1vahhRj94ZbJgA==',
+              'auth_tag_base64_with_auth_data' => 'RS1d87WYff3FQQdkhDBMEQ=='
+            }
+          }
+        end
+        let(:iv12) { 'init_vector0' }
+        let(:auth_data) { 'additional' }
+        let(:wrong_key) { 'passwordpassword' }
+        let(:wrong_init_vector) { 'wrong_init_vector' }
+        let(:wrong_auth_tag) { 'wrong_auth_tag000' }
+        let(:wrong_auth_data) { 'wrong_auth_data' }
+        let(:string_with_invalid_encoding) { "\x80" }
+        let(:type_string_error) { 'All arguments must be of type String' }
+        let(:generic_error) { 'Not able to decrypt, please check input values again' }
 
-      it 'encrypts string correctly 2' do
-        # 256 bit key
-        encrypted = package.aes_cbc_encrypt(text, password * 2)
-        expect(encrypted.binary?).to be(true)
-        expect(encrypted.base64).to eq(encrypted_base64_two)
-      end
+        %w[128 192 256].each do |key_size|
+          it "encrypts string correctly with a #{key_size} bit key" do
+            encrypted, auth_tag = package.aes_gcm_encrypt(text, config[key_size]['key'], iv12)
+            expect(encrypted.binary?).to be(true)
+            expect(auth_tag.binary?).to be(true)
+            expect(encrypted.base64).to eq(config[key_size]['encrypted_base64'])
+            expect(auth_tag.base64).to eq(config[key_size]['auth_tag_base64'])
+          end
 
-      it 'decrypts string correctly 2' do
-        decrypted = package.aes_cbc_decrypt(Base64.decode64(encrypted_base64_two), password * 2)
-        expect(decrypted.binary?).to be(true)
-        expect(Base64.decode64(decrypted.base64)).to eq(text)
-      end
+          it "decrypts string correctly with a #{key_size} bit key" do
+            decrypted = package.aes_gcm_decrypt(
+              Base64.decode64(config[key_size]['encrypted_base64']),
+              config[key_size]['key'],
+              Base64.decode64(config[key_size]['auth_tag_base64']),
+              iv12
+            )
+            expect(decrypted.binary?).to be(true)
+            expect(decrypted).to eq(text)
+          end
 
-      it 'encrypt/decrypts with init vector' do
-        encrypted = package.aes_cbc_encrypt(text, password, iv16)
-        expect(package.aes_cbc_decrypt(encrypted, password, iv16)).to eq(text)
-      end
+          it "encrypts string with only whitespaces correctly with a #{key_size} bit key" do
+            encrypted, auth_tag = package.aes_gcm_encrypt(
+              string_with_only_whitespaces,
+              config_string_with_only_whitespaces[key_size]['key'],
+              iv12
+            )
+            expect(encrypted.binary?).to be(true)
+            expect(auth_tag.binary?).to be(true)
+            expect(encrypted.base64).to eq(config_string_with_only_whitespaces[key_size]['encrypted_base64'])
+            expect(auth_tag.base64).to eq(config_string_with_only_whitespaces[key_size]['auth_tag_base64'])
+          end
 
-      context 'when decryption fails with OpenSSL::Cipher::CipherError' do
-        it 'wraps native error with Sdk::Error' do
-          encrypted = package.aes_cbc_encrypt(text, password)
-          expect { package.aes_cbc_decrypt(encrypted, wrong_password) }.to raise_error(ArgumentError, 'bad decrypt')
+          it "decrypts string with only whitespaces correctly with a #{key_size} bit key" do
+            decrypted = package.aes_gcm_decrypt(
+              Base64.decode64(config_string_with_only_whitespaces[key_size]['encrypted_base64']),
+              config_string_with_only_whitespaces[key_size]['key'],
+              Base64.decode64(config_string_with_only_whitespaces[key_size]['auth_tag_base64']),
+              iv12
+            )
+            expect(decrypted.binary?).to be(true)
+            expect(decrypted).to eq(string_with_only_whitespaces)
+          end
+
+          it "encrypts string correctly with a #{key_size} bit key and auth_data" do
+            encrypted, auth_tag = package.aes_gcm_encrypt(text, config[key_size]['key'], iv12, auth_data)
+            expect(encrypted.binary?).to be(true)
+            expect(auth_tag.binary?).to be(true)
+            expect(encrypted.base64).to eq(config[key_size]['encrypted_base64'])
+            expect(auth_tag.base64).to eq(config[key_size]['auth_tag_base64_with_auth_data'])
+          end
+
+          it "decrypts string correctly with a #{key_size} bit key and auth_data" do
+            decrypted = package.aes_gcm_decrypt(
+              Base64.decode64(config[key_size]['encrypted_base64']),
+              config[key_size]['key'],
+              Base64.decode64(config[key_size]['auth_tag_base64_with_auth_data']),
+              iv12,
+              auth_data
+            )
+            expect(decrypted.binary?).to be(true)
+            expect(decrypted).to eq(text)
+          end
+
+          it "encrypts string with only whitespaces correctly with a #{key_size} bit key and auth_data" do
+            encrypted, auth_tag = package.aes_gcm_encrypt(
+              string_with_only_whitespaces,
+              config_string_with_only_whitespaces[key_size]['key'],
+              iv12,
+              auth_data
+            )
+            expect(encrypted.binary?).to be(true)
+            expect(auth_tag.binary?).to be(true)
+            expect(encrypted.base64).to eq(config_string_with_only_whitespaces[key_size]['encrypted_base64'])
+            expect(auth_tag.base64).to eq(
+              config_string_with_only_whitespaces[key_size]['auth_tag_base64_with_auth_data']
+            )
+          end
+
+          it "decrypts string with only whitespaces correctly with a #{key_size} bit key and auth_data" do
+            decrypted = package.aes_gcm_decrypt(
+              Base64.decode64(config_string_with_only_whitespaces[key_size]['encrypted_base64']),
+              config_string_with_only_whitespaces[key_size]['key'],
+              Base64.decode64(config_string_with_only_whitespaces[key_size]['auth_tag_base64_with_auth_data']),
+              iv12,
+              auth_data
+            )
+            expect(decrypted.binary?).to be(true)
+            expect(decrypted).to eq(string_with_only_whitespaces)
+          end
+
+          it 'raises Sdk::ArgumentEncodingError for encrypting a string with invalid encoding ' \
+             "with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_encrypt(
+                string_with_invalid_encoding,
+                config[key_size]['key'],
+                iv12
+              )
+            end.to raise_error(ArgumentEncodingError, 'Data to be encrypted must have valid encoding')
+          end
+
+          it 'raises Sdk::ArgumentEncodingError for decrypting a string with invalid encoding ' \
+             "with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_decrypt(
+                string_with_invalid_encoding, config[key_size]['key'],
+                Base64.decode64(config[key_size]['auth_tag_base64']),
+                iv12
+              )
+            end.to raise_error(ArgumentEncodingError, 'Data to be decrypted must have valid encoding')
+          end
+
+          it "raises Sdk::ArgumentError for wrong init vector size with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_encrypt(
+                text,
+                config[key_size]['key'],
+                wrong_init_vector
+              )
+            end.to raise_error(ArgumentError, 'Incorrect key size for Initialization Vector')
+          end
+
+          it "raises Sdk::ArgumentError for enrypting empty string with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_encrypt(
+                '',
+                config[key_size]['key'],
+                iv12
+              )
+            end.to raise_error(ArgumentError, 'Data to be encrypted must not be empty')
+          end
+
+          it "raises Sdk::ArgumentError for decrypting with a incorrect auth_tag size with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_decrypt(
+                Base64.decode64(config[key_size]['encrypted_base64']),
+                config[key_size]['key'],
+                wrong_auth_tag,
+                iv12
+              )
+            end.to raise_error(ArgumentError, 'Incorrect authentication tag size')
+          end
+
+          it 'raises Sdk::ArgumentError for decrypting with incorrect key' do
+            expect do
+              package.aes_gcm_decrypt(
+                Base64.decode64(config[key_size]['encrypted_base64']),
+                wrong_key,
+                Base64.decode64(config[key_size]['auth_tag_base64']),
+                iv12
+              )
+            end.to raise_error(ArgumentError, generic_error)
+          end
+
+          it "raises Sdk::ArgumentError error when decrypting empty data with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_decrypt(
+                '',
+                config[key_size]['key'],
+                Base64.decode64(config[key_size]['auth_tag_base64']),
+                iv12
+              )
+            end.to raise_error(ArgumentError, 'Data to be decrypted must not be empty')
+          end
+
+          it "raises Sdk::ArgumentError when decrypting with wrong auth_data with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_decrypt(
+                Base64.decode64(config[key_size]['encrypted_base64']),
+                config[key_size]['key'],
+                Base64.decode64(config[key_size]['auth_tag_base64_with_auth_data']),
+                iv12,
+                wrong_auth_data
+              )
+            end.to raise_error(ArgumentError, generic_error)
+          end
+
+          it 'raises error when input arguments do not satisfy expected type for encryption with a ' \
+             "#{key_size} bit key" do
+            expect do
+              package.aes_gcm_encrypt(nil, config[key_size]['key'], iv12)
+            end.to raise_error(ArgumentError, type_string_error)
+            expect do
+              package.aes_gcm_encrypt(text, [1, 2, 3], iv12)
+            end.to raise_error(ArgumentError, type_string_error)
+            expect do
+              package.aes_gcm_encrypt(text, config[key_size]['key'], 9)
+            end.to raise_error(ArgumentError, type_string_error)
+            expect do
+              package.aes_gcm_encrypt(text, config[key_size]['key'], iv12, { 'test' => 'hello' })
+            end.to raise_error(ArgumentError, type_string_error)
+          end
+
+          it 'raises error when input arguments do not satisfy expected type for decryption ' \
+             "with a #{key_size} bit key" do
+            expect do
+              package.aes_gcm_decrypt(
+                [],
+                config[key_size]['key'],
+                Base64.decode64(config[key_size]['auth_tag_base64']),
+                iv12
+              )
+            end.to raise_error(ArgumentError, type_string_error)
+            expect do
+              package.aes_gcm_decrypt(
+                Base64.decode64(config[key_size]['encrypted_base64']),
+                10,
+                Base64.decode64(config[key_size]['auth_tag_base64']),
+                iv12
+              )
+            end.to raise_error(ArgumentError, type_string_error)
+            expect do
+              package.aes_gcm_decrypt(
+                Base64.decode64(config[key_size]['encrypted_base64']),
+                config[key_size]['key'],
+                { 'test' => 'bye' },
+                iv12
+              )
+            end.to raise_error(ArgumentError, type_string_error)
+            expect do
+              package.aes_gcm_decrypt(
+                Base64.decode64(config[key_size]['encrypted_base64']),
+                config[key_size]['key'],
+                Base64.decode64(config[key_size]['auth_tag_base64']),
+                19.56
+              )
+            end.to raise_error(ArgumentError, type_string_error)
+            expect do
+              package.aes_gcm_decrypt(
+                Base64.decode64(config[key_size]['encrypted_base64']),
+                config[key_size]['key'],
+                Base64.decode64(config[key_size]['auth_tag_base64']),
+                iv12,
+                nil
+              )
+            end.to raise_error(ArgumentError, type_string_error)
+          end
         end
       end
     end

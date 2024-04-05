@@ -54,7 +54,7 @@ module Workato
           time = ::Time.strptime(self, format)
           form == :utc ? time.utc : time.getlocal
         else
-          super form
+          super(form)
         end
       end
 

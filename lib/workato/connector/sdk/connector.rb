@@ -268,7 +268,7 @@ module Workato
 
         sig { void }
         def define_action_methods
-          methods.each do |method, _definition|
+          methods.each_key do |method|
             define_singleton_method(method) do |*args|
               @actions[method] ||= Action.new(
                 action: {
