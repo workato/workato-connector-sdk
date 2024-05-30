@@ -9,6 +9,7 @@ require_relative 'dsl/reinvoke_after'
 require_relative 'dsl/error'
 require_relative 'dsl/account_property'
 require_relative 'dsl/lookup_table'
+require_relative 'dsl/recipe_function'
 require_relative 'dsl/workato_package'
 require_relative 'dsl/workato_schema'
 require_relative 'dsl/time'
@@ -36,6 +37,7 @@ module Workato
           include Time
           include AccountProperty
           include LookupTable
+          include RecipeFunction
           include WorkatoSchema
 
           delegate :parse_json,
