@@ -6,7 +6,7 @@ module Workato
     module Sdk
       module Dsl
         module RecipeFunction
-          def call_by_name(name, *args)
+          def call_by_name(name, **args)
             puts "Function called #{name}"
           end
         end
