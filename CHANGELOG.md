@@ -1,12 +1,25 @@
+# 1.3.11 - Multiple small fixes
+
+## Enhancements
+
+- No op `Dsl::WorkatoPackage#parse_json` unless input is a `String`. [Workato docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/ruby_methods.html#parse-json)
+- Raise custom error when `Workato::Extension::String#+` argument is `nil`.
+- `Operation#schema_fields` to always return an array
+
+## Misc
+
+- Keep `BlockInvocationRefinements::BasicObject#instance_exec` ruby 2.7 behaviour in ruby 3.0+
+- Code polishing & refactoring
+
 # 1.3.10 - AES encryption & dependencies upgrade
 
 ## Enhancements
 
-- Introduce aes_gcm_encrypt and aes_gcm_decrypt methods
+- Introduce `aes_gcm_encrypt` and `aes_gcm_decrypt` methods
 
 ## Misc
 
-- Fix `format_xml` to work in ruby 3+
+- Fix `format_xml` to work in ruby 3.0+
 - Relax Nokogiri requirements to resolve security vulnerability
 
 # 1.3.9 - Fix Request#build_url
@@ -239,7 +252,7 @@
 - Implement `verify_rsa` and `decode_url`
 
 ## Misc
-- Introduce custom `Workato::Connector::SDK::RuntimeError` exception type for `error` method.
+- Introduce custom `Sdk::RuntimeError` exception type for `error` method.
 
 # 0.3.0 - Workato Schema, exit codes
 

@@ -215,42 +215,21 @@ module Workato
         def schema_fields(object_definitions_hash, settings, config_fields, &schema_proc)
           return [] unless schema_proc
 
-          execute(settings, config_fields) do |connection, input|
-            T.unsafe(self).instance_exec(
-              object_definitions_hash,
-              connection,
-              input,
-              &schema_proc
-            )
-          end
+          Array.wrap(
+            execute(settings, config_fields) do |connection, input|
+              T.unsafe(self).instance_exec(
+                object_definitions_hash,
+                connection,
+                input,
+                &schema_proc
+              )
+            end
+          )
         end
 
         sig { params(request_or_result: T.untyped).returns(T.untyped) }
         def resolve_request(request_or_result)
-          case request_or_result
-          when Request
-            resolve_request(request_or_result.response!)
-          when ::Array
-            request_or_result.each_with_index.inject(request_or_result) do |acc, (item, index)|
-              response_item = resolve_request(item)
-              if response_item.equal?(item)
-                acc
-              else
-                (acc == request_or_result ? acc.dup : acc).tap { |a| a[index] = response_item }
-              end
-            end
-          when ::Hash
-            request_or_result.inject(request_or_result) do |acc, (key, value)|
-              response_value = resolve_request(value)
-              if response_value.equal?(value)
-                acc
-              else
-                (acc == request_or_result ? acc.dup : acc).tap { |h| h[key] = response_value }
-              end
-            end
-          else
-            request_or_result
-          end
+          Request.response!(request_or_result)
         end
 
         sig { params(value: T.untyped).returns(T.untyped) }

@@ -32,7 +32,7 @@ module Workato
 
           sig { params(stream_name: String, input: SorbetTypes::StreamInputHash).returns(Stream::Proxy) }
           def out(stream_name, input = {})
-            Stream::Proxy.new(input: input, name: stream_name, stream: streams[stream_name])
+            Stream::Proxy.new(input: Request.response!(input), name: stream_name, stream: streams[stream_name])
           end
 
           private

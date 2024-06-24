@@ -257,6 +257,38 @@ module Workato
           response!.try(...)
         end
 
+        class << self
+          extend T::Sig
+
+          sig { params(request_or_result: T.untyped).returns(T.untyped) }
+          def response!(request_or_result)
+            case request_or_result
+            when Request
+              response!(request_or_result.response!)
+            when ::Array
+              request_or_result.each_with_index.inject(request_or_result) do |acc, (item, index)|
+                response_item = response!(item)
+                if response_item.equal?(item)
+                  acc
+                else
+                  (acc == request_or_result ? acc.dup : acc).tap { |a| a[index] = response_item }
+                end
+              end
+            when ::Hash
+              request_or_result.inject(request_or_result) do |acc, (key, value)|
+                response_value = response!(value)
+                if response_value.equal?(value)
+                  acc
+                else
+                  (acc == request_or_result ? acc.dup : acc).tap { |h| h[key] = response_value }
+                end
+              end
+            else
+              request_or_result
+            end
+          end
+        end
+
         private
 
         DEFAULT_RENDER_REQUEST = ->(_) {}
@@ -567,7 +599,7 @@ module Workato
           end
 
           def net_http_object(hostname, port)
-            net = super(hostname, port)
+            net = super
             net.extra_chain_cert = ssl_extra_chain_cert if ssl_extra_chain_cert
             net
           end

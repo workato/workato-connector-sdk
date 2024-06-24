@@ -15,18 +15,13 @@ RSpec.describe 'patched RestClient to be compatible with v2.0.2' do
   let(:url) { 'http://localhost:9123/zip' }
   let(:host) { 'localhost:9123' }
   let(:response_body) { 'testbinarypayload' }
-  let(:before_execution_proc) do
-    lambda do |req, _|
-      expect(req.to_hash).to eq(
-        {
-          'accept' => ['*/*'],
-          'user-agent' => [RestClient::Platform.default_user_agent],
-          'accept-encoding' => ['gzip;q=1.0,deflate;q=0.6,identity;q=0.3'],
-          'host' => [host]
-        }
-      )
-      expect(req.instance_variable_get('@decode_content')).to be_falsey
-    end
+  let(:expected_headers) do
+    {
+      'accept' => ['*/*'],
+      'user-agent' => [RestClient::Platform.default_user_agent],
+      'accept-encoding' => ['gzip;q=1.0,deflate;q=0.6,identity;q=0.3'],
+      'host' => [host]
+    }
   end
 
   shared_examples 'regular response' do |emulate_content_encoding:, expected_content_encoding:|
@@ -34,7 +29,10 @@ RSpec.describe 'patched RestClient to be compatible with v2.0.2' do
       response = RestClient::Request.execute(
         method: method,
         url: url + "?emulate_content_encoding=#{emulate_content_encoding}&body=#{response_body}",
-        before_execution_proc: before_execution_proc
+        before_execution_proc: lambda do |req, _|
+          expect(req.to_hash).to eq(expected_headers)
+          expect(req.instance_variable_get('@decode_content')).to be_falsey
+        end
       )
       expect(response.headers[:content_range]).to be_present
       expect(response.headers[:content_encoding]).to eq(expected_content_encoding)
@@ -47,8 +45,11 @@ RSpec.describe 'patched RestClient to be compatible with v2.0.2' do
       response = RestClient::Request.execute(
         method: method,
         url: url + "?emulate_content_encoding=#{emulate_content_encoding}&body=#{response_body}",
-        before_execution_proc: before_execution_proc,
-        raw_response: true
+        raw_response: true,
+        before_execution_proc: lambda do |req, _|
+          expect(req.to_hash).to eq(expected_headers)
+          expect(req.instance_variable_get('@decode_content')).to be_falsey
+        end
       )
       expect(response.headers[:content_range]).to be_present
       expect(response.headers[:content_encoding]).to eq(expected_content_encoding)

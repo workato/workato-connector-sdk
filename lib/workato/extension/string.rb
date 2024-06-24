@@ -98,7 +98,9 @@ module Workato
       end
 
       def +(other)
-        super(other&.to_s)
+        Kernel.raise Workato::Connector::Sdk::ArgumentError, 'Cannot concatenate string with nil' if other.nil?
+
+        super(other.to_s)
       end
 
       def to_hex

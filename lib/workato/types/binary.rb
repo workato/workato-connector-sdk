@@ -49,7 +49,7 @@ module Workato
       SUMMARY_LENGTH = 128
 
       def initialize(str)
-        super(str)
+        super
         force_encoding(Encoding::ASCII_8BIT)
       end
 

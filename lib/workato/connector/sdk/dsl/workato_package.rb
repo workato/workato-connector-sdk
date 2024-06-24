@@ -139,6 +139,9 @@ module Workato
           end
 
           def parse_json(source)
+            source = source.response! if source.is_a?(Request)
+            return source unless source.is_a?(String)
+
             JSON.parse(source)
           rescue JSON::ParserError => e
             raise JSONParsingError, e

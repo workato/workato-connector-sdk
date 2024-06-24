@@ -44,7 +44,7 @@ module Workato
             end
 
             def self.xmlschema(str)
-              from_time(super(str))
+              from_time(super)
             end
           end
         end

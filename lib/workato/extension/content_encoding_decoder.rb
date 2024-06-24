@@ -10,7 +10,7 @@ module Workato
         module Response
           def create(body, net_http_res, request, start_time)
             body = decode_content_encoding(net_http_res, body)
-            super(body, net_http_res, request, start_time)
+            super
           end
 
           private

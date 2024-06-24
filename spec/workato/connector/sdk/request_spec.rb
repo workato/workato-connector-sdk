@@ -291,7 +291,7 @@ module Workato::Connector::Sdk
             return '4e9a1b9fd88aa52b4a8a0f0d3cf09b54'
           end
 
-          super(str)
+          super
         end
       end
       # rubocop:enable Lint/ConstantDefinitionInBlock

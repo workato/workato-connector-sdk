@@ -14,7 +14,7 @@ module Workato
         end
 
         refine BasicObject do
-          def instance_exec(*args, &block)
+          ruby2_keywords def instance_exec(*args, &block)
             super(*args.take(block.parameters.length), &block)
           end
         end
