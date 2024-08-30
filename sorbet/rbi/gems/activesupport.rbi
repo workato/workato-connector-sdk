@@ -77,8 +77,6 @@ class Hash
   def to_param(namespace = nil); end
   def to_query(namespace = nil); end
   def to_xml(options = nil); end
-  def transform_keys!; end
-  def transform_keys; end
   def with_defaults!(other_hash); end
   def with_defaults(other_hash); end
   def with_indifferent_access; end

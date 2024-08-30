@@ -1,3 +1,9 @@
+# 1.3.12 - Unlock `charlock_holmes` gem 
+
+## Misc
+
+- Unlock `charlock_holmes` gem version to allow installation on Ruby 3.1
+
 # 1.3.11 - Multiple small fixes
 
 ## Enhancements
