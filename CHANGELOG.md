@@ -1,3 +1,14 @@
+# 1.3.13 - Handle invalid output from trigger
+
+## Enhancements
+
+- Raise custom error when trigger output is not expected format. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/triggers.html#poll)
+
+## Misc
+
+- Unlock `activesupport` gem version 7.0
+- Lock `public_suffix` gem version to support Ruby 2.7
+
 # 1.3.12 - Unlock `charlock_holmes` gem 
 
 ## Misc

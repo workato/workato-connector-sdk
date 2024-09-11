@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.7.6'
 
-  spec.add_dependency 'activesupport', '>= 5.2', '< 7.0'
+  spec.add_dependency 'activesupport', '>= 5.2', '< 7.1'
   spec.add_dependency 'aws-sigv4', '~> 1.2', '>= 1.2.4'
   spec.add_dependency 'bundler', '~> 2.0'
   spec.add_dependency 'charlock_holmes', '~> 0.7', '>= 0.7.7'
@@ -43,6 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'launchy', '~> 2.0'
   spec.add_dependency 'net-http-digest_auth', '~> 1.4'
   spec.add_dependency 'nokogiri', '>= 1.13.10', '< 1.16'
+  spec.add_dependency 'public_suffix', '>= 4.0.7', '< 6.0'
   spec.add_dependency 'rack', '~> 2.0'
   spec.add_dependency 'rails-html-sanitizer', '~> 1.4', '>= 1.4.3'
   spec.add_dependency 'rest-client', '= 2.1.0'

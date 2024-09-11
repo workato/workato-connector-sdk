@@ -74,8 +74,13 @@ module Workato
             extended_input_schema,
             extended_output_schema
           ) do |connection, payload, eis, eos|
-            instance_exec(connection, payload[:input], payload[:closure], eis, eos, &poll_proc)
+            instance_exec(connection, payload[:input], payload[:closure], eis, eos, &poll_proc) || {}
           end
+
+          unless T.unsafe(output).is_a?(::Hash)
+            Kernel.raise Workato::Connector::Sdk::InvalidTriggerPollOutputError
+          end
+
           output[:events] = Array.wrap(output[:events])
                                  .reverse!
                                  .map! { |event| ::Hash.try_convert(event) || event }

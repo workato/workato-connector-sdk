@@ -33,6 +33,34 @@ module Workato::Connector::Sdk
           next_poll: 1.minute.from_now
         }.with_indifferent_access)
       end
+
+      context 'when block returns nil' do
+        let(:trigger_definition) { { poll: -> {} } }
+
+        it 'returns result with empty events' do
+          output = trigger.poll_page
+
+          expect(output).to eq({ events: [], next_poll: nil }.with_indifferent_access)
+        end
+      end
+
+      context 'when block returns { events: nil }' do
+        let(:trigger_definition) { { poll: -> { { events: nil } } } }
+
+        it 'returns result with empty events' do
+          output = trigger.poll_page
+
+          expect(output).to eq({ events: [], next_poll: nil }.with_indifferent_access)
+        end
+      end
+
+      context 'when block returns String' do
+        let(:trigger_definition) { { poll: -> { 'invalid_output' } } }
+
+        it 'raises sorbet error' do
+          expect { trigger.poll_page }.to raise_error(InvalidTriggerPollOutputError)
+        end
+      end
     end
 
     describe 'poll' do
