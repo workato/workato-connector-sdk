@@ -47,7 +47,7 @@ module Workato
         end
 
         def to_state_name(country_name = 'US')
-          to_state(country_name)&.last&.name&.upcase
+          to_state(country_name)&.last&.name&.upcase # rubocop:disable Style/SafeNavigationChainLength
         end
 
         private

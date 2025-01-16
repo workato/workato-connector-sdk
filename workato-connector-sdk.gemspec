@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'aws-sigv4', '~> 1.2', '>= 1.2.4'
   spec.add_dependency 'bundler', '~> 2.0'
   spec.add_dependency 'charlock_holmes', '~> 0.7', '>= 0.7.7'
+  spec.add_dependency 'concurrent-ruby', '~> 1.0', '!= 1.3.5' # Due to known bug in version 1.3.5
   spec.add_dependency 'em-http-request', '~> 1.0'
   spec.add_dependency 'gyoku', '~> 1.3', '>= 1.3.1'
   spec.add_dependency 'i18n', '>= 0.9.5', '< 2.0'

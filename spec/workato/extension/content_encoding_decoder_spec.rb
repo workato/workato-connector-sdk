@@ -88,7 +88,7 @@ class TestServer
       Rack::Handler::WEBrick.run(
         TestContentEncodingProvider.new,
         Port: @port,
-        Logger: WEBrick::Log.new('/dev/null'),
+        Logger: WEBrick::Log.new(File::NULL),
         AccessLog: [],
         DoNotReverseLookup: true,
         StartCallback: -> { @started = true }

@@ -48,7 +48,6 @@ module Workato
                                    params: {},
                                    headers: {},
                                    payload: '')
-
               credentials = if connection[:aws_assume_role].present?
                               role_based_auth(settings: connection)
                             else

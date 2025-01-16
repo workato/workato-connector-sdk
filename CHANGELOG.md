@@ -1,3 +1,9 @@
+# 1.3.14 - Fix sorbet definition for `refresh` output
+
+## Bugfixes
+
+- Fix `refresh` method output definition. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/connection/authorization.html#refresh)
+
 # 1.3.13 - Handle invalid output from trigger
 
 ## Enhancements

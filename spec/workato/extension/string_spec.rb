@@ -58,6 +58,12 @@ module Workato::Extension
           expect(input.rsa_sha256(pem_key).base64).to eq(expected_base64)
         end
       end
+
+      context 'when nil pem key' do
+        it 'raises custom ArgumentError' do
+          expect { input.rsa_sha256(nil) }.to raise_error(Workato::Connector::Sdk::ArgumentError)
+        end
+      end
     end
 
     describe '#rsa_sha512' do
@@ -123,6 +129,12 @@ module Workato::Extension
           expect { input.rsa_sha512(pem_key) }.to raise_error(Workato::Connector::Sdk::ArgumentError)
         end
       end
+
+      context 'when nil pem key' do
+        it 'raises custom ArgumentError' do
+          expect { input.rsa_sha512(nil) }.to raise_error(Workato::Connector::Sdk::ArgumentError)
+        end
+      end
     end
 
     describe '#hmac_sha256' do
@@ -138,6 +150,14 @@ module Workato::Extension
         let(:input) { Workato::Types::Binary.new('abc') }
 
         it { is_expected.to eq(expected_hmac_sha256) }
+      end
+
+      context 'when nil pem key' do
+        let(:key) { nil }
+
+        it 'raises custom ArgumentError' do
+          expect { hmac_sha256 }.to raise_error(Workato::Connector::Sdk::ArgumentError)
+        end
       end
     end
 

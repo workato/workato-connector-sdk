@@ -23,5 +23,24 @@ module Workato::Connector::Sdk
         end
       end
     end
+
+    describe '#refresh' do
+      subject(:output) { connection.authorization.refresh }
+
+      [{}, [{}], [{}, nil]].each do |refresh_output|
+        context "when OAuth2 returns #{refresh_output}" do
+          let(:source) do
+            {
+              authorization: {
+                type: 'oauth2',
+                refresh: -> { refresh_output }
+              }
+            }
+          end
+
+          it { is_expected.to eq(refresh_output) }
+        end
+      end
+    end
   end
 end
