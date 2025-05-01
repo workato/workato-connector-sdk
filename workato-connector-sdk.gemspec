@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'jwt', '>= 1.5.6', '< 3.0'
   spec.add_dependency 'launchy', '~> 2.0'
   spec.add_dependency 'net-http-digest_auth', '~> 1.4'
-  spec.add_dependency 'nokogiri', '>= 1.13.10', '< 1.16'
+  spec.add_dependency 'nokogiri', '>= 1.13.10', '<= 1.16'
   spec.add_dependency 'public_suffix', '>= 4.0.7', '< 6.0'
   spec.add_dependency 'rack', '~> 2.0'
   spec.add_dependency 'rails-html-sanitizer', '~> 1.4', '>= 1.4.3'
