@@ -67,7 +67,7 @@ RSpec.describe 'parallel_requests', :vcr do
         'result' => [
           false,
           [{ 'a' => 'A' }, nil],
-          [nil, /unexpected token at 'a'/]
+          [nil, /unexpected character: 'a'/]
         ]
       )
     end

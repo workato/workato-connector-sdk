@@ -48,7 +48,7 @@ module Workato
         include Dsl::Error
         include Dsl::ExecutionContext
 
-        using BlockInvocationRefinements
+        using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
 
         sig { override.returns(Streams) }
         attr_reader :streams

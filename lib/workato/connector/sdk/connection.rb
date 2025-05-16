@@ -45,7 +45,7 @@ module Workato
         extend T::Sig
         include MonitorMixin
 
-        using BlockInvocationRefinements
+        using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
 
         # @api private
         sig { returns(ActiveSupport::HashWithIndifferentAccess) }

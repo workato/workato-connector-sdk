@@ -13,7 +13,7 @@ module Workato
       class ObjectDefinitions
         extend T::Sig
 
-        using BlockInvocationRefinements
+        using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
 
         sig do
           params(

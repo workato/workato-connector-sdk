@@ -46,7 +46,7 @@ module Workato
 
         tokens = acquire_token(code)
         say_status :success, 'Receive OAuth2 tokens'
-        jj tokens if verbose?
+        say JSON.pretty_generate(tokens) if verbose?
 
         settings_store.update(tokens)
         say_status :success, 'Update settings file'

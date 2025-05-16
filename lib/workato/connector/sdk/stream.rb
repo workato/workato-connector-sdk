@@ -34,7 +34,7 @@ module Workato
 
         DEFAULT_FRAME_SIZE = T.let(10.megabytes, Integer)
 
-        using BlockInvocationRefinements
+        using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
         include Dsl::ReinvokeAfter
 
         sig do

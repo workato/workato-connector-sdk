@@ -180,7 +180,7 @@ module Workato::Connector::Sdk
       context 'when response payload format error' do
         let(:uri) { 'https://httpbin.org/html' }
 
-        it { expect { response }.to raise_error(JSONResponseFormatError, /unexpected token at/) }
+        it { expect { response }.to raise_error(JSONResponseFormatError, /unexpected character:/) }
       end
 
       context 'when get request with payload' do

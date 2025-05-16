@@ -19,7 +19,7 @@ module Workato
       class Request < SimpleDelegator
         extend T::Sig
 
-        using BlockInvocationRefinements
+        using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
 
         ALLOWED_URI_TYPES = [URI::Generic, String].freeze
         private_constant :ALLOWED_URI_TYPES

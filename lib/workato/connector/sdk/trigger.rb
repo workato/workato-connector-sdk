@@ -32,7 +32,7 @@ module Workato
       end
 
       class Trigger < Operation
-        using BlockInvocationRefinements
+        using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
 
         sig do
           params(

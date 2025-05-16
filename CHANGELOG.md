@@ -1,3 +1,10 @@
+# 1.3.15 - Prepare nokogiri for upgrade to 1.18.x
+
+## Misc
+
+- Relax Nokogiri requirements to resolve security vulnerability
+- Update Sorbet stubs for third party gems
+
 # 1.3.14 - Fix sorbet definition for `refresh` output
 
 ## Bugfixes

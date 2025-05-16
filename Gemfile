@@ -16,6 +16,7 @@ group :development do
   gem 'rubocop-rspec', require: false
   gem 'rubocop-sorbet', require: false
   gem 'sorbet', require: false
+  gem 'tapioca', require: false
 end
 
 group :test do

@@ -95,7 +95,7 @@ module Workato
 
           include Global
 
-          using BlockInvocationRefinements
+          using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
 
           sig { params(connection: Connection, streams: Streams).void }
           def initialize(connection = Connection.new, streams = ProhibitedStreams.new)

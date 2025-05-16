@@ -9,7 +9,7 @@ module Workato
     module Sdk
       class Action < Operation
         extend T::Sig
-        using BlockInvocationRefinements
+        using BlockInvocationRefinements # rubocop:disable Sorbet/Refinement core SDK feature
 
         include Dsl::ReinvokeAfter
 
