@@ -21,7 +21,7 @@ module Workato
 
         sig { params(size: Integer, max: Integer).void }
         def initialize(size, max)
-          super("CSV file is too big. Max allowed: #{max.to_s(:human_size)}, got: #{size.to_s(:human_size)}")
+          super("CSV file is too big. Max allowed: #{max.to_fs(:human_size)}, got: #{size.to_fs(:human_size)}")
           @size = T.let(size, Integer)
           @max = T.let(max, Integer)
         end
