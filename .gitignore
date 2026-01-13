@@ -20,3 +20,6 @@
 Gemfile.lock
 
 gemfiles/Gemfile.current.lock
+
+# Ruby version manager
+mise.toml

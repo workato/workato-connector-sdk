@@ -27,6 +27,7 @@ module Workato::CLI
     let(:from) { 0 }
     let(:to) { Workato::Connector::Sdk::Stream::DEFAULT_FRAME_SIZE - 1 }
     let(:frame_size) { Workato::Connector::Sdk::Stream::DEFAULT_FRAME_SIZE }
+    let(:query_params) { {} }
 
     shared_examples 'executes path' do
       {
@@ -280,7 +281,8 @@ module Workato::CLI
           {
             connection: settings,
             oauth2_code: options[:oauth2_code],
-            redirect_url: options[:redirect_url]
+            redirect_url: options[:redirect_url],
+            query_params: query_params
           }.with_indifferent_access
         end,
         'connection.authorization.refresh' => lambda do
@@ -341,6 +343,7 @@ module Workato::CLI
           output: false,
           oauth2_code: '1234567890',
           redirect_url: 'http://localhost:3000/oauth2/callback',
+          query_params: 'spec/fixtures/query_params.json',
           refresh_token: 'qwerty',
           from: from,
           frame_size: frame_size
@@ -362,6 +365,7 @@ module Workato::CLI
       let(:from) { 0 }
       let(:to) { 9 }
       let(:frame_size) { 10 }
+      let(:query_params) { JSON.parse(File.read(options[:query_params])) }
 
       it_behaves_like 'executes path'
 

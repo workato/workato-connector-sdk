@@ -1,3 +1,17 @@
+# 1.3.18 - Bundler 4 compatibility
+
+## Enhancements
+
+- Pass OAuth query params to `acquire` method. [Workato Docs](https://docs.workato.com/developing-connectors/sdk/sdk-reference/connection/authorization.html#oauth-20-authorization-code-variant)
+
+## Bugfixes
+
+- Fix `uninitialized constant ActiveSupport::LoggerThreadSafeLevel::Logger` error on startup with concurrent-ruby 1.3.5+
+
+## Misc
+
+- Relax Bundler dependency from `~> 2.0` to `>= 2.0, < 5.0` to support Bundler 4
+
 # 1.3.17 - Fix ignore_redirection for HTTP 303 responses
 
 ## Bugfixes

@@ -250,10 +250,12 @@ module Workato
             params(
               settings: T.nilable(SorbetTypes::SettingsHash),
               oauth2_code: T.nilable(String),
-              redirect_url: T.nilable(String)
+              redirect_url: T.nilable(String),
+              pkce_verifier: T.nilable(String),
+              query_params: T.nilable(T::Hash[T.untyped, T.untyped])
             ).returns(T.nilable(SorbetTypes::AcquireOutput))
           end
-          def acquire(settings = nil, oauth2_code = nil, redirect_url = nil)
+          def acquire(settings = nil, oauth2_code = nil, redirect_url = nil, pkce_verifier = nil, query_params = nil)
             @connection.merge_settings!(settings) if settings
             acquire_proc = source[:acquire]
             raise InvalidDefinitionError, "Expect 'acquire' block" unless acquire_proc
@@ -269,8 +271,23 @@ module Workato
                 settings: @connection.settings!
               ),
               methods: methods_source
-            ).execute(settings, { auth_code: oauth2_code, redirect_url: redirect_url }) do |connection, input|
-              instance_exec(connection, input[:auth_code], input[:redirect_url], &acquire_proc)
+            ).execute(
+              settings,
+              {
+                auth_code: oauth2_code,
+                redirect_url: redirect_url,
+                pkce_verifier: pkce_verifier,
+                query_params: query_params || {}
+              }
+            ) do |connection, input|
+              instance_exec(
+                connection,
+                input[:auth_code],
+                input[:redirect_url],
+                input[:pkce_verifier],
+                input[:query_params],
+                &acquire_proc
+              )
             end
           end
 

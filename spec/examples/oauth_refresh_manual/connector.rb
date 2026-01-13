@@ -33,7 +33,7 @@
         ).request_format_www_form_urlencoded
       end,
 
-      acquire: lambda do |connection, auth_code, redirect_url|
+      acquire: lambda do |connection, auth_code, redirect_url, _pkce_verifier, query_params|
         response = post("#{connection[:domain]}/oauth2/token").payload(
           client_id: connection['client_id'],
           client_secret: connection['client_secret'],
@@ -50,7 +50,7 @@
           1,
           {
             expired: nil
-          }
+          }.merge(query_params)
         ]
       end
     },

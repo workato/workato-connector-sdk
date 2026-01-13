@@ -11,9 +11,9 @@ module Workato
         req = Rack::Request.new(env)
         case req.path_info
         when /#{CODE_PATH}/
-          [200, { 'Content-Type' => 'text/plain' }, [@code.to_s]]
+          [200, { 'Content-Type' => 'text/plain' }, [@params&.to_json.to_s]]
         when /#{CALLBACK_PATH}/
-          @code = req.params['code']
+          @params = req.params
           [200, { 'Content-Type' => 'text/plain' }, ['We stored response code. Now you can close the browser window']]
         else
           [404, { 'Content-Type' => 'text/plain' }, ['404: Not Found']]

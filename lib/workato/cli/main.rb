@@ -60,6 +60,7 @@ module Workato
       method_option :output, type: :string, aliases: '-o', desc: 'Write output to JSON file'
       method_option :oauth2_code, type: :string, desc: 'OAuth2 code exchange to tokens pair'
       method_option :redirect_url, type: :string, desc: 'OAuth2 callback url'
+      method_option :query_params, type: :string, desc: 'Path to file with OAuth2 query params'
       method_option :refresh_token, type: :string, desc: 'OAuth2 refresh token'
       method_option :from, type: :numeric, desc: 'Stream byte offset to read from'
       method_option :frame_size, type: :numeric, desc: 'Stream chunk read size in bytes. Should be positive'

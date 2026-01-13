@@ -21,7 +21,7 @@ module Workato::CLI
     let(:fake_callback) do
       retried = false
       Thread.new do
-        RestClient.get("http://localhost:#{port}/oauth/callback?code=C-bIt&state=d234a25cecbb7a4e")
+        RestClient.get("http://localhost:#{port}/oauth/callback?code=C-bIt&state=d234a25cecbb7a4e&foo=bar")
       rescue Errno::ECONNRESET
         raise if retried
 
@@ -55,7 +55,7 @@ module Workato::CLI
         http://localhost:#{port}/oauth/callback
 
              success  Open https://www.example.com/oauth2/authorize?client_id=zXkWHvok&redirect_uri=http%3A%2F%2Flocalhost%3A#{port}%2Foauth%2Fcallback&state=d234a25cecbb7a4e in browser
-             success  Receive OAuth2 code=C-bIt
+             success  Receive OAuth2 code=C-bIt, state=d234a25cecbb7a4e
              success  Receive OAuth2 tokens
         {
           "access_token": "ACCT-n6tao7",
@@ -72,9 +72,9 @@ module Workato::CLI
         [2023-02-13 20:49:26] INFO  WEBrick #{WEBrick::VERSION}
         [2023-02-13 20:49:26] INFO  ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
         [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start: pid=#{Process.pid} port=#{port}
-        127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e HTTP/1.1" 200 61
-        - -> /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e
-        127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /code HTTP/1.1" 200 5
+        127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e&foo=bar HTTP/1.1" 200 61
+        - -> /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e&foo=bar
+        127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /code HTTP/1.1" 200 55
         - -> /code
         [2023-02-13 20:49:26] INFO  going to shutdown ...
         [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start done.
@@ -99,7 +99,8 @@ module Workato::CLI
           expect(new_settings).to eq({
             access_token: 'ACCT-n6tao7',
             refresh_token: 'REFT-oxI6Ik',
-            expired: nil
+            expired: nil,
+            foo: 'bar'
           }.with_indifferent_access)
         end
 
@@ -109,10 +110,11 @@ module Workato::CLI
           http://localhost:#{port}/oauth/callback
 
                success  Open https://www.example.com/oauth2/authorize?client_id=zXkWHvok&redirect_uri=http%3A%2F%2Flocalhost%3A#{port}%2Foauth%2Fcallback&response_type=code&state=d234a25cecbb7a4e in browser
-               success  Receive OAuth2 code=C-bIt
+               success  Receive OAuth2 code=C-bIt, state=d234a25cecbb7a4e
                success  Receive OAuth2 tokens
           {
             "expired": null,
+            "foo": "bar",
             "access_token": "ACCT-n6tao7",
             "refresh_token": "REFT-oxI6Ik"
           }
@@ -122,9 +124,9 @@ module Workato::CLI
           [2023-02-13 20:49:26] INFO  WEBrick #{WEBrick::VERSION}
           [2023-02-13 20:49:26] INFO  ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE}) [#{RUBY_PLATFORM}]
           [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start: pid=#{Process.pid} port=#{port}
-          127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e HTTP/1.1" 200 61
-          - -> /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e
-          127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /code HTTP/1.1" 200 5
+          127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e&foo=bar HTTP/1.1" 200 61
+          - -> /oauth/callback?code=C-bIt&state=d234a25cecbb7a4e&foo=bar
+          127.0.0.1 - - [13/Feb/2023:20:49:26 UTC] "GET /code HTTP/1.1" 200 55
           - -> /code
           [2023-02-13 20:49:26] INFO  going to shutdown ...
           [2023-02-13 20:49:26] INFO  WEBrick::HTTPServer#start done.

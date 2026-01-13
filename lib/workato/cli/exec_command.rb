@@ -67,6 +67,7 @@ module Workato
           webhook_url: options[:webhook_url],
           oauth2_code: options[:oauth2_code],
           redirect_url: options[:redirect_url],
+          query_params: from_json(options[:query_params]),
           refresh_token: options[:refresh_token],
           from: options[:from].to_i,
           frame_size: options[:frame_size]&.to_i || Workato::Connector::Sdk::Stream::DEFAULT_FRAME_SIZE,

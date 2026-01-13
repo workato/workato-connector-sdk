@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'sorbet-runtime'
+require 'logger' # Required due to https://github.com/rails/rails/issues/54260
 
 # Global libs and monkey patches
 require 'active_support/all'

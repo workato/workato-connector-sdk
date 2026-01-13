@@ -36,11 +36,13 @@
         }.to_json
       end,
 
-      acquire: lambda do |connection, oauth2_code, redirect_url|
+      acquire: lambda do |connection, oauth2_code, redirect_url, pkce_verifier, query_params|
         {
           connection: connection,
           oauth2_code: oauth2_code,
-          redirect_url: redirect_url
+          redirect_url: redirect_url,
+          pkce_verifier: pkce_verifier,
+          query_params: query_params
         }
       end,
 

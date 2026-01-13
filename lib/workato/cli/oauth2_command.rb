@@ -12,8 +12,8 @@ module Workato
       include Thor::Shell
       include MultiAuthSelectedFallback
 
-      AWAIT_CODE_TIMEOUT_INTERVAL = 180 # seconds
-      AWAIT_CODE_SLEEP_INTERVAL = 5 # seconds
+      AWAIT_CALLBACK_TIMEOUT_INTERVAL = 180 # seconds
+      AWAIT_CALLBACK_SLEEP_INTERVAL = 5 # seconds
 
       DEFAULT_ADDRESS = '127.0.0.1'
       DEFAULT_PORT = '45555'
@@ -41,17 +41,17 @@ module Workato
           raise "Attempted to open #{authorize_url} and failed because #{exception}"
         end
 
-        code = await_code
-        say_status :success, "Receive OAuth2 code=#{code}"
+        callback_params = await_callback
+        say_status :success, "Receive OAuth2 code=#{callback_params['code']}, state=#{callback_params['state']}"
 
-        tokens = acquire_token(code)
+        tokens = acquire_token(callback_params)
         say_status :success, 'Receive OAuth2 tokens'
         say JSON.pretty_generate(tokens) if verbose?
 
         settings_store.update(tokens)
         say_status :success, 'Update settings file'
       rescue Timeout::Error
-        raise "Have not received callback from OAuth2 provider in #{AWAIT_CODE_TIMEOUT_INTERVAL} seconds. Aborting!"
+        raise "Have not received callback from OAuth2 provider in #{AWAIT_CALLBACK_TIMEOUT_INTERVAL} seconds. Aborting!"
       rescue Errno::EADDRINUSE
         raise "Port #{port} already in use. Try to use different port with --port=#{rand(10_000..65_664)}"
       ensure
@@ -165,22 +165,24 @@ module Workato
         )
       end
 
-      def await_code
+      def await_callback
         code_uri = URI("#{base_url}#{Workato::Web::App::CODE_PATH}")
 
-        Timeout.timeout(AWAIT_CODE_TIMEOUT_INTERVAL) do
+        Timeout.timeout(AWAIT_CALLBACK_TIMEOUT_INTERVAL) do
           loop do
             response = get(code_uri) rescue nil
-            break response if response.present?
+            break JSON.parse(response).to_hash if response.present?
 
-            sleep(AWAIT_CODE_SLEEP_INTERVAL)
+            sleep(AWAIT_CALLBACK_SLEEP_INTERVAL)
           end
         end
       end
 
-      def acquire_token(code)
+      def acquire_token(callback_params)
+        code = callback_params["code"]
+        callback_params.except!("code", "state")
         if connector.connection.authorization.source[:acquire]
-          tokens, _, extra_settings = connector.connection.authorization.acquire(nil, code, redirect_url)
+          tokens, _, extra_settings = connector.connection.authorization.acquire(nil, code, redirect_url, nil, callback_params)
           tokens ||= {}
           extra_settings ||= {}
           extra_settings.merge(tokens)
