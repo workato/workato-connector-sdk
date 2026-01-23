@@ -125,3 +125,40 @@ module Workato
 end
 
 Array.prepend(Workato::Extension::Array)
+
+class Array
+  # In Rails 7.1+, Ruby's `sum` is the preferred implementation.
+  # and `sum` patch was removed from ActiveSupport.
+  # We bring it back for a smooth upgrade.
+  alias_method :_workato_sdk_original_sum, :sum # rubocop:disable Style/Alias
+  private :_workato_sdk_original_sum
+
+  def sum(init = nil, &block)
+    if init.is_a?(Numeric) || first.is_a?(Numeric)
+      init ||= 0
+      _workato_sdk_original_sum(init, &block)
+    else
+      super
+    end
+  end
+
+  # In Rails 7.1+ `to_fs` is the preferred method for formatting arrays
+  # and `to_s` patch was removed.
+  # We bring it back for a smooth upgrade.
+  alias_method :_workato_sdk_to_default_s, :to_s # rubocop:disable Style/Alias
+  private :_workato_sdk_to_default_s
+
+  NOT_SET = Object.new unless defined?(NOT_SET)
+  def to_s(format = NOT_SET)
+    case format
+    when :db
+      if empty?
+        'null'
+      else
+        map(&:id).join(',')
+      end
+    else
+      _workato_sdk_to_default_s
+    end
+  end
+end

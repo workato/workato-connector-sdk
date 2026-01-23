@@ -353,4 +353,38 @@ RSpec.describe Enumerable do
       expect(list.pluck(%w[address city], %w[address state])).to eq([%w[sunnyvale CA], %w[cupertino TX]])
     end
   end
+
+  describe 'sum' do
+    context 'with numeric elements' do
+      it 'sums numeric values without init' do
+        expect([1, 2, 3].each.sum).to eq(6)
+      end
+
+      it 'sums numeric values with init' do
+        expect([1, 2, 3].each.sum(10)).to eq(16)
+      end
+
+      it 'sums numeric values with block' do
+        expect([1, 2, 3].each.sum { |n| n * 2 }).to eq(12)
+      end
+
+      it 'sums numeric values with init and block' do
+        expect([1, 2, 3].each.sum(5) { |n| n * 2 }).to eq(17)
+      end
+
+      it 'sums float values' do
+        expect([1.5, 2.5, 3.0].each.sum).to eq(7.0)
+      end
+    end
+
+    context 'with string elements' do
+      it 'concatenates strings with init' do
+        expect(%w[a b c].each.sum('start:')).to eq('start:abc')
+      end
+
+      it 'handles empty array with string init' do
+        expect([].each.sum('')).to eq('')
+      end
+    end
+  end
 end

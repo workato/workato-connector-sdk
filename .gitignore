@@ -23,3 +23,8 @@ gemfiles/Gemfile.current.lock
 
 # Ruby version manager
 mise.toml
+
+# Local settings for AI coding tools
+.claude/settings.local.json
+CLAUDE.local.md
+AGENTS.override.md

@@ -18,7 +18,7 @@ module Enumerable
     end
 
     map do |val|
-      format % (Array.wrap(val).map { |v| v.is_a?(ActiveSupport::HashWithIndifferentAccess) ? v.symbolize_keys : v })
+      format % Array.wrap(val).map { |v| v.is_a?(ActiveSupport::HashWithIndifferentAccess) ? v.symbolize_keys : v }
     end
   end
 
@@ -50,5 +50,48 @@ module Enumerable
       result = block.call(*items)
       result || nil
     end.compact
+  end
+
+  # In Rails 7.1+, Ruby's `sum` is the preferred implementation.
+  # and `sum` patch was removed from ActiveSupport.
+  # We bring it back for a smooth upgrade.
+  alias_method :_workato_sdk_original_sum_with_required_identity, :sum # rubocop:disable Style/Alias
+  private :_workato_sdk_original_sum_with_required_identity
+
+  # Calculates a sum from the elements.
+  #
+  #   payments.sum { |p| p.price * p.tax_rate }
+  #   payments.sum(&:price)
+  #
+  # The latter is a shortcut for:
+  #
+  #   payments.inject(0) { |sum, p| sum + p.price }
+  #
+  # It can also calculate the sum without the use of a block.
+  #
+  #   [5, 15, 10].sum # => 30
+  #   ['foo', 'bar'].sum('') # => "foobar"
+  #   [[1, 2], [3, 1, 5]].sum([]) # => [1, 2, 3, 1, 5]
+  #
+  # The default sum of an empty list is zero. You can override this default:
+  #
+  #   [].sum(Payment.new(0)) { |i| i.amount } # => Payment.new(0)
+  def sum(identity = nil, &block)
+    if identity
+      _workato_sdk_original_sum_with_required_identity(identity, &block)
+    elsif block_given?
+      map(&block).sum
+    else
+      first = true
+
+      reduce(nil) do |sum, value|
+        if first
+          first = false
+          value
+        else
+          sum + value
+        end
+      end || 0
+    end
   end
 end

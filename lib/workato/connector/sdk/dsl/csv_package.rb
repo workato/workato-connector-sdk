@@ -21,9 +21,16 @@ module Workato
 
         sig { params(size: Integer, max: Integer).void }
         def initialize(size, max)
-          super("CSV file is too big. Max allowed: #{max.to_s(:human_size)}, got: #{size.to_s(:human_size)}")
+          super("CSV file is too big. Max allowed: #{human_size(max)}, got: #{human_size(size)}")
           @size = T.let(size, Integer)
           @max = T.let(max, Integer)
+        end
+
+        private
+
+        sig { params(var: Integer).returns(T.nilable(String)) }
+        def human_size(var)
+          var.respond_to?(:to_fs) ? T.unsafe(var).to_fs(:human_size) : var.to_s(:human_size)
         end
       end
 

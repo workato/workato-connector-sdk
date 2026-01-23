@@ -1,3 +1,14 @@
+# 1.3.19 - Rails 8 compatibility
+
+## Bugfixes
+
+- Fix `ignore_redirection` logic to correctly handle HTTP 303 responses
+- Fix `uninitialized constant ActiveSupport::LoggerThreadSafeLevel::Logger` error by requiring logger explicitly before activesupport
+
+## Misc
+
+- Add Rails 8 compatibility by implementing extension methods for Array, Date, Enumerable, Numeric, Range, and Time classes
+
 # 1.3.18 - Bundler 4 compatibility
 
 ## Enhancements
