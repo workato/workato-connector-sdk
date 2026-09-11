@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'em-http-request', '~> 1.0'
   spec.add_dependency 'gyoku', '~> 1.3', '>= 1.3.1'
   spec.add_dependency 'i18n', '>= 0.9.5', '< 2.0'
-  spec.add_dependency 'jwt', '>= 1.5.6', '< 3.0'
+  spec.add_dependency 'jwt', '>= 1.5.6', '< 4.0'
   spec.add_dependency 'launchy', '~> 2.0'
   spec.add_dependency 'net-http-digest_auth', '~> 1.4'
   spec.add_dependency 'nokogiri', '>= 1.13.10', '< 1.19'
