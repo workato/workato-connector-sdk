@@ -31,6 +31,13 @@ module Workato
           JWT_ALGORITHMS = (JWT_RSA_ALGORITHMS + JWT_HMAC_ALGORITHMS + JWT_ECDSA_ALGORITHMS).freeze
           private_constant :JWT_ALGORITHMS
 
+          JWT_MALFORMED_TOKEN_ERROR = if defined?(::JWT::MalformedTokenError)
+                                        ::JWT::MalformedTokenError
+                                      else
+                                        Class.new(StandardError)
+                                      end
+          private_constant :JWT_MALFORMED_TOKEN_ERROR
+
           VERIFY_RCA_ALGORITHMS = %w[SHA SHA1 SHA224 SHA256 SHA384 SHA512].freeze
           private_constant :VERIFY_RCA_ALGORITHMS
 
@@ -81,7 +88,7 @@ module Workato
                                                                 .reverse_merge(typ: 'JWT', alg: algorithm)
 
             ::JWT.encode(payload, key, algorithm, header_fields)
-          rescue JWT::IncorrectAlgorithm
+          rescue JWT::IncorrectAlgorithm, JWT::EncodeError
             raise Sdk::ArgumentError, 'Mismatched algorithm and key'
           rescue OpenSSL::PKey::PKeyError
             raise Sdk::ArgumentError, 'Invalid key'
@@ -108,7 +115,7 @@ module Workato
             raise Sdk::ArgumentError, 'Mismatched algorithm and key'
           rescue OpenSSL::PKey::PKeyError
             raise Sdk::ArgumentError, 'Invalid key'
-          rescue JWT::VerificationError
+          rescue JWT::VerificationError, JWT_MALFORMED_TOKEN_ERROR
             raise Sdk::ArgumentError, 'Invalid signature'
           end
 
